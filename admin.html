@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <style>
         :root {
             --primary-red: #d32f2f;
@@ -107,6 +108,23 @@
             font-size: 1.2rem;
             padding: 5px;
             cursor: pointer;
+        }
+        
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--primary-red);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
         }
         
         /* Main Content */
@@ -388,6 +406,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            cursor: pointer;
         }
         
         .product-info {
@@ -535,6 +554,7 @@
             flex: 1;
             cursor: pointer;
             transition: color 0.3s ease;
+            position: relative;
         }
         
         .nav-btn i {
@@ -598,6 +618,67 @@
         
         .modal-body {
             padding: 15px;
+        }
+        
+        /* Image Zoom Modal */
+        .image-zoom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-zoom-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+        
+        .image-zoom-content img {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        
+        .close-zoom {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .zoom-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
         }
         
         /* Form Styles */
@@ -667,6 +748,7 @@
             object-fit: contain;
             margin-top: 10px;
             display: none;
+            cursor: pointer;
         }
         
         /* Toggle Switch */
@@ -741,6 +823,58 @@
             border-color: var(--primary-red);
             background-color: var(--primary-red);
             color: white;
+        }
+        
+        /* Theme Selector */
+        .theme-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .theme-option {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-option.active {
+            border-color: var(--primary-red);
+            background-color: rgba(211, 47, 47, 0.05);
+        }
+        
+        .theme-preview {
+            width: 100%;
+            height: 60px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .theme-name {
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        /* Theme Colors */
+        .theme-light .theme-preview {
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            border: 1px solid #ddd;
+        }
+        
+        .theme-dark .theme-preview {
+            background: linear-gradient(135deg, #212121 0%, #424242 100%);
+        }
+        
+        .theme-red .theme-preview {
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+        }
+        
+        .theme-blue .theme-preview {
+            background: linear-gradient(135deg, #2196f3 0%, #0d47a1 100%);
         }
         
         /* Empty State */
@@ -1035,8 +1169,8 @@
                     
                     <div class="form-group">
                         <label class="form-label">WhatsApp *</label>
-                        <input type="text" id="configWhatsApp" class="form-input" required placeholder="5511999999999">
-                        <small class="text-gray">Formato: código do país + DDD + número</small>
+                        <input type="text" id="configWhatsApp" class="form-input" required placeholder="(11) 99999-9999">
+                        <small class="text-gray">Formato: (DDD) 99999-9999</small>
                     </div>
                     
                     <div class="form-group">
@@ -1047,6 +1181,34 @@
                     <div class="form-group">
                         <label class="form-label">Telefone para Contato *</label>
                         <input type="text" id="configContactPhone" class="form-input" required placeholder="(11) 99999-9999">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Título dos Produtos *</label>
+                        <input type="text" id="configProductsTitle" class="form-input" required placeholder="Nossos Produtos">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tema da Loja</label>
+                        <div class="theme-selector">
+                            <div class="theme-option theme-light active" data-theme="light">
+                                <div class="theme-preview"></div>
+                                <div class="theme-name">Claro</div>
+                            </div>
+                            <div class="theme-option theme-dark" data-theme="dark">
+                                <div class="theme-preview"></div>
+                                <div class="theme-name">Escuro</div>
+                            </div>
+                            <div class="theme-option theme-red" data-theme="red">
+                                <div class="theme-preview"></div>
+                                <div class="theme-name">Vermelho</div>
+                            </div>
+                            <div class="theme-option theme-blue" data-theme="blue">
+                                <div class="theme-preview"></div>
+                                <div class="theme-name">Azul</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="configTheme" value="light">
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-block">
@@ -1061,10 +1223,12 @@
             <button class="nav-btn active" data-screen="dashboard">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
+                <div class="notification-badge d-none" id="dashboardBadge">0</div>
             </button>
             <button class="nav-btn" data-screen="orders">
                 <i class="fas fa-shopping-cart"></i>
                 <span>Pedidos</span>
+                <div class="notification-badge d-none" id="ordersBadge">0</div>
             </button>
             <button class="nav-btn" data-screen="products">
                 <i class="fas fa-utensils"></i>
@@ -1166,6 +1330,25 @@
         </div>
     </div>
 
+    <!-- Image Zoom Modal -->
+    <div class="image-zoom-modal" id="imageZoomModal">
+        <div class="image-zoom-content">
+            <button class="close-zoom" id="closeZoom">&times;</button>
+            <img id="zoomedImage" src="" alt="Imagem ampliada">
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoomIn">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="zoom-btn" id="zoomOut">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <button class="zoom-btn" id="zoomReset">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Firebase Configuration
         const firebaseConfig = {
@@ -1197,6 +1380,9 @@
         let productImageBase64 = '';
         let ordersListener = null;
         let customerLink = '';
+        let newOrdersCount = 0;
+        let preparingOrdersCount = 0;
+        let phoneMask = null;
 
         // DOM Elements
         const screens = document.querySelectorAll('.screen');
@@ -1212,11 +1398,11 @@
         const refreshLinkBtn = document.getElementById('refreshLinkBtn');
         
         // Dashboard elements
-        const preparingOrdersCount = document.getElementById('preparingOrders');
-        const confirmedOrdersCount = document.getElementById('confirmedOrders');
-        const deliveringOrdersCount = document.getElementById('deliveringOrders');
-        const deliveredOrdersCount = document.getElementById('deliveredOrders');
-        const totalOrdersCount = document.getElementById('totalOrders');
+        const preparingOrdersCountElement = document.getElementById('preparingOrders');
+        const confirmedOrdersCountElement = document.getElementById('confirmedOrders');
+        const deliveringOrdersCountElement = document.getElementById('deliveringOrders');
+        const deliveredOrdersCountElement = document.getElementById('deliveredOrders');
+        const totalOrdersCountElement = document.getElementById('totalOrders');
         const totalRevenueElement = document.getElementById('totalRevenue');
         const recentOrdersList = document.getElementById('recentOrdersList');
         const recentOrdersEmpty = document.getElementById('recentOrdersEmpty');
@@ -1240,6 +1426,9 @@
         const configWhatsApp = document.getElementById('configWhatsApp');
         const configPixKey = document.getElementById('configPixKey');
         const configContactPhone = document.getElementById('configContactPhone');
+        const configProductsTitle = document.getElementById('configProductsTitle');
+        const configTheme = document.getElementById('configTheme');
+        const themeOptions = document.querySelectorAll('.theme-option');
         
         // Product form elements
         const productForm = document.getElementById('productForm');
@@ -1260,12 +1449,23 @@
         const closeOrderModal = document.getElementById('closeOrderModal');
         const productFormModal = document.getElementById('productFormModal');
         const closeProductModal = document.getElementById('closeProductModal');
+        const imageZoomModal = document.getElementById('imageZoomModal');
+        const closeZoom = document.getElementById('closeZoom');
+        const zoomedImage = document.getElementById('zoomedImage');
+        const zoomIn = document.getElementById('zoomIn');
+        const zoomOut = document.getElementById('zoomOut');
+        const zoomReset = document.getElementById('zoomReset');
+        
+        // Notification badges
+        const dashboardBadge = document.getElementById('dashboardBadge');
+        const ordersBadge = document.getElementById('ordersBadge');
 
         // Initialize the app
         async function init() {
             await checkAuth();
             await loadUserData();
             await loadStoreConfig();
+            setupPhoneMasks();
             setupEventListeners();
             setupOrdersListener();
             loadProducts();
@@ -1273,10 +1473,26 @@
             showScreen('dashboard');
         }
 
+        // Setup phone masks
+        function setupPhoneMasks() {
+            // Mask for Brazilian phone numbers
+            const phoneMaskOptions = {
+                mask: '(00) 00000-0000',
+                lazy: false
+            };
+            
+            if (configWhatsApp) {
+                phoneMask = new IMask(configWhatsApp, phoneMaskOptions);
+            }
+            
+            if (configContactPhone) {
+                new IMask(configContactPhone, phoneMaskOptions);
+            }
+        }
+
         // Check authentication
         async function checkAuth() {
             try {
-                // Check localStorage first
                 const storedUser = localStorage.getItem('currentUser');
                 if (storedUser) {
                     currentUser = JSON.parse(storedUser);
@@ -1284,7 +1500,6 @@
                     return true;
                 }
                 
-                // Check Firebase auth
                 await new Promise((resolve, reject) => {
                     const unsubscribe = auth.onAuthStateChanged((user) => {
                         unsubscribe();
@@ -1319,14 +1534,12 @@
                     const userData = userDoc.data();
                     currentUser.storeName = userData.storeName;
                     
-                    // Update UI
                     userAvatar.textContent = userData.storeName ? userData.storeName.charAt(0).toUpperCase() : 'U';
                     storeAvatar.textContent = userData.storeName ? userData.storeName.charAt(0).toUpperCase() : 'S';
                     storeNameDisplay.textContent = userData.storeName || 'Minha Loja';
                     storeEmail.textContent = currentUser.email;
                     adminStoreName.textContent = `Admin - ${userData.storeName || 'Minha Loja'}`;
                     
-                    // Update localStorage
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 }
             } catch (error) {
@@ -1342,7 +1555,6 @@
                     storeConfig = configDoc.data();
                     updateConfigForm();
                 } else {
-                    // Create default config for this store
                     storeConfig = {
                         businessName: currentUser.storeName || 'Minha Loja',
                         logoBase64: '',
@@ -1350,6 +1562,7 @@
                         pixKey: '',
                         contactPhone: '',
                         productsTitle: 'Nossos Produtos',
+                        theme: 'light',
                         ownerId: currentStoreId,
                         createdAt: new Date().toISOString()
                     };
@@ -1368,6 +1581,16 @@
             configWhatsApp.value = storeConfig.whatsappNumber || '';
             configPixKey.value = storeConfig.pixKey || '';
             configContactPhone.value = storeConfig.contactPhone || '';
+            configProductsTitle.value = storeConfig.productsTitle || 'Nossos Produtos';
+            configTheme.value = storeConfig.theme || 'light';
+            
+            // Update theme selection
+            themeOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-theme') === configTheme.value) {
+                    option.classList.add('active');
+                }
+            });
             
             if (storeConfig.logoBase64) {
                 configLogoPreview.src = storeConfig.logoBase64;
@@ -1376,31 +1599,28 @@
             }
         }
 
-        // CORREÇÃO AQUI: Update customer link - AGORA APONTA PARA customer.html
+        // Update customer link
         function updateCustomerLink() {
             if (!currentStoreId) return;
             
-            // Obter a URL base corretamente
             const currentUrl = window.location.origin + window.location.pathname;
             const baseUrl = currentUrl.replace('admin.html', '');
-            
-            // Gerar link para customer.html
             customerLink = `${baseUrl}customer.html?store=${currentStoreId}`;
             customerLinkContainer.innerHTML = `<strong>${customerLink}</strong>`;
         }
 
         // Setup real-time orders listener
         function setupOrdersListener() {
-            // Remove existing listener if exists
             if (ordersListener) {
                 ordersListener();
             }
             
-            // Setup real-time listener for this store's orders
             ordersListener = db.collection('orders')
                 .where('storeId', '==', currentStoreId)
                 .onSnapshot((snapshot) => {
+                    const oldOrdersLength = orders.length;
                     orders = [];
+                    
                     snapshot.forEach(doc => {
                         const orderData = doc.data();
                         orders.push({
@@ -1409,22 +1629,49 @@
                         });
                     });
                     
-                    // Sort by timestamp
                     orders.sort((a, b) => {
                         return new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt);
                     });
+                    
+                    // Check for new orders
+                    if (orders.length > oldOrdersLength) {
+                        const newOrders = orders.length - oldOrdersLength;
+                        newOrdersCount += newOrders;
+                        updateNotificationBadges();
+                        if (newOrders > 0) {
+                            showNotification(`Novo${newOrders > 1 ? 's' : ''} pedido${newOrders > 1 ? 's' : ''} recebido${newOrders > 1 ? 's' : ''}!`, 'info');
+                        }
+                    }
                     
                     updateDashboardStats();
                     updateRecentOrders();
                     updateAllOrders();
                 }, (error) => {
                     console.error("Error in orders listener:", error);
-                    // Try to load orders without real-time updates
                     loadOrdersWithoutListener();
                 });
         }
 
-        // Load orders without real-time listener (fallback)
+        // Update notification badges
+        function updateNotificationBadges() {
+            const preparingOrders = orders.filter(order => order.deliveryStatus === 'preparing').length;
+            
+            if (newOrdersCount > 0) {
+                dashboardBadge.textContent = newOrdersCount;
+                dashboardBadge.classList.remove('d-none');
+            } else {
+                dashboardBadge.classList.add('d-none');
+            }
+            
+            if (preparingOrders > 0) {
+                ordersBadge.textContent = preparingOrders;
+                ordersBadge.classList.remove('d-none');
+            } else {
+                ordersBadge.classList.add('d-none');
+            }
+        }
+
+        // Load orders without real-time listener
         async function loadOrdersWithoutListener() {
             try {
                 const snapshot = await db.collection('orders').get();
@@ -1432,7 +1679,6 @@
                 orders = [];
                 snapshot.forEach(doc => {
                     const orderData = doc.data();
-                    // Filter by storeId locally
                     if (orderData.storeId === currentStoreId) {
                         orders.push({
                             id: doc.id,
@@ -1441,7 +1687,6 @@
                     }
                 });
                 
-                // Sort by timestamp
                 orders.sort((a, b) => {
                     return new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt);
                 });
@@ -1496,6 +1741,15 @@
                     
                     navBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
+                    
+                    // Reset badge when viewing orders
+                    if (screen === 'orders') {
+                        ordersBadge.classList.add('d-none');
+                    }
+                    if (screen === 'dashboard') {
+                        newOrdersCount = 0;
+                        dashboardBadge.classList.add('d-none');
+                    }
                 });
             });
             
@@ -1506,7 +1760,6 @@
                         showNotification('Link copiado para a área de transferência!', 'success');
                     })
                     .catch(() => {
-                        // Fallback for older browsers
                         const textArea = document.createElement('textarea');
                         textArea.value = customerLink;
                         document.body.appendChild(textArea);
@@ -1543,12 +1796,35 @@
             
             configLogoUpload.addEventListener('change', handleLogoUpload);
             
+            // Logo preview click for zoom
+            configLogoPreview.addEventListener('click', () => {
+                if (configLogoPreview.src) {
+                    openImageZoom(configLogoPreview.src, 'Logo da Loja');
+                }
+            });
+            
+            // Theme selection
+            themeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    themeOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    configTheme.value = option.getAttribute('data-theme');
+                });
+            });
+            
             // Product image upload
             productImageUploadArea.addEventListener('click', () => {
                 productImageUpload.click();
             });
             
             productImageUpload.addEventListener('change', handleProductImageUpload);
+            
+            // Product image preview click for zoom
+            productImagePreview.addEventListener('click', () => {
+                if (productImagePreview.src) {
+                    openImageZoom(productImagePreview.src, 'Imagem do Produto');
+                }
+            });
             
             // Add product button
             addProductBtn.addEventListener('click', () => {
@@ -1570,6 +1846,29 @@
                 closeProductForm();
             });
             
+            // Image zoom modal
+            closeZoom.addEventListener('click', () => {
+                imageZoomModal.style.display = 'none';
+            });
+            
+            zoomIn.addEventListener('click', () => {
+                const currentTransform = zoomedImage.style.transform || 'scale(1)';
+                const currentScale = parseFloat(currentTransform.match(/scale\(([^)]+)\)/)?.[1] || 1);
+                zoomedImage.style.transform = `scale(${currentScale + 0.2})`;
+            });
+            
+            zoomOut.addEventListener('click', () => {
+                const currentTransform = zoomedImage.style.transform || 'scale(1)';
+                const currentScale = parseFloat(currentTransform.match(/scale\(([^)]+)\)/)?.[1] || 1);
+                if (currentScale > 0.2) {
+                    zoomedImage.style.transform = `scale(${currentScale - 0.2})`;
+                }
+            });
+            
+            zoomReset.addEventListener('click', () => {
+                zoomedImage.style.transform = 'scale(1)';
+            });
+            
             // Close modals when clicking outside
             window.addEventListener('click', (e) => {
                 if (e.target === orderDetailsModal) {
@@ -1577,6 +1876,9 @@
                 }
                 if (e.target === productFormModal) {
                     closeProductForm();
+                }
+                if (e.target === imageZoomModal) {
+                    imageZoomModal.style.display = 'none';
                 }
             });
         }
@@ -1621,6 +1923,14 @@
             }
         }
 
+        // Open image zoom modal
+        function openImageZoom(imageSrc, altText) {
+            zoomedImage.src = imageSrc;
+            zoomedImage.alt = altText;
+            zoomedImage.style.transform = 'scale(1)';
+            imageZoomModal.style.display = 'flex';
+        }
+
         // Show screen
         function showScreen(screen) {
             currentScreen = screen;
@@ -1656,11 +1966,11 @@
                 return sum + (order.total || 0);
             }, 0);
             
-            preparingOrdersCount.textContent = preparingOrders;
-            confirmedOrdersCount.textContent = confirmedOrders;
-            deliveringOrdersCount.textContent = deliveringOrders;
-            deliveredOrdersCount.textContent = deliveredOrders;
-            totalOrdersCount.textContent = totalOrders;
+            preparingOrdersCountElement.textContent = preparingOrders;
+            confirmedOrdersCountElement.textContent = confirmedOrders;
+            deliveringOrdersCountElement.textContent = deliveringOrders;
+            deliveredOrdersCountElement.textContent = deliveredOrders;
+            totalOrdersCountElement.textContent = totalOrders;
             totalRevenueElement.textContent = `R$ ${totalRevenue.toFixed(0)}`;
         }
 
@@ -1724,7 +2034,7 @@
                 </div>
                 
                 <div class="order-customer">${order.customerName}</div>
-                <div class="order-phone">${order.customerPhone}</div>
+                <div class="order-phone">${formatPhone(order.customerPhone)}</div>
                 
                 <div class="order-info">
                     <span class="order-status ${statusClass}">${statusText}</span>
@@ -1801,7 +2111,7 @@
                 productCard.innerHTML = `
                     <div class="product-image">
                         ${product.imageBase64 ? 
-                            `<img src="${product.imageBase64}" alt="${product.name}">` : 
+                            `<img src="${product.imageBase64}" alt="${product.name}" style="cursor: pointer;">` : 
                             `<i class="fas ${product.icon || 'fa-utensils'}"></i>`
                         }
                     </div>
@@ -1838,6 +2148,18 @@
                     deleteProduct(productId);
                 });
             });
+            
+            // Add click event for product images
+            productsList.querySelectorAll('.product-image img').forEach(img => {
+                img.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const productId = e.target.closest('.product-card').querySelector('.view-btn').getAttribute('data-id');
+                    const product = products.find(p => p.id === productId);
+                    if (product && product.imageBase64) {
+                        openImageZoom(product.imageBase64, product.name);
+                    }
+                });
+            });
         }
 
         // View order details
@@ -1871,7 +2193,7 @@
                     </div>
                     <div class="d-flex justify-between mb-1">
                         <strong>Telefone:</strong>
-                        <span>${selectedOrder.customerPhone || 'Não informado'}</span>
+                        <span>${formatPhone(selectedOrder.customerPhone) || 'Não informado'}</span>
                     </div>
                     <div class="mb-1">
                         <strong>Endereço:</strong>
@@ -1917,7 +2239,7 @@
                 ${selectedOrder.receiptBase64 ? `
                     <div class="mb-3">
                         <h3 class="mb-2">Comprovante PIX</h3>
-                        <img src="${selectedOrder.receiptBase64}" class="image-preview d-block" style="height: 150px;">
+                        <img src="${selectedOrder.receiptBase64}" class="image-preview d-block" style="height: 150px; cursor: pointer;" onclick="openImageZoom('${selectedOrder.receiptBase64}', 'Comprovante PIX')">
                     </div>
                 ` : ''}
                 
@@ -1933,7 +2255,6 @@
             
             document.getElementById('orderDetailsContent').innerHTML = content;
             
-            // Add event listeners
             document.getElementById('updateStatusBtn').addEventListener('click', () => {
                 showStatusUpdateOptions(selectedOrder.id, status);
             });
@@ -1972,7 +2293,6 @@
             
             document.getElementById('orderDetailsContent').innerHTML = optionsHTML;
             
-            // Add event listeners
             document.querySelectorAll('[data-action]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const action = e.currentTarget.getAttribute('data-action');
@@ -1998,7 +2318,6 @@
                 
                 showNotification(`Status atualizado para: ${getDeliveryStatusText(status)}`, 'success');
                 
-                // Send WhatsApp notification
                 const order = orders.find(o => o.id === orderId);
                 if (order) {
                     sendStatusUpdateWhatsApp(orderId, order, status);
@@ -2015,16 +2334,16 @@
             const order = orders.find(o => o.id === orderId);
             if (!order) return;
             
-            const phoneNumber = storeConfig.whatsappNumber || "5511999999999";
+            const phoneNumber = storeConfig.whatsappNumber || "(11) 99999-9999";
             const message = generateOrderMessage(order);
-            const whatsappUrl = `https://wa.me/${order.customerPhone}?text=${encodeURIComponent(message)}`;
+            const whatsappUrl = `https://wa.me/${order.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
             
             window.open(whatsappUrl, '_blank');
         }
 
         // Send status update via WhatsApp
         function sendStatusUpdateWhatsApp(orderId, order, newStatus) {
-            const phoneNumber = storeConfig.whatsappNumber || "5511999999999";
+            const phoneNumber = storeConfig.whatsappNumber || "(11) 99999-9999";
             
             let message = `📱 *ATUALIZAÇÃO DE STATUS* 📱\n\n`;
             message += `*Pedido:* #${orderId.substring(0, 8)}\n`;
@@ -2047,7 +2366,7 @@
             
             message += `_Qualquer dúvida, entre em contato._`;
             
-            const whatsappUrl = `https://wa.me/${order.customerPhone}?text=${encodeURIComponent(message)}`;
+            const whatsappUrl = `https://wa.me/${order.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
             window.open(whatsappUrl, '_blank');
         }
 
@@ -2139,25 +2458,22 @@
                 storeId: currentStoreId
             };
             
-            // Add image if uploaded
             if (productImageBase64) {
                 productData.imageBase64 = productImageBase64;
             }
             
             try {
                 if (productIdInput.value) {
-                    // Update existing product
                     await db.collection('stores').doc(currentStoreId).collection('products').doc(productIdInput.value).update(productData);
                     showNotification('Produto atualizado!', 'success');
                 } else {
-                    // Add new product
                     productData.createdAt = new Date().toISOString();
                     await db.collection('stores').doc(currentStoreId).collection('products').add(productData);
                     showNotification('Produto adicionado!', 'success');
                 }
                 
                 closeProductForm();
-                loadProducts(); // Reload products
+                loadProducts();
             } catch (error) {
                 console.error('Error saving product:', error);
                 showNotification('Erro ao salvar produto.', 'error');
@@ -2171,7 +2487,7 @@
             try {
                 await db.collection('stores').doc(currentStoreId).collection('products').doc(productId).delete();
                 showNotification('Produto excluído!', 'success');
-                loadProducts(); // Reload products
+                loadProducts();
             } catch (error) {
                 console.error('Error deleting product:', error);
                 showNotification('Erro ao excluir produto.', 'error');
@@ -2182,15 +2498,20 @@
         async function saveStoreConfig(e) {
             e.preventDefault();
             
+            // Format phone numbers
+            const whatsappNumber = configWhatsApp.value;
+            const contactPhone = configContactPhone.value;
+            
             const configData = {
                 businessName: configBusinessName.value,
-                whatsappNumber: configWhatsApp.value,
+                whatsappNumber: whatsappNumber,
                 pixKey: configPixKey.value,
-                contactPhone: configContactPhone.value,
+                contactPhone: contactPhone,
+                productsTitle: configProductsTitle.value,
+                theme: configTheme.value,
                 updatedAt: new Date().toISOString()
             };
             
-            // Add logo if uploaded
             if (logoBase64) {
                 configData.logoBase64 = logoBase64;
             }
@@ -2199,16 +2520,13 @@
                 await db.collection('stores').doc(currentStoreId).set(configData, { merge: true });
                 storeConfig = configData;
                 
-                // Update user store name
                 await db.collection('users').doc(currentStoreId).update({
                     storeName: configBusinessName.value
                 });
                 
-                // Update current user
                 currentUser.storeName = configBusinessName.value;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
-                // Update UI
                 userAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
                 storeAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
                 storeNameDisplay.textContent = configBusinessName.value;
@@ -2233,6 +2551,17 @@
             if (!dateString) return 'Data/hora não informada';
             const date = new Date(dateString);
             return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function formatPhone(phone) {
+            if (!phone) return '';
+            // Remove all non-numeric characters
+            const cleaned = phone.replace(/\D/g, '');
+            // Format as (00) 00000-0000
+            if (cleaned.length === 11) {
+                return `(${cleaned.substring(0,2)}) ${cleaned.substring(2,7)}-${cleaned.substring(7)}`;
+            }
+            return phone;
         }
 
         function getDeliveryStatusText(status) {
@@ -2281,6 +2610,9 @@
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', init);
+        
+        // Make openImageZoom available globally
+        window.openImageZoom = openImageZoom;
     </script>
 </body>
 </html>
