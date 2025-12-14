@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Loja Virtual - Churrasco & Doces</title>
+    <!-- Título e favicon serão dinâmicos -->
+    <title id="pageTitle">Venda+ - Loja Virtual</title>
+    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <style>
-        /* Theme Variables */
+        /* Theme Variables - Base */
         :root {
             --primary-color: #d32f2f;
             --primary-dark: #b71c1c;
@@ -28,6 +31,18 @@
         }
         
         /* Theme Classes */
+        .theme-light {
+            --primary-color: #d32f2f;
+            --primary-dark: #b71c1c;
+            --secondary-color: #212121;
+            --background-color: #f5f5f5;
+            --surface-color: #ffffff;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --text-on-primary: #ffffff;
+            --border-color: #e0e0e0;
+        }
+        
         .theme-dark {
             --primary-color: #424242;
             --primary-dark: #212121;
@@ -64,6 +79,7 @@
             --border-color: #bbdefb;
         }
         
+        /* Reset & Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -77,10 +93,10 @@
             overflow-x: hidden;
             background-color: var(--background-color);
             transition: background-color 0.3s ease;
+            color: var(--text-primary);
         }
         
         body {
-            color: var(--text-primary);
             font-size: 14px;
             padding-bottom: 80px;
             transition: all 0.3s ease;
@@ -317,7 +333,7 @@
             color: var(--primary-color);
         }
         
-        /* Cart Modal */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -600,11 +616,10 @@
         
         /* PIX Details */
         .pix-details {
-            background-color: rgba(0, 0, 0, 0.02);
+            background-color: var(--background-color);
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 20px;
-            background-color: var(--background-color);
             transition: background-color 0.3s ease;
         }
         
@@ -1352,7 +1367,6 @@
         let products = [];
         let userOrders = [];
         let currentOrderId = null;
-        let orderListener = null;
         let receiptBase64 = null;
         let currentStoreId = null;
         let phoneMask = null;
@@ -1382,6 +1396,8 @@
         const businessName = document.getElementById('businessName');
         const logoImage = document.getElementById('logoImage');
         const productsTitle = document.getElementById('productsTitle');
+        const pageTitle = document.getElementById('pageTitle');
+        const favicon = document.getElementById('favicon');
         
         // Cart elements
         const cartItems = document.getElementById('cartItems');
@@ -1493,12 +1509,36 @@
 
         // Update UI with store configuration
         function updateStoreUI() {
-            businessName.textContent = storeConfig.businessName || 'Loja Virtual';
+            const storeName = storeConfig.businessName || 'Venda+ - Loja Virtual';
+            
+            // Update page title
+            pageTitle.textContent = storeName;
+            businessName.textContent = storeName;
+            
+            // Update products title
             productsTitle.textContent = storeConfig.productsTitle || 'Nossos Produtos';
             pixKey.textContent = storeConfig.pixKey || 'Chave PIX não configurada';
             
+            // Update favicon if logo exists
             if (storeConfig.logoBase64) {
                 logoImage.src = storeConfig.logoBase64;
+                // Convert logo to favicon
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 64;
+                    canvas.height = 64;
+                    const ctx = canvas.getContext('2d');
+                    
+                    const img = new Image();
+                    img.onload = function() {
+                        ctx.drawImage(img, 0, 0, 64, 64);
+                        const dataURL = canvas.toDataURL('image/x-icon');
+                        favicon.href = dataURL;
+                    };
+                    img.src = storeConfig.logoBase64;
+                } catch (e) {
+                    console.log('Could not create favicon from logo:', e);
+                }
             } else {
                 logoImage.style.display = 'none';
             }
@@ -1941,7 +1981,7 @@
                 return false;
             }
             
-            // Save user data
+            // Save user data - SINCRONIZAÇÃO BIDIRECIONAL
             userData = {
                 name: fullName,
                 address: address,
@@ -2444,6 +2484,7 @@
             document.getElementById('profileForm').addEventListener('submit', (e) => {
                 e.preventDefault();
                 
+                // Atualiza dados do usuário
                 userData = {
                     name: document.getElementById('profileName').value,
                     phone: document.getElementById('profilePhone').value,
@@ -2451,6 +2492,9 @@
                 };
                 
                 localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Atualiza formulário de entrega
+                loadUserDataToForm();
                 
                 updateProfileScreen();
                 

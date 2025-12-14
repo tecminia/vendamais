@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin - Sistema Multi-Usuários</title>
+    <!-- Título dinâmico baseado nas configurações -->
+    <title id="pageTitle">Venda+ - Painel Administrativo</title>
+    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏪</text></svg>">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -11,6 +14,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <style>
+        /* Theme Variables - Base */
         :root {
             --primary-red: #d32f2f;
             --dark-red: #b71c1c;
@@ -24,6 +28,59 @@
             --info: #2196f3;
         }
         
+        /* Theme Classes */
+        .theme-light {
+            --primary-color: #d32f2f;
+            --primary-dark: #b71c1c;
+            --secondary-color: #212121;
+            --background-color: #f8f9fa;
+            --surface-color: #ffffff;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --text-on-primary: #ffffff;
+            --border-color: #e0e0e0;
+        }
+        
+        .theme-dark {
+            --primary-color: #424242;
+            --primary-dark: #212121;
+            --secondary-color: #f5f5f5;
+            --background-color: #121212;
+            --surface-color: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-on-primary: #ffffff;
+            --border-color: #333333;
+            --light-gray: #2d2d2d;
+            --white: #1e1e1e;
+        }
+        
+        .theme-red {
+            --primary-color: #d32f2f;
+            --primary-dark: #b71c1c;
+            --secondary-color: #ffffff;
+            --background-color: #fce4ec;
+            --surface-color: #ffffff;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --text-on-primary: #ffffff;
+            --border-color: #f8bbd9;
+            --light-gray: #fce4ec;
+        }
+        
+        .theme-blue {
+            --primary-color: #2196f3;
+            --primary-dark: #0d47a1;
+            --secondary-color: #ffffff;
+            --background-color: #e3f2fd;
+            --surface-color: #ffffff;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --text-on-primary: #ffffff;
+            --border-color: #bbdefb;
+            --light-gray: #e3f2fd;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -35,11 +92,12 @@
         html, body {
             height: 100%;
             overflow-x: hidden;
-            background-color: #f8f9fa;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease;
         }
         
         body {
-            color: var(--primary-black);
             font-size: 14px;
             padding-bottom: 70px;
         }
@@ -53,8 +111,8 @@
         
         /* App Header */
         .app-header {
-            background: linear-gradient(to right, var(--primary-black), var(--dark-red));
-            color: white;
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            color: var(--text-on-primary);
             padding: 15px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
             position: sticky;
@@ -63,6 +121,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            transition: all 0.3s ease;
         }
         
         .app-header .logo {
@@ -73,7 +132,7 @@
         
         .app-header .logo-icon {
             font-size: 1.8rem;
-            color: var(--primary-red);
+            color: var(--primary-color);
         }
         
         .app-header .logo-text h1 {
@@ -92,11 +151,11 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background-color: var(--primary-red);
+            background-color: var(--primary-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: var(--text-on-primary);
             font-weight: 600;
             font-size: 0.9rem;
         }
@@ -104,7 +163,7 @@
         .logout-btn {
             background: none;
             border: none;
-            color: white;
+            color: var(--text-on-primary);
             font-size: 1.2rem;
             padding: 5px;
             cursor: pointer;
@@ -115,8 +174,8 @@
             position: absolute;
             top: -5px;
             right: -5px;
-            background-color: var(--primary-red);
-            color: white;
+            background-color: var(--primary-color);
+            color: var(--text-on-primary);
             border-radius: 50%;
             width: 18px;
             height: 18px;
@@ -137,18 +196,20 @@
         .section-title {
             font-size: 1.3rem;
             margin-bottom: 15px;
-            color: var(--primary-black);
-            border-bottom: 2px solid var(--primary-red);
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--primary-color);
             padding-bottom: 5px;
+            transition: all 0.3s ease;
         }
         
         /* User Info Card */
         .user-card {
-            background-color: var(--white);
+            background-color: var(--surface-color);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
         }
         
         .user-card-header {
@@ -162,11 +223,11 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background-color: var(--primary-red);
+            background-color: var(--primary-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: var(--text-on-primary);
             font-size: 1.5rem;
             font-weight: 600;
         }
@@ -174,33 +235,39 @@
         .user-card-info h3 {
             font-size: 1.1rem;
             margin-bottom: 5px;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
         }
         
         .user-card-info p {
-            color: var(--gray);
+            color: var(--text-secondary);
             font-size: 0.9rem;
+            transition: color 0.3s ease;
         }
         
         /* Link Section */
         .link-section {
-            background-color: var(--white);
+            background-color: var(--surface-color);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
         }
         
         .link-title {
             font-size: 1.1rem;
             margin-bottom: 10px;
-            color: var(--primary-black);
+            color: var(--text-primary);
+            transition: color 0.3s ease;
         }
         
         .link-description {
-            color: var(--gray);
+            color: var(--text-secondary);
             font-size: 0.9rem;
             margin-bottom: 15px;
             line-height: 1.5;
+            transition: color 0.3s ease;
         }
         
         .link-container {
@@ -209,7 +276,8 @@
             padding: 15px;
             margin-bottom: 15px;
             word-break: break-all;
-            border: 1px dashed var(--primary-red);
+            border: 1px dashed var(--primary-color);
+            transition: all 0.3s ease;
         }
         
         .link-container strong {
@@ -231,13 +299,14 @@
         }
         
         .stat-card {
-            background-color: var(--white);
+            background-color: var(--surface-color);
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
             display: flex;
             align-items: center;
             gap: 12px;
+            transition: all 0.3s ease;
         }
         
         .stat-icon {
@@ -277,19 +346,21 @@
         
         .stat-icon.revenue {
             background-color: rgba(211, 47, 47, 0.1);
-            color: var(--primary-red);
+            color: var(--primary-color);
         }
         
         .stat-info h3 {
             font-size: 0.8rem;
-            color: var(--gray);
+            color: var(--text-secondary);
             margin-bottom: 3px;
+            transition: color 0.3s ease;
         }
         
         .stat-number {
             font-size: 1.3rem;
             font-weight: 700;
-            color: var(--primary-black);
+            color: var(--text-primary);
+            transition: color 0.3s ease;
         }
         
         /* Orders List */
@@ -298,11 +369,12 @@
         }
         
         .order-card {
-            background-color: var(--white);
+            background-color: var(--surface-color);
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
         }
         
         .order-header {
@@ -314,17 +386,21 @@
         
         .order-id {
             font-size: 0.85rem;
-            color: var(--gray);
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
         }
         
         .order-date {
             font-size: 0.8rem;
-            color: var(--gray);
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
         }
         
         .order-customer {
             font-weight: 600;
             margin-bottom: 5px;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
         }
         
         .order-info {
@@ -338,6 +414,7 @@
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--dark-red);
+            transition: color 0.3s ease;
         }
         
         .order-status {
@@ -384,7 +461,7 @@
         }
         
         .product-card {
-            background-color: var(--white);
+            background-color: var(--surface-color);
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 12px;
@@ -392,6 +469,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            transition: all 0.3s ease;
         }
         
         .product-image {
@@ -416,6 +494,8 @@
         .product-name {
             font-weight: 600;
             margin-bottom: 5px;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
         }
         
         .product-price {
@@ -450,21 +530,21 @@
         }
         
         .btn-primary {
-            background-color: var(--primary-red);
-            color: white;
+            background-color: var(--primary-color);
+            color: var(--text-on-primary);
         }
         
         .btn-primary:active {
-            background-color: var(--dark-red);
+            background-color: var(--primary-dark);
         }
         
         .btn-secondary {
             background-color: var(--light-gray);
-            color: var(--primary-black);
+            color: var(--text-primary);
         }
         
         .btn-secondary:active {
-            background-color: #e0e0e0;
+            background-color: var(--border-color);
         }
         
         .btn-success {
@@ -533,13 +613,14 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background-color: var(--white);
-            border-top: 1px solid #eee;
+            background-color: var(--surface-color);
+            border-top: 1px solid var(--border-color);
             padding: 10px 0;
             display: flex;
             justify-content: space-around;
             z-index: 100;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
         
         .nav-btn {
@@ -548,7 +629,7 @@
             align-items: center;
             background: none;
             border: none;
-            color: var(--gray);
+            color: var(--text-secondary);
             font-size: 0.8rem;
             padding: 8px;
             flex: 1;
@@ -563,7 +644,7 @@
         }
         
         .nav-btn.active {
-            color: var(--primary-red);
+            color: var(--primary-color);
         }
         
         /* Modal */
@@ -579,7 +660,7 @@
         }
         
         .modal-content {
-            background-color: var(--white);
+            background-color: var(--surface-color);
             border-radius: 20px 20px 0 0;
             width: 100%;
             max-height: 85vh;
@@ -587,33 +668,37 @@
             position: absolute;
             bottom: 0;
             animation: slideUp 0.3s ease;
+            transition: background-color 0.3s ease;
         }
         
         .modal-header {
             padding: 15px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
-            background-color: var(--white);
+            background-color: var(--surface-color);
             z-index: 10;
+            transition: all 0.3s ease;
         }
         
         .modal-title {
             font-size: 1.3rem;
-            color: var(--primary-black);
+            color: var(--text-primary);
             font-weight: 600;
+            transition: color 0.3s ease;
         }
         
         .close-modal {
             background: none;
             border: none;
             font-size: 1.5rem;
-            color: var(--gray);
+            color: var(--text-secondary);
             cursor: pointer;
             padding: 5px;
+            transition: color 0.3s ease;
         }
         
         .modal-body {
@@ -690,28 +775,30 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
-            color: var(--primary-black);
+            color: var(--text-primary);
             font-size: 0.9rem;
+            transition: color 0.3s ease;
         }
         
         .form-input {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             font-size: 0.95rem;
-            transition: border-color 0.3s ease;
-            background-color: var(--white);
+            transition: all 0.3s ease;
+            background-color: var(--surface-color);
+            color: var(--text-primary);
         }
         
         .form-input:focus {
             outline: none;
-            border-color: var(--primary-red);
+            border-color: var(--primary-color);
         }
         
         /* Upload Area */
         .upload-area {
-            border: 2px dashed #ddd;
+            border: 2px dashed var(--border-color);
             border-radius: 10px;
             padding: 20px;
             text-align: center;
@@ -721,24 +808,27 @@
         }
         
         .upload-area:active {
-            border-color: var(--primary-red);
+            border-color: var(--primary-color);
         }
         
         .upload-icon {
             font-size: 2rem;
-            color: var(--gray);
+            color: var(--text-secondary);
             margin-bottom: 10px;
+            transition: color 0.3s ease;
         }
         
         .upload-text {
-            color: var(--gray);
+            color: var(--text-secondary);
             font-size: 0.9rem;
             margin-bottom: 5px;
+            transition: color 0.3s ease;
         }
         
         .upload-size {
             font-size: 0.8rem;
-            color: var(--gray);
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
         }
         
         .image-preview {
@@ -772,7 +862,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
+            background-color: var(--border-color);
             transition: .4s;
             border-radius: 34px;
         }
@@ -784,7 +874,7 @@
             width: 16px;
             left: 4px;
             bottom: 4px;
-            background-color: white;
+            background-color: var(--surface-color);
             transition: .4s;
             border-radius: 50%;
         }
@@ -809,20 +899,21 @@
         .status-filter-btn {
             padding: 8px 12px;
             border-radius: 20px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
             background-color: transparent;
-            color: var(--gray);
+            color: var(--text-secondary);
             cursor: pointer;
             font-weight: 500;
             font-size: 0.8rem;
             white-space: nowrap;
             flex-shrink: 0;
+            transition: all 0.3s ease;
         }
         
         .status-filter-btn.active {
-            border-color: var(--primary-red);
-            background-color: var(--primary-red);
-            color: white;
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: var(--text-on-primary);
         }
         
         /* Theme Selector */
@@ -834,7 +925,7 @@
         }
         
         .theme-option {
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
             border-radius: 10px;
             padding: 15px;
             cursor: pointer;
@@ -842,7 +933,7 @@
         }
         
         .theme-option.active {
-            border-color: var(--primary-red);
+            border-color: var(--primary-color);
             background-color: rgba(211, 47, 47, 0.05);
         }
         
@@ -857,6 +948,8 @@
             text-align: center;
             font-weight: 600;
             font-size: 0.9rem;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
         }
         
         /* Theme Colors */
@@ -881,13 +974,15 @@
         .empty-state {
             text-align: center;
             padding: 40px 20px;
-            color: var(--gray);
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
         }
         
         .empty-icon {
             font-size: 3rem;
             margin-bottom: 15px;
-            color: #ddd;
+            color: var(--border-color);
+            transition: color 0.3s ease;
         }
         
         /* Notification */
@@ -960,7 +1055,7 @@
         .text-center { text-align: center; }
     </style>
 </head>
-<body>
+<body class="theme-light">
     <!-- App Container -->
     <div class="app-container">
         <!-- App Header -->
@@ -970,7 +1065,7 @@
                     <i class="fas fa-store"></i>
                 </div>
                 <div class="logo-text">
-                    <h1 id="adminStoreName">Painel Administrativo</h1>
+                    <h1 id="adminStoreName">Venda+ - Painel Admin</h1>
                 </div>
             </div>
             <div class="user-info">
@@ -1170,7 +1265,7 @@
                     <div class="form-group">
                         <label class="form-label">WhatsApp *</label>
                         <input type="text" id="configWhatsApp" class="form-input" required placeholder="(11) 99999-9999">
-                        <small class="text-gray">Formato: (DDD) 99999-9999</small>
+                        <small class="text-center d-block mt-1" style="color: var(--text-secondary);">Formato: (DDD) 99999-9999</small>
                     </div>
                     
                     <div class="form-group">
@@ -1313,7 +1408,7 @@
                                 <input type="checkbox" id="productActive" checked>
                                 <span class="toggle-slider"></span>
                             </label>
-                            <span>Ativo</span>
+                            <span style="color: var(--text-primary);">Ativo</span>
                         </div>
                     </div>
                     
@@ -1465,12 +1560,31 @@
             await checkAuth();
             await loadUserData();
             await loadStoreConfig();
+            
+            // Se não houver configuração completa, forçar tela de configurações
+            if (!isStoreConfigComplete()) {
+                showNotification('Complete o cadastro da sua loja para continuar.', 'warning');
+                showScreen('config');
+                navBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-screen="config"]').classList.add('active');
+            }
+            
             setupPhoneMasks();
             setupEventListeners();
             setupOrdersListener();
             loadProducts();
             updateCustomerLink();
             showScreen('dashboard');
+        }
+
+        // Verifica se a configuração da loja está completa
+        function isStoreConfigComplete() {
+            return storeConfig && 
+                   storeConfig.businessName && 
+                   storeConfig.whatsappNumber && 
+                   storeConfig.pixKey && 
+                   storeConfig.contactPhone && 
+                   storeConfig.productsTitle;
         }
 
         // Setup phone masks
@@ -1538,7 +1652,7 @@
                     storeAvatar.textContent = userData.storeName ? userData.storeName.charAt(0).toUpperCase() : 'S';
                     storeNameDisplay.textContent = userData.storeName || 'Minha Loja';
                     storeEmail.textContent = currentUser.email;
-                    adminStoreName.textContent = `Admin - ${userData.storeName || 'Minha Loja'}`;
+                    adminStoreName.textContent = `Venda+ - ${userData.storeName || 'Painel Admin'}`;
                     
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 }
@@ -1554,6 +1668,7 @@
                 if (configDoc.exists) {
                     storeConfig = configDoc.data();
                     updateConfigForm();
+                    applyTheme();
                 } else {
                     storeConfig = {
                         businessName: currentUser.storeName || 'Minha Loja',
@@ -1568,11 +1683,18 @@
                     };
                     await db.collection('stores').doc(currentStoreId).set(storeConfig);
                     updateConfigForm();
+                    applyTheme();
                 }
             } catch (error) {
                 console.error('Error loading store config:', error);
                 showNotification('Erro ao carregar configurações.', 'error');
             }
+        }
+
+        // Apply theme to page
+        function applyTheme() {
+            const theme = storeConfig.theme || 'light';
+            document.body.className = `theme-${theme}`;
         }
 
         // Update configuration form
@@ -1638,7 +1760,7 @@
                         const newOrders = orders.length - oldOrdersLength;
                         newOrdersCount += newOrders;
                         updateNotificationBadges();
-                        if (newOrders > 0) {
+                        if (newOrders > 0 && currentScreen === 'dashboard') {
                             showNotification(`Novo${newOrders > 1 ? 's' : ''} pedido${newOrders > 1 ? 's' : ''} recebido${newOrders > 1 ? 's' : ''}!`, 'info');
                         }
                     }
@@ -1652,23 +1774,20 @@
                 });
         }
 
-        // Update notification badges
+        // Update notification badges - SOMENTE na aba Pedidos
         function updateNotificationBadges() {
             const preparingOrders = orders.filter(order => order.deliveryStatus === 'preparing').length;
             
-            if (newOrdersCount > 0) {
-                dashboardBadge.textContent = newOrdersCount;
-                dashboardBadge.classList.remove('d-none');
-            } else {
-                dashboardBadge.classList.add('d-none');
-            }
-            
+            // Atualiza badge da aba Pedidos
             if (preparingOrders > 0) {
                 ordersBadge.textContent = preparingOrders;
                 ordersBadge.classList.remove('d-none');
             } else {
                 ordersBadge.classList.add('d-none');
             }
+            
+            // Remove badge do Dashboard
+            dashboardBadge.classList.add('d-none');
         }
 
         // Load orders without real-time listener
@@ -1745,10 +1864,6 @@
                     // Reset badge when viewing orders
                     if (screen === 'orders') {
                         ordersBadge.classList.add('d-none');
-                    }
-                    if (screen === 'dashboard') {
-                        newOrdersCount = 0;
-                        dashboardBadge.classList.add('d-none');
                     }
                 });
             });
@@ -2498,6 +2613,12 @@
         async function saveStoreConfig(e) {
             e.preventDefault();
             
+            // Validar campos obrigatórios
+            if (!configBusinessName.value || !configWhatsApp.value || !configPixKey.value || !configContactPhone.value || !configProductsTitle.value) {
+                showNotification('Preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+            
             // Format phone numbers
             const whatsappNumber = configWhatsApp.value;
             const contactPhone = configContactPhone.value;
@@ -2530,9 +2651,15 @@
                 userAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
                 storeAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
                 storeNameDisplay.textContent = configBusinessName.value;
-                adminStoreName.textContent = `Admin - ${configBusinessName.value}`;
+                adminStoreName.textContent = `Venda+ - ${configBusinessName.value}`;
+                
+                // Apply theme
+                applyTheme();
                 
                 showNotification('Configurações salvas!', 'success');
+                
+                // Permite acesso às outras telas após cadastro completo
+                configWasEdited = true;
                 
             } catch (error) {
                 console.error('Error saving store config:', error);
