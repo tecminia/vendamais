@@ -3,22 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Título e favicon serão dinâmicos -->
-    <title id="pageTitle">Venda+ - Loja Virtual</title>
-    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
-    
+    <title>Loja Virtual - Carregando...</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <style>
-        /* Theme Variables - Base */
+        /* Theme Variables */
         :root {
-            --primary-color: #d32f2f;
-            --primary-dark: #b71c1c;
+            --primary-color: #212121;
+            --primary-dark: #000000;
             --secondary-color: #212121;
-            --background-color: #f5f5f5;
+            --background-color: #ffffff;
             --surface-color: #ffffff;
             --text-primary: #212121;
             --text-secondary: #757575;
@@ -30,56 +27,44 @@
             --whatsapp-color: #25D366;
         }
         
-        /* Theme Classes */
-        .theme-light {
-            --primary-color: #d32f2f;
-            --primary-dark: #b71c1c;
-            --secondary-color: #212121;
-            --background-color: #f5f5f5;
-            --surface-color: #ffffff;
-            --text-primary: #212121;
-            --text-secondary: #757575;
-            --text-on-primary: #ffffff;
-            --border-color: #e0e0e0;
-        }
-        
-        .theme-dark {
-            --primary-color: #424242;
-            --primary-dark: #212121;
-            --secondary-color: #f5f5f5;
-            --background-color: #121212;
-            --surface-color: #1e1e1e;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --text-on-primary: #ffffff;
-            --border-color: #333333;
-        }
-        
         .theme-red {
-            --primary-color: #d32f2f;
-            --primary-dark: #b71c1c;
-            --secondary-color: #ffffff;
-            --background-color: #fce4ec;
-            --surface-color: #ffffff;
-            --text-primary: #212121;
-            --text-secondary: #757575;
-            --text-on-primary: #ffffff;
-            --border-color: #f8bbd9;
+            --primary-color: #8B0000;
+            --primary-dark: #5a0000;
+            --border-color: #ffcccc;
         }
         
         .theme-blue {
-            --primary-color: #2196f3;
-            --primary-dark: #0d47a1;
-            --secondary-color: #ffffff;
-            --background-color: #e3f2fd;
-            --surface-color: #ffffff;
-            --text-primary: #212121;
-            --text-secondary: #757575;
-            --text-on-primary: #ffffff;
-            --border-color: #bbdefb;
+            --primary-color: #00008B;
+            --primary-dark: #00005a;
+            --border-color: #ccccff;
         }
         
-        /* Reset & Base Styles */
+        .theme-pink {
+            --primary-color: #F4C2C2;
+            --primary-dark: #e6a8a8;
+            --border-color: #ffe6e6;
+            --text-on-primary: #212121;
+        }
+        
+        .theme-yellow {
+            --primary-color: #FFD700;
+            --primary-dark: #cca700;
+            --border-color: #fff8cc;
+            --text-on-primary: #212121;
+        }
+        
+        .theme-black {
+            --primary-color: #212121;
+            --primary-dark: #000000;
+            --border-color: #e0e0e0;
+        }
+        
+        .theme-purple {
+            --primary-color: #8A2BE2;
+            --primary-dark: #5a189a;
+            --border-color: #e6ccff;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -93,10 +78,10 @@
             overflow-x: hidden;
             background-color: var(--background-color);
             transition: background-color 0.3s ease;
-            color: var(--text-primary);
         }
         
         body {
+            color: var(--text-primary);
             font-size: 14px;
             padding-bottom: 80px;
             transition: all 0.3s ease;
@@ -111,7 +96,7 @@
         
         /* App Header */
         .app-header {
-            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            background-color: var(--primary-color);
             color: var(--text-on-primary);
             padding: 15px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
@@ -135,7 +120,7 @@
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--primary-color);
+            border: 2px solid var(--text-on-primary);
             transition: all 0.3s ease;
         }
         
@@ -210,6 +195,7 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
         
@@ -333,7 +319,7 @@
             color: var(--primary-color);
         }
         
-        /* Modal */
+        /* Cart Modal */
         .modal {
             display: none;
             position: fixed;
@@ -355,6 +341,7 @@
             bottom: 0;
             animation: slideUp 0.3s ease;
             padding-bottom: 20px;
+            border: 1px solid var(--border-color);
             transition: background-color 0.3s ease;
         }
         
@@ -611,7 +598,7 @@
         
         .payment-method-btn.active {
             border-color: var(--primary-color);
-            background-color: rgba(211, 47, 47, 0.05);
+            background-color: rgba(33, 33, 33, 0.05);
         }
         
         /* PIX Details */
@@ -620,6 +607,7 @@
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 20px;
+            border: 1px solid var(--border-color);
             transition: background-color 0.3s ease;
         }
         
@@ -680,6 +668,7 @@
             object-fit: contain;
             display: none;
             cursor: pointer;
+            background-color: var(--background-color);
         }
         
         /* Image Zoom Modal */
@@ -776,6 +765,7 @@
             padding: 20px;
             margin: 20px 0;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
         
@@ -878,6 +868,7 @@
             padding: 15px;
             margin-bottom: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
         
@@ -945,6 +936,7 @@
             padding: 20px;
             margin-bottom: 15px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
         
@@ -1096,7 +1088,7 @@
         .gap-2 { gap: 12px; }
     </style>
 </head>
-<body class="theme-light">
+<body class="theme-black">
     <!-- App Container -->
     <div class="app-container">
         <!-- App Header -->
@@ -1396,8 +1388,6 @@
         const businessName = document.getElementById('businessName');
         const logoImage = document.getElementById('logoImage');
         const productsTitle = document.getElementById('productsTitle');
-        const pageTitle = document.getElementById('pageTitle');
-        const favicon = document.getElementById('favicon');
         
         // Cart elements
         const cartItems = document.getElementById('cartItems');
@@ -1471,6 +1461,19 @@
             }
             
             updateProfileScreen();
+            applyTheme();
+        }
+
+        // Apply theme
+        function applyTheme() {
+            if (storeConfig.theme) {
+                // Remover todas as classes de tema
+                document.body.classList.remove('theme-red', 'theme-blue', 'theme-pink', 'theme-yellow', 'theme-black', 'theme-purple');
+                // Adicionar a classe do tema atual
+                document.body.classList.add(`theme-${storeConfig.theme}`);
+                // Salvar no localStorage
+                localStorage.setItem('appTheme', storeConfig.theme);
+            }
         }
 
         // Setup phone mask
@@ -1488,7 +1491,19 @@
                 if (configDoc.exists) {
                     storeConfig = configDoc.data();
                     updateStoreUI();
-                    applyTheme();
+                    
+                    // Definir favicon se existir logo
+                    if (storeConfig.logoBase64) {
+                        const favicon = document.createElement('link');
+                        favicon.rel = 'icon';
+                        favicon.href = storeConfig.logoBase64;
+                        favicon.type = 'image/x-icon';
+                        const existingFavicon = document.querySelector('link[rel="icon"]');
+                        if (existingFavicon) {
+                            document.head.removeChild(existingFavicon);
+                        }
+                        document.head.appendChild(favicon);
+                    }
                 } else {
                     showNotification('Loja não encontrada.', 'error');
                     setTimeout(() => {
@@ -1501,44 +1516,17 @@
             }
         }
 
-        // Apply theme to page
-        function applyTheme() {
-            const theme = storeConfig.theme || 'light';
-            document.body.className = `theme-${theme}`;
-        }
-
         // Update UI with store configuration
         function updateStoreUI() {
-            const storeName = storeConfig.businessName || 'Venda+ - Loja Virtual';
+            // Atualizar título da página com nome do negócio
+            document.title = storeConfig.businessName || 'Loja Virtual';
             
-            // Update page title
-            pageTitle.textContent = storeName;
-            businessName.textContent = storeName;
-            
-            // Update products title
+            businessName.textContent = storeConfig.businessName || 'Loja Virtual';
             productsTitle.textContent = storeConfig.productsTitle || 'Nossos Produtos';
             pixKey.textContent = storeConfig.pixKey || 'Chave PIX não configurada';
             
-            // Update favicon if logo exists
             if (storeConfig.logoBase64) {
                 logoImage.src = storeConfig.logoBase64;
-                // Convert logo to favicon
-                try {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 64;
-                    canvas.height = 64;
-                    const ctx = canvas.getContext('2d');
-                    
-                    const img = new Image();
-                    img.onload = function() {
-                        ctx.drawImage(img, 0, 0, 64, 64);
-                        const dataURL = canvas.toDataURL('image/x-icon');
-                        favicon.href = dataURL;
-                    };
-                    img.src = storeConfig.logoBase64;
-                } catch (e) {
-                    console.log('Could not create favicon from logo:', e);
-                }
             } else {
                 logoImage.style.display = 'none';
             }
@@ -1554,6 +1542,21 @@
                     phoneMask.updateValue();
                 }
             }
+        }
+
+        // Save user data from form
+        function saveUserDataFromForm() {
+            userData = {
+                name: fullNameInput.value.trim(),
+                address: addressInput.value.trim(),
+                phone: phoneInput.value.trim()
+            };
+            
+            localStorage.setItem('userData', JSON.stringify(userData));
+            userPhone = userData.phone;
+            
+            // Atualizar perfil imediatamente
+            updateProfileScreen();
         }
 
         // Load products for current store
@@ -1701,6 +1704,14 @@
                 e.preventDefault();
                 if (validateDeliveryForm()) {
                     showCartStep(3);
+                }
+            });
+            
+            // Salvar dados do usuário quando o formulário mudar
+            deliveryForm.addEventListener('input', () => {
+                // Salva os dados automaticamente enquanto o usuário digita
+                if (fullNameInput.value && addressInput.value && phoneInput.value) {
+                    saveUserDataFromForm();
                 }
             });
             
@@ -1981,14 +1992,8 @@
                 return false;
             }
             
-            // Save user data - SINCRONIZAÇÃO BIDIRECIONAL
-            userData = {
-                name: fullName,
-                address: address,
-                phone: phone
-            };
-            
-            localStorage.setItem('userData', JSON.stringify(userData));
+            // Save user data
+            saveUserDataFromForm();
             
             orderData = {
                 customerName: fullName,
@@ -2354,7 +2359,7 @@
 
         // Update profile screen
         function updateProfileScreen() {
-            if (!userData.phone) {
+            if (!userData.name || !userData.phone) {
                 profileCard.innerHTML = `
                     <div class="profile-card">
                         <div class="profile-header">
@@ -2362,21 +2367,26 @@
                                 <i class="fas fa-user"></i>
                             </div>
                             <div class="profile-info">
-                                <h3>Cadastre-se</h3>
-                                <p>Faça seu primeiro pedido!</p>
+                                <h3>Complete seu Cadastro</h3>
+                                <p>Faça seu primeiro pedido para cadastrar seus dados!</p>
                             </div>
                         </div>
                         
                         <div class="mt-3">
-                            <p>Para ver seus pedidos, faça seu primeiro pedido ou informe seus dados:</p>
-                            <button class="btn btn-primary btn-block" id="editProfileBtn">
-                                <i class="fas fa-user-edit"></i> Cadastrar Dados
+                            <p>Seus dados serão salvos automaticamente quando você fizer seu primeiro pedido.</p>
+                            <button class="btn btn-primary btn-block" id="goToHomeBtn">
+                                <i class="fas fa-shopping-cart"></i> Fazer Pedido
                             </button>
                         </div>
                     </div>
                 `;
                 
-                document.getElementById('editProfileBtn')?.addEventListener('click', showProfileForm);
+                document.getElementById('goToHomeBtn')?.addEventListener('click', () => {
+                    showScreen('home');
+                    navBtns.forEach(b => b.classList.remove('active'));
+                    document.querySelector('[data-screen="home"]').classList.add('active');
+                });
+                
                 profileStatusCard.style.display = 'none';
                 return;
             }
@@ -2484,7 +2494,6 @@
             document.getElementById('profileForm').addEventListener('submit', (e) => {
                 e.preventDefault();
                 
-                // Atualiza dados do usuário
                 userData = {
                     name: document.getElementById('profileName').value,
                     phone: document.getElementById('profilePhone').value,
@@ -2493,10 +2502,10 @@
                 
                 localStorage.setItem('userData', JSON.stringify(userData));
                 
-                // Atualiza formulário de entrega
-                loadUserDataToForm();
-                
                 updateProfileScreen();
+                
+                // Atualizar também os campos do formulário de entrega
+                loadUserDataToForm();
                 
                 document.getElementById('profileFormModal').style.display = 'none';
                 

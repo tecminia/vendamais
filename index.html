@@ -3,77 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Venda+ - Sistema Multi-Usuários</title>
-    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
-    
+    <title>Login - Venda+</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <style>
-        /* Theme Variables - Base */
+        /* Theme Variables */
         :root {
-            --primary-red: #d32f2f;
-            --dark-red: #b71c1c;
-            --primary-black: #212121;
-            --light-black: #424242;
-            --gray: #757575;
-            --light-gray: #f5f5f5;
-            --white: #ffffff;
-            --success: #4caf50;
-            --warning: #ff9800;
-            --info: #2196f3;
-        }
-        
-        /* Theme Classes */
-        .theme-light {
-            --primary-color: #d32f2f;
-            --primary-dark: #b71c1c;
+            --primary-color: #212121;
+            --primary-dark: #000000;
             --secondary-color: #212121;
-            --background-color: #f8f9fa;
+            --background-color: #ffffff;
             --surface-color: #ffffff;
             --text-primary: #212121;
             --text-secondary: #757575;
             --text-on-primary: #ffffff;
             --border-color: #e0e0e0;
-        }
-        
-        .theme-dark {
-            --primary-color: #424242;
-            --primary-dark: #212121;
-            --secondary-color: #f5f5f5;
-            --background-color: #121212;
-            --surface-color: #1e1e1e;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --text-on-primary: #ffffff;
-            --border-color: #333333;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --info-color: #2196f3;
+            --error-color: #f44336;
         }
         
         .theme-red {
-            --primary-color: #d32f2f;
-            --primary-dark: #b71c1c;
-            --secondary-color: #ffffff;
-            --background-color: #fce4ec;
-            --surface-color: #ffffff;
-            --text-primary: #212121;
-            --text-secondary: #757575;
-            --text-on-primary: #ffffff;
-            --border-color: #f8bbd9;
+            --primary-color: #8B0000;
+            --primary-dark: #5a0000;
+            --border-color: #ffcccc;
         }
         
         .theme-blue {
-            --primary-color: #2196f3;
-            --primary-dark: #0d47a1;
-            --secondary-color: #ffffff;
-            --background-color: #e3f2fd;
-            --surface-color: #ffffff;
-            --text-primary: #212121;
-            --text-secondary: #757575;
-            --text-on-primary: #ffffff;
-            --border-color: #bbdefb;
+            --primary-color: #00008B;
+            --primary-dark: #00005a;
+            --border-color: #ccccff;
+        }
+        
+        .theme-pink {
+            --primary-color: #F4C2C2;
+            --primary-dark: #e6a8a8;
+            --border-color: #ffe6e6;
+        }
+        
+        .theme-yellow {
+            --primary-color: #FFD700;
+            --primary-dark: #cca700;
+            --border-color: #fff8cc;
+        }
+        
+        .theme-black {
+            --primary-color: #212121;
+            --primary-dark: #000000;
+            --border-color: #e0e0e0;
+        }
+        
+        .theme-purple {
+            --primary-color: #8A2BE2;
+            --primary-dark: #5a189a;
+            --border-color: #e6ccff;
         }
         
         * {
@@ -87,17 +74,18 @@
         html, body {
             height: 100%;
             overflow-x: hidden;
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            background-color: var(--background-color);
+            color: var(--text-primary);
             transition: all 0.3s ease;
         }
         
         body {
-            color: var(--text-primary);
             font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            background: var(--background-color);
         }
         
         .login-container {
@@ -106,8 +94,8 @@
             background-color: var(--surface-color);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
         }
         
         .logo-section {
@@ -123,15 +111,13 @@
         
         .logo-section h1 {
             font-size: 1.8rem;
-            color: var(--text-primary);
+            color: var(--primary-color);
             margin-bottom: 5px;
-            transition: color 0.3s ease;
         }
         
         .logo-section p {
             color: var(--text-secondary);
             font-size: 0.9rem;
-            transition: color 0.3s ease;
         }
         
         .form-group {
@@ -144,7 +130,6 @@
             font-weight: 600;
             color: var(--text-primary);
             font-size: 0.95rem;
-            transition: color 0.3s ease;
         }
         
         .form-input {
@@ -161,7 +146,7 @@
         .form-input:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+            box-shadow: 0 0 0 3px rgba(33, 33, 33, 0.1);
         }
         
         .btn {
@@ -188,16 +173,17 @@
         .btn-primary:hover {
             background-color: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+            box-shadow: 0 5px 15px rgba(33, 33, 33, 0.2);
         }
         
         .btn-secondary {
-            background-color: var(--light-gray);
+            background-color: var(--border-color);
             color: var(--text-primary);
         }
         
         .btn-secondary:hover {
             background-color: var(--border-color);
+            opacity: 0.9;
         }
         
         .divider {
@@ -312,7 +298,7 @@
         }
     </style>
 </head>
-<body class="theme-light">
+<body class="theme-black">
     <div class="login-container">
         <div class="logo-section">
             <div class="logo-icon">
@@ -342,7 +328,7 @@
         <div class="divider">ou</div>
         
         <!-- Register Form -->
-        <form id="registerForm" style="display: none;">
+        <form id="registerForm">
             <div class="form-group">
                 <label class="form-label">Nome da Loja</label>
                 <input type="text" id="storeName" class="form-input" placeholder="Nome do seu negócio" required>
@@ -364,8 +350,7 @@
         </form>
         
         <div class="register-link">
-            <span id="toggleFormText">Não tem conta?</span>
-            <a href="#" id="toggleFormBtn">Crie uma conta</a>
+            Já tem conta? <a href="#" id="showLogin">Faça login</a>
         </div>
     </div>
 
@@ -390,45 +375,24 @@
         const registerForm = document.getElementById('registerForm');
         const loginBtn = document.getElementById('loginBtn');
         const registerBtn = document.getElementById('registerBtn');
-        const toggleFormBtn = document.getElementById('toggleFormBtn');
-        const toggleFormText = document.getElementById('toggleFormText');
+        const showLogin = document.getElementById('showLogin');
+
+        // Show login form by default
+        registerForm.style.display = 'none';
 
         // Toggle between login and register forms
-        toggleFormBtn.addEventListener('click', (e) => {
+        showLogin.addEventListener('click', (e) => {
             e.preventDefault();
             if (registerForm.style.display === 'none') {
                 registerForm.style.display = 'block';
                 loginForm.style.display = 'none';
-                toggleFormText.textContent = 'Já tem conta?';
-                toggleFormBtn.textContent = 'Faça login';
+                showLogin.textContent = 'Faça login';
             } else {
                 registerForm.style.display = 'none';
                 loginForm.style.display = 'block';
-                toggleFormText.textContent = 'Não tem conta?';
-                toggleFormBtn.textContent = 'Crie uma conta';
+                showLogin.textContent = 'Criar conta';
             }
         });
-
-        // Apply theme from URL parameter or localStorage
-        function applyTheme() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const storeId = urlParams.get('store');
-            
-            if (storeId) {
-                // Load store theme from Firebase
-                db.collection('stores').doc(storeId).get()
-                    .then(doc => {
-                        if (doc.exists) {
-                            const storeData = doc.data();
-                            const theme = storeData.theme || 'light';
-                            document.body.className = `theme-${theme}`;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading store theme:', error);
-                    });
-            }
-        }
 
         // Login function
         loginForm.addEventListener('submit', async (e) => {
@@ -479,17 +443,6 @@
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPassword').value;
             
-            // Validate inputs
-            if (storeName.length < 2) {
-                showNotification('Nome da loja deve ter pelo menos 2 caracteres.', 'error');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showNotification('Senha deve ter pelo menos 6 caracteres.', 'error');
-                return;
-            }
-            
             try {
                 registerBtn.innerHTML = '<div class="loading"></div>';
                 registerBtn.disabled = true;
@@ -504,10 +457,12 @@
                     email: user.email,
                     storeName: storeName,
                     createdAt: new Date().toISOString(),
-                    isActive: true
+                    isActive: true,
+                    customerLink: null,
+                    configCompleted: false // Flag para verificar se completou cadastro
                 });
                 
-                // Create default store configuration - SEM DADOS PRÉ-DEFINIDOS
+                // Create default store configuration
                 await db.collection('stores').doc(user.uid).set({
                     businessName: storeName,
                     logoBase64: '',
@@ -517,7 +472,7 @@
                     productsTitle: 'Nossos Produtos',
                     ownerId: user.uid,
                     createdAt: new Date().toISOString(),
-                    theme: 'light' // Tema padrão
+                    theme: 'black' // Tema padrão preto
                 });
                 
                 // Create default welcome product
@@ -614,13 +569,15 @@
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const storeId = urlParams.get('store');
-            
             if (storeId) {
-                // Redireciona para a página do cliente
                 window.location.href = `customer.html?store=${storeId}`;
-            } else {
-                // Aplica tema padrão para login
-                applyTheme();
+            }
+            
+            // Carregar tema do localStorage se existir
+            const savedTheme = localStorage.getItem('appTheme');
+            if (savedTheme && document.body.classList.contains('theme-black')) {
+                document.body.classList.remove('theme-black');
+                document.body.classList.add(savedTheme);
             }
         });
     </script>

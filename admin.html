@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Título dinâmico baseado nas configurações -->
-    <title id="pageTitle">Venda+ - Painel Administrativo</title>
-    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏪</text></svg>">
-    
+    <title>Admin - Venda+</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -14,71 +11,59 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <style>
-        /* Theme Variables - Base */
+        /* Theme Variables */
         :root {
-            --primary-red: #d32f2f;
-            --dark-red: #b71c1c;
-            --primary-black: #212121;
-            --light-black: #424242;
-            --gray: #757575;
-            --light-gray: #f5f5f5;
-            --white: #ffffff;
-            --success: #4caf50;
-            --warning: #ff9800;
-            --info: #2196f3;
-        }
-        
-        /* Theme Classes */
-        .theme-light {
-            --primary-color: #d32f2f;
-            --primary-dark: #b71c1c;
+            --primary-color: #212121;
+            --primary-dark: #000000;
             --secondary-color: #212121;
-            --background-color: #f8f9fa;
+            --background-color: #ffffff;
             --surface-color: #ffffff;
             --text-primary: #212121;
             --text-secondary: #757575;
             --text-on-primary: #ffffff;
             --border-color: #e0e0e0;
-        }
-        
-        .theme-dark {
-            --primary-color: #424242;
-            --primary-dark: #212121;
-            --secondary-color: #f5f5f5;
-            --background-color: #121212;
-            --surface-color: #1e1e1e;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --text-on-primary: #ffffff;
-            --border-color: #333333;
-            --light-gray: #2d2d2d;
-            --white: #1e1e1e;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --info-color: #2196f3;
+            --whatsapp-color: #25D366;
         }
         
         .theme-red {
-            --primary-color: #d32f2f;
-            --primary-dark: #b71c1c;
-            --secondary-color: #ffffff;
-            --background-color: #fce4ec;
-            --surface-color: #ffffff;
-            --text-primary: #212121;
-            --text-secondary: #757575;
-            --text-on-primary: #ffffff;
-            --border-color: #f8bbd9;
-            --light-gray: #fce4ec;
+            --primary-color: #8B0000;
+            --primary-dark: #5a0000;
+            --border-color: #ffcccc;
         }
         
         .theme-blue {
-            --primary-color: #2196f3;
-            --primary-dark: #0d47a1;
-            --secondary-color: #ffffff;
-            --background-color: #e3f2fd;
-            --surface-color: #ffffff;
-            --text-primary: #212121;
-            --text-secondary: #757575;
-            --text-on-primary: #ffffff;
-            --border-color: #bbdefb;
-            --light-gray: #e3f2fd;
+            --primary-color: #00008B;
+            --primary-dark: #00005a;
+            --border-color: #ccccff;
+        }
+        
+        .theme-pink {
+            --primary-color: #F4C2C2;
+            --primary-dark: #e6a8a8;
+            --border-color: #ffe6e6;
+            --text-on-primary: #212121;
+        }
+        
+        .theme-yellow {
+            --primary-color: #FFD700;
+            --primary-dark: #cca700;
+            --border-color: #fff8cc;
+            --text-on-primary: #212121;
+        }
+        
+        .theme-black {
+            --primary-color: #212121;
+            --primary-dark: #000000;
+            --border-color: #e0e0e0;
+        }
+        
+        .theme-purple {
+            --primary-color: #8A2BE2;
+            --primary-dark: #5a189a;
+            --border-color: #e6ccff;
         }
         
         * {
@@ -93,13 +78,14 @@
             height: 100%;
             overflow-x: hidden;
             background-color: var(--background-color);
-            color: var(--text-primary);
             transition: background-color 0.3s ease;
         }
         
         body {
+            color: var(--text-primary);
             font-size: 14px;
             padding-bottom: 70px;
+            transition: all 0.3s ease;
         }
         
         /* App Container */
@@ -111,7 +97,7 @@
         
         /* App Header */
         .app-header {
-            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            background-color: var(--primary-color);
             color: var(--text-on-primary);
             padding: 15px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
@@ -133,12 +119,20 @@
         .app-header .logo-icon {
             font-size: 1.8rem;
             color: var(--primary-color);
+            background-color: var(--text-on-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .app-header .logo-text h1 {
             font-size: 1.2rem;
             font-weight: 700;
             line-height: 1.2;
+            transition: color 0.3s ease;
         }
         
         .user-info {
@@ -152,12 +146,14 @@
             height: 36px;
             border-radius: 50%;
             background-color: var(--primary-color);
+            border: 2px solid var(--text-on-primary);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--text-on-primary);
             font-weight: 600;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
         }
         
         .logout-btn {
@@ -167,6 +163,51 @@
             font-size: 1.2rem;
             padding: 5px;
             cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        /* Welcome Modal */
+        .welcome-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .welcome-content {
+            background-color: var(--surface-color);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .welcome-icon {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .welcome-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .welcome-message {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+            line-height: 1.5;
         }
         
         /* Notification Badge */
@@ -209,6 +250,7 @@
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
         
@@ -230,6 +272,7 @@
             color: var(--text-on-primary);
             font-size: 1.5rem;
             font-weight: 600;
+            transition: all 0.3s ease;
         }
         
         .user-card-info h3 {
@@ -252,6 +295,7 @@
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
         
@@ -271,7 +315,7 @@
         }
         
         .link-container {
-            background-color: var(--light-gray);
+            background-color: var(--background-color);
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 15px;
@@ -281,8 +325,9 @@
         }
         
         .link-container strong {
-            color: var(--dark-red);
+            color: var(--primary-color);
             font-size: 0.95rem;
+            transition: color 0.3s ease;
         }
         
         .link-actions {
@@ -306,6 +351,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
         
@@ -321,31 +367,31 @@
         
         .stat-icon.pending {
             background-color: rgba(255, 152, 0, 0.1);
-            color: var(--warning);
+            color: var(--warning-color);
         }
         
         .stat-icon.confirmed {
             background-color: rgba(76, 175, 80, 0.1);
-            color: var(--success);
+            color: var(--success-color);
         }
         
         .stat-icon.delivering {
             background-color: rgba(33, 150, 243, 0.1);
-            color: var(--info);
+            color: var(--info-color);
         }
         
         .stat-icon.delivered {
             background-color: rgba(76, 175, 80, 0.2);
-            color: var(--success);
+            color: var(--success-color);
         }
         
         .stat-icon.total {
             background-color: rgba(33, 150, 243, 0.1);
-            color: var(--info);
+            color: var(--info-color);
         }
         
         .stat-icon.revenue {
-            background-color: rgba(211, 47, 47, 0.1);
+            background-color: rgba(33, 33, 33, 0.1);
             color: var(--primary-color);
         }
         
@@ -374,6 +420,7 @@
             padding: 15px;
             margin-bottom: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
         
@@ -413,7 +460,7 @@
         .order-total {
             font-size: 1.1rem;
             font-weight: 700;
-            color: var(--dark-red);
+            color: var(--primary-color);
             transition: color 0.3s ease;
         }
         
@@ -426,22 +473,22 @@
         
         .status-preparing {
             background-color: rgba(255, 152, 0, 0.1);
-            color: var(--warning);
+            color: var(--warning-color);
         }
         
         .status-confirmed {
             background-color: rgba(33, 150, 243, 0.1);
-            color: var(--info);
+            color: var(--info-color);
         }
         
         .status-delivering {
             background-color: rgba(33, 150, 243, 0.2);
-            color: var(--info);
+            color: var(--info-color);
         }
         
         .status-delivered {
             background-color: rgba(76, 175, 80, 0.2);
-            color: var(--success);
+            color: var(--success-color);
         }
         
         .status-rejected {
@@ -469,6 +516,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
         
@@ -478,6 +526,10 @@
             border-radius: 8px;
             overflow: hidden;
             flex-shrink: 0;
+            background-color: var(--background-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .product-image img {
@@ -499,9 +551,10 @@
         }
         
         .product-price {
-            color: var(--dark-red);
+            color: var(--primary-color);
             font-weight: 700;
             font-size: 1.1rem;
+            transition: color 0.3s ease;
         }
         
         .product-actions {
@@ -539,16 +592,17 @@
         }
         
         .btn-secondary {
-            background-color: var(--light-gray);
+            background-color: var(--border-color);
             color: var(--text-primary);
         }
         
         .btn-secondary:active {
             background-color: var(--border-color);
+            opacity: 0.9;
         }
         
         .btn-success {
-            background-color: var(--success);
+            background-color: var(--success-color);
             color: white;
         }
         
@@ -557,7 +611,7 @@
         }
         
         .btn-whatsapp {
-            background-color: #25D366;
+            background-color: var(--whatsapp-color);
             color: white;
         }
         
@@ -590,16 +644,17 @@
             justify-content: center;
             cursor: pointer;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
         }
         
         .view-btn {
             background-color: rgba(33, 150, 243, 0.1);
-            color: var(--info);
+            color: var(--info-color);
         }
         
         .confirm-btn {
             background-color: rgba(76, 175, 80, 0.1);
-            color: var(--success);
+            color: var(--success-color);
         }
         
         .reject-btn {
@@ -668,6 +723,7 @@
             position: absolute;
             bottom: 0;
             animation: slideUp 0.3s ease;
+            border: 1px solid var(--border-color);
             transition: background-color 0.3s ease;
         }
         
@@ -786,7 +842,7 @@
             border: 1px solid var(--border-color);
             border-radius: 10px;
             font-size: 0.95rem;
-            transition: all 0.3s ease;
+            transition: border-color 0.3s ease;
             background-color: var(--surface-color);
             color: var(--text-primary);
         }
@@ -839,6 +895,7 @@
             margin-top: 10px;
             display: none;
             cursor: pointer;
+            background-color: var(--background-color);
         }
         
         /* Toggle Switch */
@@ -862,7 +919,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: var(--border-color);
+            background-color: #ccc;
             transition: .4s;
             border-radius: 34px;
         }
@@ -874,13 +931,13 @@
             width: 16px;
             left: 4px;
             bottom: 4px;
-            background-color: var(--surface-color);
+            background-color: white;
             transition: .4s;
             border-radius: 50%;
         }
         
         input:checked + .toggle-slider {
-            background-color: var(--success);
+            background-color: var(--success-color);
         }
         
         input:checked + .toggle-slider:before {
@@ -934,7 +991,7 @@
         
         .theme-option.active {
             border-color: var(--primary-color);
-            background-color: rgba(211, 47, 47, 0.05);
+            background-color: rgba(33, 33, 33, 0.05);
         }
         
         .theme-preview {
@@ -942,6 +999,12 @@
             height: 60px;
             border-radius: 8px;
             margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            font-weight: 600;
         }
         
         .theme-name {
@@ -953,21 +1016,34 @@
         }
         
         /* Theme Colors */
-        .theme-light .theme-preview {
-            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
-            border: 1px solid #ddd;
-        }
-        
-        .theme-dark .theme-preview {
-            background: linear-gradient(135deg, #212121 0%, #424242 100%);
-        }
-        
         .theme-red .theme-preview {
-            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            background-color: #8B0000;
+            color: white;
         }
         
         .theme-blue .theme-preview {
-            background: linear-gradient(135deg, #2196f3 0%, #0d47a1 100%);
+            background-color: #00008B;
+            color: white;
+        }
+        
+        .theme-pink .theme-preview {
+            background-color: #F4C2C2;
+            color: #212121;
+        }
+        
+        .theme-yellow .theme-preview {
+            background-color: #FFD700;
+            color: #212121;
+        }
+        
+        .theme-black .theme-preview {
+            background-color: #212121;
+            color: white;
+        }
+        
+        .theme-purple .theme-preview {
+            background-color: #8A2BE2;
+            color: white;
         }
         
         /* Empty State */
@@ -1055,7 +1131,24 @@
         .text-center { text-align: center; }
     </style>
 </head>
-<body class="theme-light">
+<body class="theme-black">
+    <!-- Welcome Modal -->
+    <div class="welcome-modal" id="welcomeModal">
+        <div class="welcome-content">
+            <div class="welcome-icon">
+                <i class="fas fa-store"></i>
+            </div>
+            <h2 class="welcome-title">Bem-vindo ao Venda+!</h2>
+            <p class="welcome-message">
+                Antes de começar, precisamos que você complete o cadastro da sua loja.
+                Configure as informações básicas como nome, telefone e chave PIX.
+            </p>
+            <button class="btn btn-primary" id="goToConfigBtn">
+                <i class="fas fa-cog"></i> Configurar Minha Loja
+            </button>
+        </div>
+    </div>
+
     <!-- App Container -->
     <div class="app-container">
         <!-- App Header -->
@@ -1065,7 +1158,7 @@
                     <i class="fas fa-store"></i>
                 </div>
                 <div class="logo-text">
-                    <h1 id="adminStoreName">Venda+ - Painel Admin</h1>
+                    <h1 id="adminStoreName">Venda+</h1>
                 </div>
             </div>
             <div class="user-info">
@@ -1265,7 +1358,7 @@
                     <div class="form-group">
                         <label class="form-label">WhatsApp *</label>
                         <input type="text" id="configWhatsApp" class="form-input" required placeholder="(11) 99999-9999">
-                        <small class="text-center d-block mt-1" style="color: var(--text-secondary);">Formato: (DDD) 99999-9999</small>
+                        <small class="text-gray">Formato: (DDD) 99999-9999</small>
                     </div>
                     
                     <div class="form-group">
@@ -1286,24 +1379,32 @@
                     <div class="form-group">
                         <label class="form-label">Tema da Loja</label>
                         <div class="theme-selector">
-                            <div class="theme-option theme-light active" data-theme="light">
-                                <div class="theme-preview"></div>
-                                <div class="theme-name">Claro</div>
-                            </div>
-                            <div class="theme-option theme-dark" data-theme="dark">
-                                <div class="theme-preview"></div>
-                                <div class="theme-name">Escuro</div>
-                            </div>
                             <div class="theme-option theme-red" data-theme="red">
-                                <div class="theme-preview"></div>
+                                <div class="theme-preview">Vermelho</div>
                                 <div class="theme-name">Vermelho</div>
                             </div>
                             <div class="theme-option theme-blue" data-theme="blue">
-                                <div class="theme-preview"></div>
+                                <div class="theme-preview">Azul</div>
                                 <div class="theme-name">Azul</div>
                             </div>
+                            <div class="theme-option theme-pink" data-theme="pink">
+                                <div class="theme-preview">Rosa</div>
+                                <div class="theme-name">Rosa</div>
+                            </div>
+                            <div class="theme-option theme-yellow" data-theme="yellow">
+                                <div class="theme-preview">Amarelo</div>
+                                <div class="theme-name">Amarelo</div>
+                            </div>
+                            <div class="theme-option theme-black active" data-theme="black">
+                                <div class="theme-preview">Preto</div>
+                                <div class="theme-name">Preto</div>
+                            </div>
+                            <div class="theme-option theme-purple" data-theme="purple">
+                                <div class="theme-preview">Roxo</div>
+                                <div class="theme-name">Roxo</div>
+                            </div>
                         </div>
-                        <input type="hidden" id="configTheme" value="light">
+                        <input type="hidden" id="configTheme" value="black">
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-block">
@@ -1318,7 +1419,6 @@
             <button class="nav-btn active" data-screen="dashboard">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
-                <div class="notification-badge d-none" id="dashboardBadge">0</div>
             </button>
             <button class="nav-btn" data-screen="orders">
                 <i class="fas fa-shopping-cart"></i>
@@ -1408,7 +1508,7 @@
                                 <input type="checkbox" id="productActive" checked>
                                 <span class="toggle-slider"></span>
                             </label>
-                            <span style="color: var(--text-primary);">Ativo</span>
+                            <span>Ativo</span>
                         </div>
                     </div>
                     
@@ -1470,16 +1570,17 @@
         let selectedOrder = null;
         let selectedProduct = null;
         let statusFilter = 'all';
-        let configWasEdited = false;
         let logoBase64 = '';
         let productImageBase64 = '';
         let ordersListener = null;
         let customerLink = '';
-        let newOrdersCount = 0;
         let preparingOrdersCount = 0;
         let phoneMask = null;
+        let userConfigCompleted = false;
 
         // DOM Elements
+        const welcomeModal = document.getElementById('welcomeModal');
+        const goToConfigBtn = document.getElementById('goToConfigBtn');
         const screens = document.querySelectorAll('.screen');
         const navBtns = document.querySelectorAll('.nav-btn');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -1506,6 +1607,7 @@
         const statusFilterBtns = document.querySelectorAll('.status-filter-btn');
         const allOrdersList = document.getElementById('allOrdersList');
         const allOrdersEmpty = document.getElementById('allOrdersEmpty');
+        const ordersBadge = document.getElementById('ordersBadge');
         
         // Products elements
         const productsList = document.getElementById('productsList');
@@ -1550,41 +1652,22 @@
         const zoomIn = document.getElementById('zoomIn');
         const zoomOut = document.getElementById('zoomOut');
         const zoomReset = document.getElementById('zoomReset');
-        
-        // Notification badges
-        const dashboardBadge = document.getElementById('dashboardBadge');
-        const ordersBadge = document.getElementById('ordersBadge');
 
         // Initialize the app
         async function init() {
             await checkAuth();
             await loadUserData();
             await loadStoreConfig();
-            
-            // Se não houver configuração completa, forçar tela de configurações
-            if (!isStoreConfigComplete()) {
-                showNotification('Complete o cadastro da sua loja para continuar.', 'warning');
-                showScreen('config');
-                navBtns.forEach(b => b.classList.remove('active'));
-                document.querySelector('[data-screen="config"]').classList.add('active');
-            }
-            
             setupPhoneMasks();
             setupEventListeners();
             setupOrdersListener();
             loadProducts();
             updateCustomerLink();
+            applyTheme();
             showScreen('dashboard');
-        }
-
-        // Verifica se a configuração da loja está completa
-        function isStoreConfigComplete() {
-            return storeConfig && 
-                   storeConfig.businessName && 
-                   storeConfig.whatsappNumber && 
-                   storeConfig.pixKey && 
-                   storeConfig.contactPhone && 
-                   storeConfig.productsTitle;
+            
+            // Verificar se precisa mostrar o modal de boas-vindas
+            checkWelcomeModal();
         }
 
         // Setup phone masks
@@ -1601,6 +1684,25 @@
             
             if (configContactPhone) {
                 new IMask(configContactPhone, phoneMaskOptions);
+            }
+        }
+
+        // Apply theme
+        function applyTheme() {
+            if (storeConfig.theme) {
+                // Remover todas as classes de tema
+                document.body.classList.remove('theme-red', 'theme-blue', 'theme-pink', 'theme-yellow', 'theme-black', 'theme-purple');
+                // Adicionar a classe do tema atual
+                document.body.classList.add(`theme-${storeConfig.theme}`);
+                // Salvar no localStorage
+                localStorage.setItem('appTheme', storeConfig.theme);
+            }
+        }
+
+        // Check welcome modal
+        function checkWelcomeModal() {
+            if (!userConfigCompleted) {
+                welcomeModal.style.display = 'flex';
             }
         }
 
@@ -1647,12 +1749,13 @@
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     currentUser.storeName = userData.storeName;
+                    userConfigCompleted = userData.configCompleted || false;
                     
                     userAvatar.textContent = userData.storeName ? userData.storeName.charAt(0).toUpperCase() : 'U';
                     storeAvatar.textContent = userData.storeName ? userData.storeName.charAt(0).toUpperCase() : 'S';
                     storeNameDisplay.textContent = userData.storeName || 'Minha Loja';
                     storeEmail.textContent = currentUser.email;
-                    adminStoreName.textContent = `Venda+ - ${userData.storeName || 'Painel Admin'}`;
+                    adminStoreName.textContent = `Venda+ - ${userData.storeName || 'Minha Loja'}`;
                     
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 }
@@ -1668,7 +1771,6 @@
                 if (configDoc.exists) {
                     storeConfig = configDoc.data();
                     updateConfigForm();
-                    applyTheme();
                 } else {
                     storeConfig = {
                         businessName: currentUser.storeName || 'Minha Loja',
@@ -1677,24 +1779,17 @@
                         pixKey: '',
                         contactPhone: '',
                         productsTitle: 'Nossos Produtos',
-                        theme: 'light',
+                        theme: 'black',
                         ownerId: currentStoreId,
                         createdAt: new Date().toISOString()
                     };
                     await db.collection('stores').doc(currentStoreId).set(storeConfig);
                     updateConfigForm();
-                    applyTheme();
                 }
             } catch (error) {
                 console.error('Error loading store config:', error);
                 showNotification('Erro ao carregar configurações.', 'error');
             }
-        }
-
-        // Apply theme to page
-        function applyTheme() {
-            const theme = storeConfig.theme || 'light';
-            document.body.className = `theme-${theme}`;
         }
 
         // Update configuration form
@@ -1704,7 +1799,7 @@
             configPixKey.value = storeConfig.pixKey || '';
             configContactPhone.value = storeConfig.contactPhone || '';
             configProductsTitle.value = storeConfig.productsTitle || 'Nossos Produtos';
-            configTheme.value = storeConfig.theme || 'light';
+            configTheme.value = storeConfig.theme || 'black';
             
             // Update theme selection
             themeOptions.forEach(option => {
@@ -1740,7 +1835,6 @@
             ordersListener = db.collection('orders')
                 .where('storeId', '==', currentStoreId)
                 .onSnapshot((snapshot) => {
-                    const oldOrdersLength = orders.length;
                     orders = [];
                     
                     snapshot.forEach(doc => {
@@ -1755,39 +1849,30 @@
                         return new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt);
                     });
                     
-                    // Check for new orders
-                    if (orders.length > oldOrdersLength) {
-                        const newOrders = orders.length - oldOrdersLength;
-                        newOrdersCount += newOrders;
-                        updateNotificationBadges();
-                        if (newOrders > 0 && currentScreen === 'dashboard') {
-                            showNotification(`Novo${newOrders > 1 ? 's' : ''} pedido${newOrders > 1 ? 's' : ''} recebido${newOrders > 1 ? 's' : ''}!`, 'info');
-                        }
-                    }
-                    
                     updateDashboardStats();
                     updateRecentOrders();
                     updateAllOrders();
+                    updateNotificationBadge();
                 }, (error) => {
                     console.error("Error in orders listener:", error);
                     loadOrdersWithoutListener();
                 });
         }
 
-        // Update notification badges - SOMENTE na aba Pedidos
-        function updateNotificationBadges() {
-            const preparingOrders = orders.filter(order => order.deliveryStatus === 'preparing').length;
+        // Update notification badge
+        function updateNotificationBadge() {
+            const newPreparingOrders = orders.filter(order => 
+                order.deliveryStatus === 'preparing'
+            ).length;
             
-            // Atualiza badge da aba Pedidos
-            if (preparingOrders > 0) {
-                ordersBadge.textContent = preparingOrders;
+            if (newPreparingOrders > 0 && newPreparingOrders !== preparingOrdersCount) {
+                ordersBadge.textContent = newPreparingOrders;
                 ordersBadge.classList.remove('d-none');
-            } else {
+            } else if (newPreparingOrders === 0) {
                 ordersBadge.classList.add('d-none');
             }
             
-            // Remove badge do Dashboard
-            dashboardBadge.classList.add('d-none');
+            preparingOrdersCount = newPreparingOrders;
         }
 
         // Load orders without real-time listener
@@ -1813,6 +1898,7 @@
                 updateDashboardStats();
                 updateRecentOrders();
                 updateAllOrders();
+                updateNotificationBadge();
             } catch (error) {
                 console.error('Error loading orders:', error);
                 showNotification('Erro ao carregar pedidos.', 'error');
@@ -1841,6 +1927,14 @@
 
         // Setup event listeners
         function setupEventListeners() {
+            // Welcome modal
+            goToConfigBtn.addEventListener('click', () => {
+                welcomeModal.style.display = 'none';
+                showScreen('config');
+                navBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-screen="config"]').classList.add('active');
+            });
+            
             // Logout
             logoutBtn.addEventListener('click', async () => {
                 try {
@@ -1986,6 +2080,9 @@
             
             // Close modals when clicking outside
             window.addEventListener('click', (e) => {
+                if (e.target === welcomeModal) {
+                    welcomeModal.style.display = 'none';
+                }
                 if (e.target === orderDetailsModal) {
                     orderDetailsModal.style.display = 'none';
                 }
@@ -2613,12 +2710,6 @@
         async function saveStoreConfig(e) {
             e.preventDefault();
             
-            // Validar campos obrigatórios
-            if (!configBusinessName.value || !configWhatsApp.value || !configPixKey.value || !configContactPhone.value || !configProductsTitle.value) {
-                showNotification('Preencha todos os campos obrigatórios.', 'error');
-                return;
-            }
-            
             // Format phone numbers
             const whatsappNumber = configWhatsApp.value;
             const contactPhone = configContactPhone.value;
@@ -2641,11 +2732,14 @@
                 await db.collection('stores').doc(currentStoreId).set(configData, { merge: true });
                 storeConfig = configData;
                 
+                // Atualizar usuário para marcar como configurado
                 await db.collection('users').doc(currentStoreId).update({
-                    storeName: configBusinessName.value
+                    storeName: configBusinessName.value,
+                    configCompleted: true
                 });
                 
                 currentUser.storeName = configBusinessName.value;
+                userConfigCompleted = true;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
                 userAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
@@ -2653,13 +2747,12 @@
                 storeNameDisplay.textContent = configBusinessName.value;
                 adminStoreName.textContent = `Venda+ - ${configBusinessName.value}`;
                 
-                // Apply theme
                 applyTheme();
                 
                 showNotification('Configurações salvas!', 'success');
                 
-                // Permite acesso às outras telas após cadastro completo
-                configWasEdited = true;
+                // Fechar modal de boas-vindas se estiver aberto
+                welcomeModal.style.display = 'none';
                 
             } catch (error) {
                 console.error('Error saving store config:', error);
