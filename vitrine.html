@@ -2108,7 +2108,7 @@
             }
         }
 
-        // Confirm order and send WhatsApp
+        // Confirm order and send WhatsApp - CORRIGIDA: ORDEM REORDENADA
         async function confirmOrderAndSendWhatsApp() {
             if (!selectedPaymentMethod) {
                 showNotification('Selecione uma forma de pagamento.', 'error');
@@ -2120,23 +2120,34 @@
                 return;
             }
             
-            orderData.paymentMethod = selectedPaymentMethod;
-            orderData.status = selectedPaymentMethod === 'money' ? 'pending_confirmation' : 'pending_receipt_verification';
-            orderData.deliveryStatus = 'preparing';
+            // Criar uma cópia completa dos dados do pedido
+            const orderDataCopy = {
+                ...orderData,
+                paymentMethod: selectedPaymentMethod,
+                status: selectedPaymentMethod === 'money' ? 'pending_confirmation' : 'pending_receipt_verification',
+                deliveryStatus: 'preparing',
+                receiptBase64: receiptBase64 || null
+            };
             
             try {
-                const docRef = await db.collection('orders').add(orderData);
+                // 1. Primeiro salvar no Firebase
+                const docRef = await db.collection('orders').add(orderDataCopy);
                 currentOrderId = docRef.id;
                 
-                // Limpar o carrinho imediatamente após confirmar o pedido
-                resetCart();
+                // 2. Depois enviar WhatsApp (com os dados ainda intactos)
+                sendWhatsAppMessage(currentOrderId, orderDataCopy);
                 
-                sendWhatsAppMessage(currentOrderId, orderData);
+                // 3. Atualizar orderData global com a cópia
+                orderData = orderDataCopy;
                 
+                // 4. Mostrar tela de sucesso
                 showSuccessScreen();
                 
-                userPhone = orderData.customerPhone;
+                // 5. SÓ DEPOIS limpar o carrinho (mas manter os dados do pedido para a tela de sucesso)
+                clearCartOnly();
                 
+                // 6. Atualizar dados do usuário
+                userPhone = orderData.customerPhone;
                 await loadUserOrders(userPhone);
                 
             } catch (error) {
@@ -2145,31 +2156,42 @@
             }
         }
 
+        // Clear cart only (without resetting orderData)
+        function clearCartOnly() {
+            cart = [];
+            selectedPaymentMethod = null;
+            receiptBase64 = null;
+            updateCartCount();
+            receiptPreview.style.display = 'none';
+            receiptUpload.value = '';
+            paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
+        }
+
         // Send WhatsApp message
-        function sendWhatsAppMessage(orderId, orderData) {
+        function sendWhatsAppMessage(orderId, orderDataParam) {
             const phoneNumber = storeConfig.whatsappNumber || "(11) 99999-9999";
-            const total = orderData.total;
+            const total = orderDataParam.total;
             
             let message = `📱 *NOVO PEDIDO - ${storeConfig.businessName}* 📱\n\n`;
             message += `*Pedido:* #${orderId.substring(0, 8)}\n`;
-            message += `*Cliente:* ${orderData.customerName}\n`;
-            message += `*Telefone:* ${orderData.customerPhone}\n`;
-            message += `*Endereço:* ${orderData.customerAddress}\n`;
-            message += `*Pagamento:* ${orderData.paymentMethod === 'money' ? '💰 Dinheiro na entrega' : '💳 PIX'}\n\n`;
+            message += `*Cliente:* ${orderDataParam.customerName}\n`;
+            message += `*Telefone:* ${orderDataParam.customerPhone}\n`;
+            message += `*Endereço:* ${orderDataParam.customerAddress}\n`;
+            message += `*Pagamento:* ${orderDataParam.paymentMethod === 'money' ? '💰 Dinheiro na entrega' : '💳 PIX'}\n\n`;
             
             message += `*ITENS DO PEDIDO:*\n`;
-            orderData.items.forEach(item => {
+            orderDataParam.items.forEach(item => {
                 const itemTotal = item.price * item.quantity;
                 message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
             });
             
             message += `\n*TOTAL: R$ ${total.toFixed(2).replace('.', ',')}*\n\n`;
             
-            if (orderData.notes) {
-                message += `*Observações:* ${orderData.notes}\n\n`;
+            if (orderDataParam.notes) {
+                message += `*Observações:* ${orderDataParam.notes}\n\n`;
             }
             
-            if (orderData.paymentMethod === 'pix' && orderData.receiptBase64) {
+            if (orderDataParam.paymentMethod === 'pix' && orderDataParam.receiptBase64) {
                 message += `✅ Comprovante PIX enviado pelo cliente\n`;
             }
             
@@ -2532,7 +2554,7 @@
                 existingModal.remove();
             }
             
-            document.body.insertAdjacentHTML('beforeend', formHTML);
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
             
             document.getElementById('profileFormModal').style.display = 'block';
             
