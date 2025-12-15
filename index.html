@@ -2369,7 +2369,18 @@
                 ${selectedOrder.receiptBase64 ? `
                     <div class="mb-3">
                         <h3 class="mb-2">Comprovante PIX</h3>
-                        <img src="${selectedOrder.receiptBase64}" class="image-preview d-block" style="height: 150px; cursor: pointer;" onclick="openImageZoom('${selectedOrder.receiptBase64}', 'Comprovante PIX')">
+                        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <i class="fas fa-file-pdf" style="color: #f44336; font-size: 1.5rem;"></i>
+                                <div>
+                                    <div style="font-weight: 600;">${selectedOrder.receiptFileName || 'Comprovante.pdf'}</div>
+                                    ${selectedOrder.receiptFileType === 'application/pdf' ? '<div style="font-size: 0.8rem; color: #757575;">Arquivo PDF</div>' : ''}
+                                </div>
+                            </div>
+                            <button class="btn btn-sm" onclick="window.open('${selectedOrder.receiptBase64}', '_blank')" style="margin-top: 10px;">
+                                <i class="fas fa-external-link-alt"></i> Abrir PDF
+                            </button>
+                        </div>
                     </div>
                 ` : ''}
                 
