@@ -3,66 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Login - Venda+</title>
+    <title>Venda+</title>
+    <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <style>
-        /* Theme Variables */
-        :root {
-            --primary-color: #212121;
-            --primary-dark: #000000;
-            --secondary-color: #212121;
-            --background-color: #ffffff;
-            --surface-color: #ffffff;
-            --text-primary: #212121;
-            --text-secondary: #757575;
-            --text-on-primary: #ffffff;
-            --border-color: #e0e0e0;
-            --success-color: #4caf50;
-            --warning-color: #ff9800;
-            --info-color: #2196f3;
-            --error-color: #f44336;
-        }
-        
-        .theme-red {
-            --primary-color: #8B0000;
-            --primary-dark: #5a0000;
-            --border-color: #ffcccc;
-        }
-        
-        .theme-blue {
-            --primary-color: #00008B;
-            --primary-dark: #00005a;
-            --border-color: #ccccff;
-        }
-        
-        .theme-pink {
-            --primary-color: #F4C2C2;
-            --primary-dark: #e6a8a8;
-            --border-color: #ffe6e6;
-        }
-        
-        .theme-yellow {
-            --primary-color: #FFD700;
-            --primary-dark: #cca700;
-            --border-color: #fff8cc;
-        }
-        
-        .theme-black {
-            --primary-color: #212121;
-            --primary-dark: #000000;
-            --border-color: #e0e0e0;
-        }
-        
-        .theme-purple {
-            --primary-color: #8A2BE2;
-            --primary-dark: #5a189a;
-            --border-color: #e6ccff;
-        }
-        
         * {
             margin: 0;
             padding: 0;
@@ -74,160 +23,963 @@
         html, body {
             height: 100%;
             overflow-x: hidden;
-            background-color: var(--background-color);
-            color: var(--text-primary);
-            transition: all 0.3s ease;
+            background-color: #ffffff;
+            transition: background-color 0.3s ease;
         }
         
         body {
+            color: #212121;
             font-size: 14px;
+            padding-bottom: 70px;
+            transition: all 0.3s ease;
+        }
+        
+        /* App Container */
+        .app-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
+        }
+        
+        /* App Header */
+        .app-header {
+            background-color: #212121;
+            color: #ffffff;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+        
+        .app-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .app-header .logo-icon {
+            font-size: 1.8rem;
+            color: #212121;
+            background-color: #ffffff;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            background: var(--background-color);
         }
         
-        .login-container {
-            max-width: 400px;
+        .app-header .logo-text h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            line-height: 1.2;
+            transition: color 0.3s ease;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #212121;
+            border: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.2rem;
+            padding: 5px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        /* Welcome Modal */
+        .welcome-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            background-color: var(--surface-color);
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .welcome-content {
+            background-color: #ffffff;
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--border-color);
-        }
-        
-        .logo-section {
+            max-width: 500px;
+            width: 100%;
             text-align: center;
-            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
         }
         
-        .logo-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-        }
-        
-        .logo-section h1 {
-            font-size: 1.8rem;
-            color: var(--primary-color);
-            margin-bottom: 5px;
-        }
-        
-        .logo-section p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-        
-        .form-group {
+        .welcome-icon {
+            font-size: 3.5rem;
+            color: #212121;
             margin-bottom: 20px;
         }
         
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
+        .welcome-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #212121;
+        }
+        
+        .welcome-message {
+            color: #757575;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #212121;
+            color: #ffffff;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
             font-weight: 600;
-            color: var(--text-primary);
-            font-size: 0.95rem;
         }
         
-        .form-input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 1rem;
+        /* Main Content */
+        .main-content {
+            padding: 15px;
+            min-height: calc(100vh - 140px);
+        }
+        
+        /* Section Title */
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #212121;
+            border-bottom: 2px solid #212121;
+            padding-bottom: 5px;
             transition: all 0.3s ease;
-            background-color: var(--surface-color);
-            color: var(--text-primary);
         }
         
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(33, 33, 33, 0.1);
+        /* User Info Card */
+        .user-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
         }
         
+        .user-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .user-card-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #212121;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .user-card-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #212121;
+            transition: color 0.3s ease;
+        }
+        
+        .user-card-info p {
+            color: #757575;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        
+        /* Link Section */
+        .link-section {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .link-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #212121;
+            transition: color 0.3s ease;
+        }
+        
+        .link-description {
+            color: #757575;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            transition: color 0.3s ease;
+        }
+        
+        .link-container {
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            word-break: break-all;
+            border: 1px dashed #212121;
+            transition: all 0.3s ease;
+        }
+        
+        .link-container strong {
+            color: #212121;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+        
+        .link-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .stat-icon.pending {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+        }
+        
+        .stat-icon.confirmed {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+        
+        .stat-icon.delivering {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: #2196f3;
+        }
+        
+        .stat-icon.delivered {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .stat-icon.total {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: #2196f3;
+        }
+        
+        .stat-icon.revenue {
+            background-color: rgba(33, 33, 33, 0.1);
+            color: #212121;
+        }
+        
+        .stat-info h3 {
+            font-size: 0.8rem;
+            color: #757575;
+            margin-bottom: 3px;
+            transition: color 0.3s ease;
+        }
+        
+        .stat-number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #212121;
+            transition: color 0.3s ease;
+        }
+        
+        /* Orders List */
+        .orders-list {
+            margin-top: 15px;
+        }
+        
+        .order-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .order-id {
+            font-size: 0.85rem;
+            color: #757575;
+            transition: color 0.3s ease;
+        }
+        
+        .order-date {
+            font-size: 0.8rem;
+            color: #757575;
+            transition: color 0.3s ease;
+        }
+        
+        .order-customer {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #212121;
+            transition: color 0.3s ease;
+        }
+        
+        .order-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .order-total {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #212121;
+            transition: color 0.3s ease;
+        }
+        
+        .order-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-preparing {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+        }
+        
+        .status-confirmed {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: #2196f3;
+        }
+        
+        .status-delivering {
+            background-color: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+        
+        .status-delivered {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .status-rejected {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        /* Products List */
+        .products-list {
+            margin-top: 15px;
+        }
+        
+        .product-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #212121;
+            transition: color 0.3s ease;
+        }
+        
+        .product-price {
+            color: #212121;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* Buttons */
         .btn {
-            padding: 14px 20px;
+            padding: 12px 16px;
             border-radius: 10px;
             border: none;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1rem;
-            width: 100%;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
+        }
+        
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 0.8rem;
         }
         
         .btn-primary {
-            background-color: var(--primary-color);
-            color: var(--text-on-primary);
+            background-color: #212121;
+            color: #ffffff;
         }
         
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(33, 33, 33, 0.2);
+        .btn-primary:active {
+            background-color: #000000;
         }
         
         .btn-secondary {
-            background-color: var(--border-color);
-            color: var(--text-primary);
+            background-color: #e0e0e0;
+            color: #212121;
         }
         
-        .btn-secondary:hover {
-            background-color: var(--border-color);
+        .btn-secondary:active {
+            background-color: #e0e0e0;
             opacity: 0.9;
         }
         
-        .divider {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-            color: var(--text-secondary);
+        .btn-success {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .btn-success:active {
+            background-color: #3d8b40;
+        }
+        
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+        }
+        
+        .btn-whatsapp:active {
+            background-color: #128C7E;
+        }
+        
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-danger:active {
+            background-color: #d32f2f;
+        }
+        
+        .btn-block {
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        /* Action Buttons */
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
         }
         
-        .divider::before,
-        .divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 45%;
-            height: 1px;
-            background-color: var(--border-color);
+        .view-btn {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: #2196f3;
         }
         
-        .divider::before {
+        .confirm-btn {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+        
+        .reject-btn {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
             left: 0;
-        }
-        
-        .divider::after {
             right: 0;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
         
-        .register-link {
-            text-align: center;
-            margin-top: 20px;
-            color: var(--text-secondary);
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            color: #757575;
+            font-size: 0.8rem;
+            padding: 8px;
+            flex: 1;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            position: relative;
         }
         
-        .register-link a {
-            color: var(--primary-color);
-            text-decoration: none;
+        .nav-btn i {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+        
+        .nav-btn.active {
+            color: #212121;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: absolute;
+            bottom: 0;
+            animation: slideUp 0.3s ease;
+            border: 1px solid #e0e0e0;
+            transition: background-color 0.3s ease;
+        }
+        
+        .modal-header {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background-color: #ffffff;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            color: #212121;
             font-weight: 600;
+            transition: color 0.3s ease;
         }
         
-        .register-link a:hover {
-            text-decoration: underline;
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #757575;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s ease;
         }
         
+        .modal-body {
+            padding: 15px;
+        }
+        
+        /* Image Zoom Modal */
+        .image-zoom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-zoom-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+        
+        .image-zoom-content img {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        
+        .close-zoom {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .zoom-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #212121;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+            background-color: #ffffff;
+            color: #212121;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #212121;
+        }
+        
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+        
+        .upload-area:active {
+            border-color: #212121;
+        }
+        
+        .upload-icon {
+            font-size: 2rem;
+            color: #757575;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+        
+        .upload-text {
+            color: #757575;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+        
+        .upload-size {
+            font-size: 0.8rem;
+            color: #757575;
+            transition: color 0.3s ease;
+        }
+        
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            object-fit: contain;
+            margin-top: 10px;
+            display: none;
+            cursor: pointer;
+            background-color: #f5f5f5;
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #4caf50;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Status Filter */
+        .status-filter {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 15px;
+        }
+        
+        .status-filter-btn {
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 2px solid #e0e0e0;
+            background-color: transparent;
+            color: #757575;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .status-filter-btn.active {
+            border-color: #212121;
+            background-color: #212121;
+            color: #ffffff;
+        }
+        
+        /* Theme Selector */
+        .theme-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .theme-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-option.active {
+            border-color: #212121;
+            background-color: rgba(33, 33, 33, 0.05);
+        }
+        
+        .theme-preview {
+            width: 100%;
+            height: 60px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #212121;
+            font-weight: 600;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .theme-name {
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #212121;
+            transition: color 0.3s ease;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #757575;
+            transition: color 0.3s ease;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+            transition: color 0.3s ease;
+        }
+        
+        /* Notification */
         .notification {
             position: fixed;
             top: 50%;
@@ -263,6 +1015,12 @@
             background-color: rgba(33, 150, 243, 0.95);
         }
         
+        /* Animations */
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
             to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -273,84 +1031,442 @@
             to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
         }
         
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 20px;
-            }
-            
-            .logo-section h1 {
-                font-size: 1.5rem;
-            }
-        }
+        /* Utilities */
+        .d-none { display: none !important; }
+        .d-flex { display: flex !important; }
+        .d-block { display: block !important; }
+        .flex-1 { flex: 1; }
+        .justify-between { justify-content: space-between; }
+        .align-center { align-items: center; }
+        .gap-1 { gap: 8px; }
+        .gap-2 { gap: 12px; }
+        .mb-1 { margin-bottom: 8px; }
+        .mb-2 { margin-bottom: 12px; }
+        .mb-3 { margin-bottom: 16px; }
+        .mt-1 { margin-top: 8px; }
+        .mt-2 { margin-top: 12px; }
+        .mt-3 { margin-top: 16px; }
+        .text-center { text-align: center; }
     </style>
 </head>
-<body class="theme-black">
-    <div class="login-container">
-        <div class="logo-section">
-            <div class="logo-icon">
+<body>
+    <!-- Welcome Modal -->
+    <div class="welcome-modal" id="welcomeModal">
+        <div class="welcome-content">
+            <div class="welcome-icon">
                 <i class="fas fa-store"></i>
             </div>
-            <h1>Venda+</h1>
-            <p>Sistema Multi-Usuários</p>
+            <h2 class="welcome-title">Bem-vindo ao Venda+!</h2>
+            <p class="welcome-message">
+                Antes de começar, precisamos que você complete o cadastro da sua loja.
+                Configure as informações básicas como nome, telefone e chave PIX.
+            </p>
+            <button class="btn btn-primary" id="goToConfigBtn">
+                <i class="fas fa-cog"></i> Configurar Minha Loja
+            </button>
         </div>
-        
-        <!-- Login Form -->
-        <form id="loginForm">
-            <div class="form-group">
-                <label class="form-label">E-mail</label>
-                <input type="email" id="email" class="form-input" placeholder="seu@email.com" required>
+    </div>
+
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- App Header -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="logo-text">
+                    <h1 id="adminStoreName">Venda+</h1>
+                </div>
             </div>
-            
-            <div class="form-group">
-                <label class="form-label">Senha</label>
-                <input type="password" id="password" class="form-input" placeholder="Sua senha" required>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <button class="logout-btn" id="logoutBtn" title="Sair">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
-            
-            <button type="submit" class="btn btn-primary" id="loginBtn">
-                <i class="fas fa-sign-in-alt"></i> Entrar
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Screen -->
+            <div id="dashboardScreen" class="screen active">
+                <h2 class="section-title">Dashboard</h2>
+                
+                <!-- User Info Card -->
+                <div class="user-card">
+                    <div class="user-card-header">
+                        <div class="user-card-avatar" id="storeAvatar">S</div>
+                        <div class="user-card-info">
+                            <h3 id="storeNameDisplay">Carregando...</h3>
+                            <p id="storeEmail">carregando...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Customer Link Section -->
+                    <div class="link-section">
+                        <h3 class="link-title">Link para Clientes</h3>
+                        <p class="link-description">
+                            Compartilhe este link com seus clientes para que eles possam acessar sua loja virtual:
+                        </p>
+                        
+                        <div class="link-container" id="customerLinkContainer">
+                            <strong>Carregando link...</strong>
+                        </div>
+                        
+                        <div class="link-actions">
+                            <button class="btn btn-primary flex-1" id="copyLinkBtn">
+                                <i class="fas fa-copy"></i> Copiar Link
+                            </button>
+                            <button class="btn btn-secondary flex-1" id="refreshLinkBtn">
+                                <i class="fas fa-sync-alt"></i> Atualizar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon preparing">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Preparando</h3>
+                            <div class="stat-number" id="preparingOrders">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon confirmed">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Confirmados</h3>
+                            <div class="stat-number" id="confirmedOrders">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon delivering">
+                            <i class="fas fa-motorcycle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Entregando</h3>
+                            <div class="stat-number" id="deliveringOrders">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon delivered">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Entregues</h3>
+                            <div class="stat-number" id="deliveredOrders">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Pedidos</h3>
+                            <div class="stat-number" id="totalOrders">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon revenue">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Receita</h3>
+                            <div class="stat-number" id="totalRevenue">R$ 0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Orders -->
+                <h3 class="mb-2">Pedidos Recentes</h3>
+                <div class="orders-list" id="recentOrdersList">
+                    <!-- Orders will be loaded here -->
+                </div>
+                
+                <div class="empty-state" id="recentOrdersEmpty" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3>Nenhum pedido</h3>
+                    <p>Novos pedidos aparecerão aqui.</p>
+                </div>
+            </div>
+
+            <!-- Orders Screen -->
+            <div id="ordersScreen" class="screen" style="display: none;">
+                <h2 class="section-title">Pedidos</h2>
+                
+                <div class="status-filter">
+                    <button class="status-filter-btn active" data-status="all">Todos</button>
+                    <button class="status-filter-btn" data-status="preparing">Preparando</button>
+                    <button class="status-filter-btn" data-status="confirmed">Confirmados</button>
+                    <button class="status-filter-btn" data-status="delivering">Entregando</button>
+                    <button class="status-filter-btn" data-status="delivered">Entregues</button>
+                </div>
+                
+                <div class="orders-list" id="allOrdersList">
+                    <!-- Orders will be loaded here -->
+                </div>
+                
+                <div class="empty-state" id="allOrdersEmpty" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3>Nenhum pedido</h3>
+                    <p>Os pedidos aparecerão aqui.</p>
+                </div>
+            </div>
+
+            <!-- Products Screen -->
+            <div id="productsScreen" class="screen" style="display: none;">
+                <div class="d-flex justify-between align-center mb-3">
+                    <h2 class="section-title">Produtos</h2>
+                    <button class="btn btn-primary btn-sm" id="addProductBtn">
+                        <i class="fas fa-plus"></i> Novo
+                    </button>
+                </div>
+                
+                <div class="products-list" id="productsList">
+                    <!-- Products will be loaded here -->
+                </div>
+                
+                <div class="empty-state" id="productsEmpty" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>Nenhum produto</h3>
+                    <p>Adicione produtos para vender.</p>
+                </div>
+            </div>
+
+            <!-- Config Screen -->
+            <div id="configScreen" class="screen" style="display: none;">
+                <h2 class="section-title">Configurações</h2>
+                
+                <form id="configForm">
+                    <div class="form-group">
+                        <label class="form-label">Nome do Negócio *</label>
+                        <input type="text" id="configBusinessName" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Logo da Loja</label>
+                        <div class="upload-area" id="logoUploadArea">
+                            <div class="upload-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div class="upload-text">Clique para fazer upload</div>
+                            <div class="upload-size">Tamanho máximo: 5MB</div>
+                            <input type="file" id="configLogoUpload" accept="image/*" style="display: none;">
+                        </div>
+                        <img id="configLogoPreview" class="image-preview" alt="Logo">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">WhatsApp *</label>
+                        <input type="text" id="configWhatsApp" class="form-input" required placeholder="(11) 99999-9999">
+                        <small class="text-gray">Formato: (DDD) 99999-9999</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Chave PIX *</label>
+                        <input type="text" id="configPixKey" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Telefone para Contato *</label>
+                        <input type="text" id="configContactPhone" class="form-input" required placeholder="(11) 99999-9999">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Título dos Produtos *</label>
+                        <input type="text" id="configProductsTitle" class="form-input" required placeholder="Nossos Produtos">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tema da Loja</label>
+                        <div class="theme-selector">
+                            <div class="theme-option theme-red" data-theme="red">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #8B0000 0%, #FF0000 100%); color: white;">Vermelho</div>
+                                <div class="theme-name">Vermelho</div>
+                            </div>
+                            <div class="theme-option theme-blue" data-theme="blue">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #00008B 0%, #4169E1 100%); color: white;">Azul</div>
+                                <div class="theme-name">Azul</div>
+                            </div>
+                            <div class="theme-option theme-pink" data-theme="pink">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #F4C2C2 0%, #FFB6C1 100%); color: #212121;">Rosa</div>
+                                <div class="theme-name">Rosa</div>
+                            </div>
+                            <div class="theme-option theme-yellow" data-theme="yellow">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #FFD700 0%, #FFEC8B 100%); color: #212121;">Amarelo</div>
+                                <div class="theme-name">Amarelo</div>
+                            </div>
+                            <div class="theme-option theme-black active" data-theme="black">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #212121 0%, #424242 100%); color: white;">Preto</div>
+                                <div class="theme-name">Preto</div>
+                            </div>
+                            <div class="theme-option theme-purple" data-theme="purple">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #8A2BE2 0%, #9370DB 100%); color: white;">Roxo</div>
+                                <div class="theme-name">Roxo</div>
+                            </div>
+                            <div class="theme-option theme-green" data-theme="green">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #006400 0%, #32CD32 100%); color: white;">Verde</div>
+                                <div class="theme-name">Verde</div>
+                            </div>
+                            <div class="theme-option theme-orange" data-theme="orange">
+                                <div class="theme-preview" style="background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%); color: white;">Laranja</div>
+                                <div class="theme-name">Laranja</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="configTheme" value="black">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-save"></i> Salvar Configurações
+                    </button>
+                </form>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-screen="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
             </button>
-        </form>
-        
-        <div class="divider">ou</div>
-        
-        <!-- Register Form -->
-        <form id="registerForm">
-            <div class="form-group">
-                <label class="form-label">Nome da Loja</label>
-                <input type="text" id="storeName" class="form-input" placeholder="Nome do seu negócio" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">E-mail</label>
-                <input type="email" id="regEmail" class="form-input" placeholder="seu@email.com" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Senha</label>
-                <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres" required minlength="6">
-            </div>
-            
-            <button type="submit" class="btn btn-secondary" id="registerBtn">
-                <i class="fas fa-user-plus"></i> Criar Conta
+            <button class="nav-btn" data-screen="orders">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Pedidos</span>
+                <div class="notification-badge d-none" id="ordersBadge">0</div>
             </button>
-        </form>
-        
-        <div class="register-link">
-            Já tem conta? <a href="#" id="showLogin">Faça login</a>
+            <button class="nav-btn" data-screen="products">
+                <i class="fas fa-utensils"></i>
+                <span>Produtos</span>
+            </button>
+            <button class="nav-btn" data-screen="config">
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal" id="orderDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Detalhes do Pedido</h2>
+                <button class="close-modal" id="closeOrderModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="orderDetailsContent">
+                    <!-- Order details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Form Modal -->
+    <div class="modal" id="productFormModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="productModalTitle">Novo Produto</h2>
+                <button class="close-modal" id="closeProductModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nome do Produto *</label>
+                        <input type="text" id="productName" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Descrição *</label>
+                        <textarea id="productDescription" class="form-input" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Preço (R$) *</label>
+                        <input type="number" id="productPrice" class="form-input" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Categoria *</label>
+                        <select id="productCategory" class="form-input" required>
+                            <option value="">Selecione...</option>
+                            <option value="churrasco">Churrasco</option>
+                            <option value="doce">Doce</option>
+                            <option value="bebida">Bebida</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Imagem do Produto</label>
+                        <div class="upload-area" id="productImageUploadArea">
+                            <div class="upload-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div class="upload-text">Clique para fazer upload</div>
+                            <div class="upload-size">Tamanho máximo: 5MB</div>
+                            <input type="file" id="productImageUpload" accept="image/*" style="display: none;">
+                        </div>
+                        <img id="productImagePreview" class="image-preview" alt="Produto">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <div class="d-flex align-center gap-2">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="productActive" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span>Ativo</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary flex-1" id="cancelProductBtn">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary flex-1">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Zoom Modal -->
+    <div class="image-zoom-modal" id="imageZoomModal">
+        <div class="image-zoom-content">
+            <button class="close-zoom" id="closeZoom">&times;</button>
+            <img id="zoomedImage" src="" alt="Imagem ampliada">
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoomIn">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="zoom-btn" id="zoomOut">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <button class="zoom-btn" id="zoomReset">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -370,180 +1486,1243 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
+        // Application state
+        let currentUser = null;
+        let currentStoreId = null;
+        let currentScreen = 'dashboard';
+        let orders = [];
+        let products = [];
+        let storeConfig = {};
+        let selectedOrder = null;
+        let selectedProduct = null;
+        let statusFilter = 'all';
+        let logoBase64 = '';
+        let productImageBase64 = '';
+        let ordersListener = null;
+        let customerLink = '';
+        let preparingOrdersCount = 0;
+        let phoneMask = null;
+        let userConfigCompleted = false;
+
         // DOM Elements
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
-        const showLogin = document.getElementById('showLogin');
+        const welcomeModal = document.getElementById('welcomeModal');
+        const goToConfigBtn = document.getElementById('goToConfigBtn');
+        const screens = document.querySelectorAll('.screen');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userAvatar = document.getElementById('userAvatar');
+        const storeAvatar = document.getElementById('storeAvatar');
+        const storeNameDisplay = document.getElementById('storeNameDisplay');
+        const storeEmail = document.getElementById('storeEmail');
+        const adminStoreName = document.getElementById('adminStoreName');
+        const customerLinkContainer = document.getElementById('customerLinkContainer');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+        const refreshLinkBtn = document.getElementById('refreshLinkBtn');
+        
+        // Dashboard elements
+        const preparingOrdersCountElement = document.getElementById('preparingOrders');
+        const confirmedOrdersCountElement = document.getElementById('confirmedOrders');
+        const deliveringOrdersCountElement = document.getElementById('deliveringOrders');
+        const deliveredOrdersCountElement = document.getElementById('deliveredOrders');
+        const totalOrdersCountElement = document.getElementById('totalOrders');
+        const totalRevenueElement = document.getElementById('totalRevenue');
+        const recentOrdersList = document.getElementById('recentOrdersList');
+        const recentOrdersEmpty = document.getElementById('recentOrdersEmpty');
+        
+        // Orders elements
+        const statusFilterBtns = document.querySelectorAll('.status-filter-btn');
+        const allOrdersList = document.getElementById('allOrdersList');
+        const allOrdersEmpty = document.getElementById('allOrdersEmpty');
+        const ordersBadge = document.getElementById('ordersBadge');
+        
+        // Products elements
+        const productsList = document.getElementById('productsList');
+        const productsEmpty = document.getElementById('productsEmpty');
+        const addProductBtn = document.getElementById('addProductBtn');
+        
+        // Configuration elements
+        const configForm = document.getElementById('configForm');
+        const configBusinessName = document.getElementById('configBusinessName');
+        const logoUploadArea = document.getElementById('logoUploadArea');
+        const configLogoUpload = document.getElementById('configLogoUpload');
+        const configLogoPreview = document.getElementById('configLogoPreview');
+        const configWhatsApp = document.getElementById('configWhatsApp');
+        const configPixKey = document.getElementById('configPixKey');
+        const configContactPhone = document.getElementById('configContactPhone');
+        const configProductsTitle = document.getElementById('configProductsTitle');
+        const configTheme = document.getElementById('configTheme');
+        const themeOptions = document.querySelectorAll('.theme-option');
+        
+        // Product form elements
+        const productForm = document.getElementById('productForm');
+        const productIdInput = document.getElementById('productId');
+        const productModalTitle = document.getElementById('productModalTitle');
+        const productName = document.getElementById('productName');
+        const productDescription = document.getElementById('productDescription');
+        const productPrice = document.getElementById('productPrice');
+        const productCategory = document.getElementById('productCategory');
+        const productImageUploadArea = document.getElementById('productImageUploadArea');
+        const productImageUpload = document.getElementById('productImageUpload');
+        const productImagePreview = document.getElementById('productImagePreview');
+        const productActive = document.getElementById('productActive');
+        const cancelProductBtn = document.getElementById('cancelProductBtn');
+        
+        // Modals
+        const orderDetailsModal = document.getElementById('orderDetailsModal');
+        const closeOrderModal = document.getElementById('closeOrderModal');
+        const productFormModal = document.getElementById('productFormModal');
+        const closeProductModal = document.getElementById('closeProductModal');
+        const imageZoomModal = document.getElementById('imageZoomModal');
+        const closeZoom = document.getElementById('closeZoom');
+        const zoomedImage = document.getElementById('zoomedImage');
+        const zoomIn = document.getElementById('zoomIn');
+        const zoomOut = document.getElementById('zoomOut');
+        const zoomReset = document.getElementById('zoomReset');
 
-        // Show login form by default
-        registerForm.style.display = 'none';
-
-        // Toggle between login and register forms
-        showLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (registerForm.style.display === 'none') {
-                registerForm.style.display = 'block';
-                loginForm.style.display = 'none';
-                showLogin.textContent = 'Faça login';
-            } else {
-                registerForm.style.display = 'none';
-                loginForm.style.display = 'block';
-                showLogin.textContent = 'Criar conta';
-            }
-        });
-
-        // Login function
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+        // Initialize the app
+        async function init() {
+            await checkAuth();
+            await loadUserData();
+            await loadStoreConfig();
+            setupPhoneMasks();
+            setupEventListeners();
+            setupOrdersListener();
+            loadProducts();
+            updateCustomerLink();
+            showScreen('dashboard');
             
-            try {
-                loginBtn.innerHTML = '<div class="loading"></div>';
-                loginBtn.disabled = true;
-                
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                // Get user data from Firestore
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (userDoc.exists) {
-                    // Store user data in localStorage
-                    const userData = userDoc.data();
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        uid: user.uid,
-                        email: user.email,
-                        storeName: userData.storeName,
-                        isAdmin: true
-                    }));
-                    
-                    showNotification('Login realizado com sucesso!', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'admin.html';
-                    }, 1000);
-                } else {
-                    showNotification('Erro: dados do usuário não encontrados.', 'error');
-                    await auth.signOut();
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                showNotification(getErrorMessage(error), 'error');
-            } finally {
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
-                loginBtn.disabled = false;
-            }
-        });
+            // Verificar se precisa mostrar o modal de boas-vindas
+            checkWelcomeModal();
+        }
 
-        // Register function
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const storeName = document.getElementById('storeName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
+        // Setup phone masks
+        function setupPhoneMasks() {
+            // Mask for Brazilian phone numbers
+            const phoneMaskOptions = {
+                mask: '(00) 00000-0000',
+                lazy: false
+            };
             
-            try {
-                registerBtn.innerHTML = '<div class="loading"></div>';
-                registerBtn.disabled = true;
-                
-                // Create user in Firebase Auth
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                // Create user document in Firestore
-                await db.collection('users').doc(user.uid).set({
-                    uid: user.uid,
-                    email: user.email,
-                    storeName: storeName,
-                    createdAt: new Date().toISOString(),
-                    isActive: true,
-                    customerLink: null,
-                    configCompleted: false // Flag para verificar se completou cadastro
-                });
-                
-                // Create default store configuration
-                await db.collection('stores').doc(user.uid).set({
-                    businessName: storeName,
-                    logoBase64: '',
-                    whatsappNumber: '',
-                    pixKey: '',
-                    contactPhone: '',
-                    productsTitle: 'Nossos Produtos',
-                    ownerId: user.uid,
-                    createdAt: new Date().toISOString(),
-                    theme: 'black' // Tema padrão preto
-                });
-                
-                // Create default welcome product
-                await db.collection('stores').doc(user.uid).collection('products').add({
-                    name: 'Produto Exemplo',
-                    description: 'Este é um produto de exemplo. Você pode editá-lo ou excluí-lo.',
-                    price: 29.90,
-                    category: 'outro',
-                    active: true,
-                    imageBase64: '',
-                    createdAt: new Date().toISOString()
-                });
-                
-                // Store user data in localStorage
-                localStorage.setItem('currentUser', JSON.stringify({
-                    uid: user.uid,
-                    email: user.email,
-                    storeName: storeName,
-                    isAdmin: true
-                }));
-                
-                showNotification('Conta criada com sucesso!', 'success');
-                setTimeout(() => {
-                    window.location.href = 'admin.html';
-                }, 1500);
-            } catch (error) {
-                console.error('Registration error:', error);
-                showNotification(getErrorMessage(error), 'error');
-            } finally {
-                registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Criar Conta';
-                registerBtn.disabled = false;
+            if (configWhatsApp) {
+                phoneMask = new IMask(configWhatsApp, phoneMaskOptions);
             }
-        });
-
-        // Check if user is already logged in
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        uid: user.uid,
-                        email: user.email,
-                        storeName: userData.storeName,
-                        isAdmin: true
-                    }));
-                    window.location.href = 'admin.html';
-                }
-            }
-        });
-
-        // Helper functions
-        function getErrorMessage(error) {
-            switch (error.code) {
-                case 'auth/email-already-in-use':
-                    return 'Este e-mail já está em uso.';
-                case 'auth/invalid-email':
-                    return 'E-mail inválido.';
-                case 'auth/weak-password':
-                    return 'Senha muito fraca. Use pelo menos 6 caracteres.';
-                case 'auth/user-not-found':
-                    return 'Usuário não encontrado.';
-                case 'auth/wrong-password':
-                    return 'Senha incorreta.';
-                case 'auth/too-many-requests':
-                    return 'Muitas tentativas. Tente novamente mais tarde.';
-                default:
-                    return 'Erro: ' + error.message;
+            
+            if (configContactPhone) {
+                new IMask(configContactPhone, phoneMaskOptions);
             }
         }
 
+        // Check welcome modal
+        function checkWelcomeModal() {
+            if (!userConfigCompleted) {
+                welcomeModal.style.display = 'flex';
+                
+                // Não permitir fechar clicando fora - só com o botão
+                welcomeModal.addEventListener('click', (e) => {
+                    if (e.target === welcomeModal) {
+                        // Não faz nada - impede fechar
+                        e.stopPropagation();
+                    }
+                });
+            }
+        }
+
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const storedUser = localStorage.getItem('currentUser');
+                if (storedUser) {
+                    currentUser = JSON.parse(storedUser);
+                    currentStoreId = currentUser.uid;
+                    return true;
+                }
+                
+                await new Promise((resolve, reject) => {
+                    const unsubscribe = auth.onAuthStateChanged((user) => {
+                        unsubscribe();
+                        if (user) {
+                            currentUser = {
+                                uid: user.uid,
+                                email: user.email,
+                                isAdmin: true
+                            };
+                            currentStoreId = user.uid;
+                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                            resolve(true);
+                        } else {
+                            window.location.href = 'login.html';
+                            reject(new Error('Not authenticated'));
+                        }
+                    });
+                });
+                return true;
+            } catch (error) {
+                console.error('Auth error:', error);
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+
+        // Load user data
+        async function loadUserData() {
+            try {
+                const userDoc = await db.collection('users').doc(currentStoreId).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    currentUser.storeName = userData.storeName;
+                    userConfigCompleted = userData.configCompleted || false;
+                    
+                    userAvatar.textContent = userData.storeName ? userData.storeName.charAt(0).toUpperCase() : 'U';
+                    storeAvatar.textContent = userData.storeName ? userData.storeName.charAt(0).toUpperCase() : 'S';
+                    storeNameDisplay.textContent = userData.storeName || 'Minha Loja';
+                    storeEmail.textContent = currentUser.email;
+                    adminStoreName.textContent = `Venda+`;
+                    
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Load store configuration for current user
+        async function loadStoreConfig() {
+            try {
+                const configDoc = await db.collection('stores').doc(currentStoreId).get();
+                if (configDoc.exists) {
+                    storeConfig = configDoc.data();
+                    updateConfigForm();
+                } else {
+                    storeConfig = {
+                        businessName: currentUser.storeName || 'Minha Loja',
+                        logoBase64: '',
+                        whatsappNumber: '',
+                        pixKey: '',
+                        contactPhone: '',
+                        productsTitle: 'Nossos Produtos',
+                        theme: 'black',
+                        ownerId: currentStoreId,
+                        createdAt: new Date().toISOString()
+                    };
+                    await db.collection('stores').doc(currentStoreId).set(storeConfig);
+                    updateConfigForm();
+                }
+            } catch (error) {
+                console.error('Error loading store config:', error);
+                showNotification('Erro ao carregar configurações.', 'error');
+            }
+        }
+
+        // Update configuration form
+        function updateConfigForm() {
+            configBusinessName.value = storeConfig.businessName || '';
+            configWhatsApp.value = storeConfig.whatsappNumber || '';
+            configPixKey.value = storeConfig.pixKey || '';
+            configContactPhone.value = storeConfig.contactPhone || '';
+            configProductsTitle.value = storeConfig.productsTitle || 'Nossos Produtos';
+            configTheme.value = storeConfig.theme || 'black';
+            
+            // Update theme selection
+            themeOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-theme') === configTheme.value) {
+                    option.classList.add('active');
+                }
+            });
+            
+            if (storeConfig.logoBase64) {
+                configLogoPreview.src = storeConfig.logoBase64;
+                configLogoPreview.style.display = 'block';
+                logoBase64 = storeConfig.logoBase64;
+            }
+        }
+
+        // Update customer link
+        function updateCustomerLink() {
+            if (!currentStoreId) return;
+            
+            const currentUrl = window.location.origin + window.location.pathname;
+            const baseUrl = currentUrl.replace('index.html', '');
+            customerLink = `${baseUrl}vitrine.html?store=${currentStoreId}`;
+            customerLinkContainer.innerHTML = `<strong>${customerLink}</strong>`;
+        }
+
+        // Setup real-time orders listener
+        function setupOrdersListener() {
+            if (ordersListener) {
+                ordersListener();
+            }
+            
+            ordersListener = db.collection('orders')
+                .where('storeId', '==', currentStoreId)
+                .onSnapshot((snapshot) => {
+                    orders = [];
+                    
+                    snapshot.forEach(doc => {
+                        const orderData = doc.data();
+                        orders.push({
+                            id: doc.id,
+                            ...orderData
+                        });
+                    });
+                    
+                    orders.sort((a, b) => {
+                        return new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt);
+                    });
+                    
+                    updateDashboardStats();
+                    updateRecentOrders();
+                    updateAllOrders();
+                    updateNotificationBadge();
+                }, (error) => {
+                    console.error("Error in orders listener:", error);
+                    loadOrdersWithoutListener();
+                });
+        }
+
+        // Update notification badge
+        function updateNotificationBadge() {
+            const newPreparingOrders = orders.filter(order => 
+                order.deliveryStatus === 'preparing'
+            ).length;
+            
+            if (newPreparingOrders > 0 && newPreparingOrders !== preparingOrdersCount) {
+                ordersBadge.textContent = newPreparingOrders;
+                ordersBadge.classList.remove('d-none');
+            } else if (newPreparingOrders === 0) {
+                ordersBadge.classList.add('d-none');
+            }
+            
+            preparingOrdersCount = newPreparingOrders;
+        }
+
+        // Load orders without real-time listener
+        async function loadOrdersWithoutListener() {
+            try {
+                const snapshot = await db.collection('orders').get();
+                
+                orders = [];
+                snapshot.forEach(doc => {
+                    const orderData = doc.data();
+                    if (orderData.storeId === currentStoreId) {
+                        orders.push({
+                            id: doc.id,
+                            ...orderData
+                        });
+                    }
+                });
+                
+                orders.sort((a, b) => {
+                    return new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt);
+                });
+                
+                updateDashboardStats();
+                updateRecentOrders();
+                updateAllOrders();
+                updateNotificationBadge();
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                showNotification('Erro ao carregar pedidos.', 'error');
+            }
+        }
+
+        // Load products for current store
+        async function loadProducts() {
+            try {
+                const snapshot = await db.collection('stores').doc(currentStoreId).collection('products').get();
+                
+                products = [];
+                snapshot.forEach(doc => {
+                    products.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                updateProductsList();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showNotification('Erro ao carregar produtos.', 'error');
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Welcome modal
+            goToConfigBtn.addEventListener('click', () => {
+                welcomeModal.style.display = 'none';
+                showScreen('config');
+                navBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-screen="config"]').classList.add('active');
+            });
+            
+            // Logout
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+            });
+            
+            // Navigation
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const screen = btn.getAttribute('data-screen');
+                    showScreen(screen);
+                    
+                    navBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Reset badge when viewing orders
+                    if (screen === 'orders') {
+                        ordersBadge.classList.add('d-none');
+                    }
+                });
+            });
+            
+            // Copy link button
+            copyLinkBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(customerLink)
+                    .then(() => {
+                        showNotification('Link copiado para a área de transferência!', 'success');
+                    })
+                    .catch(() => {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = customerLink;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        showNotification('Link copiado!', 'success');
+                    });
+            });
+            
+            // Refresh link button
+            refreshLinkBtn.addEventListener('click', () => {
+                updateCustomerLink();
+                showNotification('Link atualizado!', 'info');
+            });
+            
+            // Status filter
+            statusFilterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    statusFilterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    statusFilter = btn.getAttribute('data-status');
+                    updateAllOrders();
+                });
+            });
+            
+            // Config form
+            configForm.addEventListener('submit', saveStoreConfig);
+            
+            // Logo upload
+            logoUploadArea.addEventListener('click', () => {
+                configLogoUpload.click();
+            });
+            
+            configLogoUpload.addEventListener('change', handleLogoUpload);
+            
+            // Logo preview click for zoom
+            configLogoPreview.addEventListener('click', () => {
+                if (configLogoPreview.src) {
+                    openImageZoom(configLogoPreview.src, 'Logo da Loja');
+                }
+            });
+            
+            // Theme selection
+            themeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    themeOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    configTheme.value = option.getAttribute('data-theme');
+                });
+            });
+            
+            // Product image upload
+            productImageUploadArea.addEventListener('click', () => {
+                productImageUpload.click();
+            });
+            
+            productImageUpload.addEventListener('change', handleProductImageUpload);
+            
+            // Product image preview click for zoom
+            productImagePreview.addEventListener('click', () => {
+                if (productImagePreview.src) {
+                    openImageZoom(productImagePreview.src, 'Imagem do Produto');
+                }
+            });
+            
+            // Add product button
+            addProductBtn.addEventListener('click', () => {
+                openProductForm();
+            });
+            
+            // Product form
+            productForm.addEventListener('submit', saveProduct);
+            cancelProductBtn.addEventListener('click', () => {
+                closeProductForm();
+            });
+            
+            // Close modals
+            closeOrderModal.addEventListener('click', () => {
+                orderDetailsModal.style.display = 'none';
+            });
+            
+            closeProductModal.addEventListener('click', () => {
+                closeProductForm();
+            });
+            
+            // Image zoom modal
+            closeZoom.addEventListener('click', () => {
+                imageZoomModal.style.display = 'none';
+            });
+            
+            zoomIn.addEventListener('click', () => {
+                const currentTransform = zoomedImage.style.transform || 'scale(1)';
+                const currentScale = parseFloat(currentTransform.match(/scale\(([^)]+)\)/)?.[1] || 1);
+                zoomedImage.style.transform = `scale(${currentScale + 0.2})`;
+            });
+            
+            zoomOut.addEventListener('click', () => {
+                const currentTransform = zoomedImage.style.transform || 'scale(1)';
+                const currentScale = parseFloat(currentTransform.match(/scale\(([^)]+)\)/)?.[1] || 1);
+                if (currentScale > 0.2) {
+                    zoomedImage.style.transform = `scale(${currentScale - 0.2})`;
+                }
+            });
+            
+            zoomReset.addEventListener('click', () => {
+                zoomedImage.style.transform = 'scale(1)';
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === orderDetailsModal) {
+                    orderDetailsModal.style.display = 'none';
+                }
+                if (e.target === productFormModal) {
+                    closeProductForm();
+                }
+                if (e.target === imageZoomModal) {
+                    imageZoomModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Handle logo upload
+        function handleLogoUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showNotification('A imagem deve ter no máximo 5MB.', 'error');
+                    configLogoUpload.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    logoBase64 = event.target.result;
+                    configLogoPreview.src = logoBase64;
+                    configLogoPreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Handle product image upload
+        function handleProductImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showNotification('A imagem deve ter no máximo 5MB.', 'error');
+                    productImageUpload.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    productImageBase64 = event.target.result;
+                    productImagePreview.src = productImageBase64;
+                    productImagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Open image zoom modal
+        function openImageZoom(imageSrc, altText) {
+            zoomedImage.src = imageSrc;
+            zoomedImage.alt = altText;
+            zoomedImage.style.transform = 'scale(1)';
+            imageZoomModal.style.display = 'flex';
+        }
+
+        // Show screen
+        function showScreen(screen) {
+            currentScreen = screen;
+            
+            screens.forEach(s => {
+                s.style.display = 'none';
+            });
+            
+            document.getElementById(`${screen}Screen`).style.display = 'block';
+        }
+
+        // Update dashboard statistics
+        function updateDashboardStats() {
+            const preparingOrders = orders.filter(order => 
+                order.deliveryStatus === 'preparing'
+            ).length;
+            
+            const confirmedOrders = orders.filter(order => 
+                order.deliveryStatus === 'confirmed'
+            ).length;
+            
+            const deliveringOrders = orders.filter(order => 
+                order.deliveryStatus === 'delivering'
+            ).length;
+            
+            const deliveredOrders = orders.filter(order => 
+                order.deliveryStatus === 'delivered'
+            ).length;
+            
+            const totalOrders = orders.length;
+            
+            const totalRevenue = orders.reduce((sum, order) => {
+                return sum + (order.total || 0);
+            }, 0);
+            
+            preparingOrdersCountElement.textContent = preparingOrders;
+            confirmedOrdersCountElement.textContent = confirmedOrders;
+            deliveringOrdersCountElement.textContent = deliveringOrders;
+            deliveredOrdersCountElement.textContent = deliveredOrders;
+            totalOrdersCountElement.textContent = totalOrders;
+            totalRevenueElement.textContent = `R$ ${totalRevenue.toFixed(0)}`;
+        }
+
+        // Update recent orders
+        function updateRecentOrders() {
+            recentOrdersList.innerHTML = '';
+            
+            const recentOrders = orders.slice(0, 5);
+            
+            if (recentOrders.length === 0) {
+                recentOrdersEmpty.style.display = 'block';
+                return;
+            }
+            
+            recentOrdersEmpty.style.display = 'none';
+            
+            recentOrders.forEach(order => {
+                const orderCard = createOrderCard(order);
+                recentOrdersList.appendChild(orderCard);
+            });
+        }
+
+        // Update all orders with filter
+        function updateAllOrders() {
+            allOrdersList.innerHTML = '';
+            
+            let filteredOrders = orders;
+            
+            if (statusFilter !== 'all') {
+                filteredOrders = orders.filter(order => {
+                    return order.deliveryStatus === statusFilter;
+                });
+            }
+            
+            if (filteredOrders.length === 0) {
+                allOrdersEmpty.style.display = 'block';
+                return;
+            }
+            
+            allOrdersEmpty.style.display = 'none';
+            
+            filteredOrders.forEach(order => {
+                const orderCard = createOrderCard(order);
+                allOrdersList.appendChild(orderCard);
+            });
+        }
+
+        // Create order card
+        function createOrderCard(order) {
+            const orderCard = document.createElement('div');
+            orderCard.className = 'order-card';
+            
+            const status = order.deliveryStatus || 'preparing';
+            const statusText = getDeliveryStatusText(status);
+            const statusClass = getDeliveryStatusClass(status);
+            
+            orderCard.innerHTML = `
+                <div class="order-header">
+                    <div class="order-id">#${order.id.substring(0, 8)}</div>
+                    <div class="order-date">${formatDate(order.timestamp || order.createdAt)}</div>
+                </div>
+                
+                <div class="order-customer">${order.customerName}</div>
+                <div class="order-phone">${formatPhone(order.customerPhone)}</div>
+                
+                <div class="order-info">
+                    <span class="order-status ${statusClass}">${statusText}</span>
+                    <div class="order-total">R$ ${order.total ? order.total.toFixed(2).replace('.', ',') : '0,00'}</div>
+                </div>
+                
+                <div class="order-actions">
+                    <button class="action-btn view-btn" data-id="${order.id}">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    
+                    ${status === 'preparing' ? `
+                        <button class="action-btn confirm-btn" data-id="${order.id}" data-action="confirmed">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    ` : ''}
+                    
+                    ${status === 'confirmed' ? `
+                        <button class="action-btn confirm-btn" data-id="${order.id}" data-action="delivering">
+                            <i class="fas fa-motorcycle"></i>
+                        </button>
+                    ` : ''}
+                    
+                    ${status === 'delivering' ? `
+                        <button class="action-btn confirm-btn" data-id="${order.id}" data-action="delivered">
+                            <i class="fas fa-check-circle"></i>
+                        </button>
+                    ` : ''}
+                    
+                    <button class="action-btn btn-whatsapp" data-id="${order.id}">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Add event listeners
+            orderCard.querySelector('.view-btn').addEventListener('click', (e) => {
+                const orderId = e.currentTarget.getAttribute('data-id');
+                viewOrderDetails(orderId);
+            });
+            
+            const confirmBtn = orderCard.querySelector('.confirm-btn');
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', (e) => {
+                    const orderId = e.currentTarget.getAttribute('data-id');
+                    const action = e.currentTarget.getAttribute('data-action') || 'confirmed';
+                    updateOrderStatus(orderId, action);
+                });
+            }
+            
+            orderCard.querySelector('.btn-whatsapp').addEventListener('click', (e) => {
+                const orderId = e.currentTarget.getAttribute('data-id');
+                openOrderWhatsApp(orderId);
+            });
+            
+            return orderCard;
+        }
+
+        // Update products list
+        function updateProductsList() {
+            productsList.innerHTML = '';
+            
+            if (products.length === 0) {
+                productsEmpty.style.display = 'block';
+                return;
+            }
+            
+            productsEmpty.style.display = 'none';
+            
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        ${product.imageBase64 ? 
+                            `<img src="${product.imageBase64}" alt="${product.name}" style="cursor: pointer;">` : 
+                            `<i class="fas ${product.icon || 'fa-utensils'}"></i>`
+                        }
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</div>
+                    </div>
+                    
+                    <div class="product-actions">
+                        <button class="action-btn view-btn" data-id="${product.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn reject-btn" data-id="${product.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                productsList.appendChild(productCard);
+            });
+            
+            // Add event listeners
+            productsList.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const productId = e.currentTarget.getAttribute('data-id');
+                    editProduct(productId);
+                });
+            });
+            
+            productsList.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const productId = e.currentTarget.getAttribute('data-id');
+                    deleteProduct(productId);
+                });
+            });
+            
+            // Add click event for product images
+            productsList.querySelectorAll('.product-image img').forEach(img => {
+                img.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const productId = e.target.closest('.product-card').querySelector('.view-btn').getAttribute('data-id');
+                    const product = products.find(p => p.id === productId);
+                    if (product && product.imageBase64) {
+                        openImageZoom(product.imageBase64, product.name);
+                    }
+                });
+            });
+        }
+
+        // View order details
+        function viewOrderDetails(orderId) {
+            selectedOrder = orders.find(order => order.id === orderId);
+            
+            if (!selectedOrder) return;
+            
+            const status = selectedOrder.deliveryStatus || 'preparing';
+            const statusText = getDeliveryStatusText(status);
+            
+            let itemsHTML = '';
+            if (selectedOrder.items && selectedOrder.items.length > 0) {
+                selectedOrder.items.forEach(item => {
+                    const itemTotal = (item.price || 0) * (item.quantity || 1);
+                    itemsHTML += `
+                        <div class="d-flex justify-between mb-1">
+                            <span>${item.quantity}x ${item.name}</span>
+                            <span>R$ ${itemTotal.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                    `;
+                });
+            }
+            
+            const content = `
+                <div class="mb-3">
+                    <h3 class="mb-2">Informações do Cliente</h3>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Nome:</strong>
+                        <span>${selectedOrder.customerName || 'Não informado'}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Telefone:</strong>
+                        <span>${formatPhone(selectedOrder.customerPhone) || 'Não informado'}</span>
+                    </div>
+                    <div class="mb-1">
+                        <strong>Endereço:</strong>
+                        <div>${selectedOrder.customerAddress || 'Não informado'}</div>
+                    </div>
+                    ${selectedOrder.notes ? `
+                        <div class="mb-1">
+                            <strong>Observações:</strong>
+                            <div>${selectedOrder.notes}</div>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="mb-3">
+                    <h3 class="mb-2">Detalhes do Pedido</h3>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>ID:</strong>
+                        <span>#${selectedOrder.id.substring(0, 8)}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Data:</strong>
+                        <span>${formatDateTime(selectedOrder.timestamp || selectedOrder.createdAt)}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Pagamento:</strong>
+                        <span>${selectedOrder.paymentMethod === 'money' ? 'Dinheiro' : 'PIX'}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Status:</strong>
+                        <span class="order-status ${getDeliveryStatusClass(status)}">${statusText}</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h3 class="mb-2">Itens do Pedido</h3>
+                    ${itemsHTML || '<p>Nenhum item</p>'}
+                    <div class="d-flex justify-between mt-2 pt-2 border-top">
+                        <strong>TOTAL:</strong>
+                        <strong class="order-total">R$ ${selectedOrder.total ? selectedOrder.total.toFixed(2).replace('.', ',') : '0,00'}</strong>
+                    </div>
+                </div>
+                
+                ${selectedOrder.receiptBase64 ? `
+                    <div class="mb-3">
+                        <h3 class="mb-2">Comprovante PIX</h3>
+                        <img src="${selectedOrder.receiptBase64}" class="image-preview d-block" style="height: 150px; cursor: pointer;" onclick="openImageZoom('${selectedOrder.receiptBase64}', 'Comprovante PIX')">
+                    </div>
+                ` : ''}
+                
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-primary flex-1" id="updateStatusBtn" data-id="${selectedOrder.id}">
+                        Atualizar Status
+                    </button>
+                    <button class="btn btn-secondary flex-1" id="closeDetailsBtn">
+                        Fechar
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('orderDetailsContent').innerHTML = content;
+            
+            document.getElementById('updateStatusBtn').addEventListener('click', () => {
+                showStatusUpdateOptions(selectedOrder.id, status);
+            });
+            
+            document.getElementById('closeDetailsBtn').addEventListener('click', () => {
+                orderDetailsModal.style.display = 'none';
+            });
+            
+            orderDetailsModal.style.display = 'block';
+        }
+
+        // Show status update options
+        function showStatusUpdateOptions(orderId, currentStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            let optionsHTML = '<h3 class="mb-2">Atualizar Status:</h3>';
+            const statusOptions = ['preparing', 'confirmed', 'delivering', 'delivered'];
+            
+            statusOptions.forEach(status => {
+                if (status !== currentStatus) {
+                    const statusText = getDeliveryStatusText(status);
+                    optionsHTML += `
+                        <button class="btn btn-primary btn-block mb-1" data-action="${status}">
+                            ${statusText}
+                        </button>
+                    `;
+                }
+            });
+            
+            optionsHTML += `
+                <button class="btn btn-secondary btn-block mt-2" id="backToDetailsBtn">
+                    Voltar
+                </button>
+            `;
+            
+            document.getElementById('orderDetailsContent').innerHTML = optionsHTML;
+            
+            document.querySelectorAll('[data-action]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const action = e.currentTarget.getAttribute('data-action');
+                    updateOrderStatus(orderId, action);
+                    orderDetailsModal.style.display = 'none';
+                });
+            });
+            
+            document.getElementById('backToDetailsBtn').addEventListener('click', () => {
+                viewOrderDetails(orderId);
+            });
+        }
+
+        // Update order status
+        async function updateOrderStatus(orderId, status) {
+            try {
+                await db.collection('orders').doc(orderId).update({
+                    deliveryStatus: status,
+                    status: status === 'delivered' ? 'completed' : 
+                           status === 'confirmed' ? 'confirmed' : 'pending_confirmation',
+                    updatedAt: new Date().toISOString()
+                });
+                
+                showNotification(`Status atualizado para: ${getDeliveryStatusText(status)}`, 'success');
+                
+                const order = orders.find(o => o.id === orderId);
+                if (order) {
+                    sendStatusUpdateWhatsApp(orderId, order, status);
+                }
+                
+            } catch (error) {
+                console.error('Error updating order:', error);
+                showNotification('Erro ao atualizar status.', 'error');
+            }
+        }
+
+        // Open WhatsApp for order
+        function openOrderWhatsApp(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const phoneNumber = storeConfig.whatsappNumber || "(11) 99999-9999";
+            const message = generateOrderMessage(order);
+            const whatsappUrl = `https://wa.me/${order.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+            
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Send status update via WhatsApp
+        function sendStatusUpdateWhatsApp(orderId, order, newStatus) {
+            const phoneNumber = storeConfig.whatsappNumber || "(11) 99999-9999";
+            
+            let message = `📱 *ATUALIZAÇÃO DE STATUS* 📱\n\n`;
+            message += `*Pedido:* #${orderId.substring(0, 8)}\n`;
+            message += `*Cliente:* ${order.customerName}\n`;
+            message += `*Novo Status:* ${getDeliveryStatusText(newStatus)}\n\n`;
+            
+            if (newStatus === 'delivering') {
+                message += `Seu pedido saiu para entrega! 🛵\n`;
+                message += `Em breve estará aí.\n\n`;
+            } else if (newStatus === 'delivered') {
+                message += `Seu pedido foi entregue! ✅\n`;
+                message += `Agradecemos pela preferência!\n\n`;
+            } else if (newStatus === 'confirmed') {
+                message += `Seu pedido foi confirmado! ✅\n`;
+                message += `Estamos preparando sua entrega.\n\n`;
+            } else if (newStatus === 'preparing') {
+                message += `Seu pedido está sendo preparado! 👨‍🍳\n`;
+                message += `Em breve atualizaremos o status.\n\n`;
+            }
+            
+            message += `_Qualquer dúvida, entre em contato._`;
+            
+            const whatsappUrl = `https://wa.me/${order.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Generate order message for WhatsApp
+        function generateOrderMessage(order) {
+            const status = order.deliveryStatus || 'preparing';
+            
+            let message = `📱 *DETALHES DO PEDIDO* 📱\n\n`;
+            message += `*Pedido:* #${order.id.substring(0, 8)}\n`;
+            message += `*Status:* ${getDeliveryStatusText(status)}\n`;
+            message += `*Cliente:* ${order.customerName}\n`;
+            message += `*Endereço:* ${order.customerAddress}\n`;
+            message += `*Telefone:* ${order.customerPhone}\n\n`;
+            
+            message += `*ITENS DO PEDIDO:*\n`;
+            if (order.items && order.items.length > 0) {
+                order.items.forEach(item => {
+                    const itemTotal = (item.price || 0) * (item.quantity || 1);
+                    message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
+                });
+            }
+            
+            message += `\n*TOTAL: R$ ${order.total ? order.total.toFixed(2).replace('.', ',') : '0,00'}*\n`;
+            message += `*Pagamento:* ${order.paymentMethod === 'money' ? 'Dinheiro' : 'PIX'}\n\n`;
+            
+            if (order.notes) {
+                message += `*Observações:* ${order.notes}\n\n`;
+            }
+            
+            message += `Obrigado pela preferência! 🍖🍰`;
+            
+            return message;
+        }
+
+        // Open product form
+        function openProductForm() {
+            productModalTitle.textContent = 'Novo Produto';
+            productForm.reset();
+            productIdInput.value = '';
+            productImagePreview.style.display = 'none';
+            productImageBase64 = '';
+            productActive.checked = true;
+            productFormModal.style.display = 'block';
+        }
+
+        // Edit product
+        function editProduct(productId) {
+            selectedProduct = products.find(p => p.id === productId);
+            
+            if (!selectedProduct) return;
+            
+            productModalTitle.textContent = 'Editar Produto';
+            productIdInput.value = selectedProduct.id;
+            productName.value = selectedProduct.name;
+            productDescription.value = selectedProduct.description;
+            productPrice.value = selectedProduct.price;
+            productCategory.value = selectedProduct.category;
+            productActive.checked = selectedProduct.active !== false;
+            productImageBase64 = selectedProduct.imageBase64 || '';
+            
+            if (selectedProduct.imageBase64) {
+                productImagePreview.src = selectedProduct.imageBase64;
+                productImagePreview.style.display = 'block';
+            } else {
+                productImagePreview.style.display = 'none';
+            }
+            
+            productFormModal.style.display = 'block';
+        }
+
+        // Close product form
+        function closeProductForm() {
+            productFormModal.style.display = 'none';
+            selectedProduct = null;
+            productImageBase64 = '';
+        }
+
+        // Save product
+        async function saveProduct(e) {
+            e.preventDefault();
+            
+            const productData = {
+                name: productName.value,
+                description: productDescription.value,
+                price: parseFloat(productPrice.value),
+                category: productCategory.value,
+                active: productActive.checked,
+                updatedAt: new Date().toISOString(),
+                storeId: currentStoreId
+            };
+            
+            if (productImageBase64) {
+                productData.imageBase64 = productImageBase64;
+            }
+            
+            try {
+                if (productIdInput.value) {
+                    await db.collection('stores').doc(currentStoreId).collection('products').doc(productIdInput.value).update(productData);
+                    showNotification('Produto atualizado!', 'success');
+                } else {
+                    productData.createdAt = new Date().toISOString();
+                    await db.collection('stores').doc(currentStoreId).collection('products').add(productData);
+                    showNotification('Produto adicionado!', 'success');
+                }
+                
+                closeProductForm();
+                loadProducts();
+            } catch (error) {
+                console.error('Error saving product:', error);
+                showNotification('Erro ao salvar produto.', 'error');
+            }
+        }
+
+        // Delete product
+        async function deleteProduct(productId) {
+            if (!confirm('Excluir este produto?')) return;
+            
+            try {
+                await db.collection('stores').doc(currentStoreId).collection('products').doc(productId).delete();
+                showNotification('Produto excluído!', 'success');
+                loadProducts();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showNotification('Erro ao excluir produto.', 'error');
+            }
+        }
+
+        // Save store configuration
+        async function saveStoreConfig(e) {
+            e.preventDefault();
+            
+            // Format phone numbers
+            const whatsappNumber = configWhatsApp.value;
+            const contactPhone = configContactPhone.value;
+            
+            const configData = {
+                businessName: configBusinessName.value,
+                whatsappNumber: whatsappNumber,
+                pixKey: configPixKey.value,
+                contactPhone: contactPhone,
+                productsTitle: configProductsTitle.value,
+                theme: configTheme.value,
+                updatedAt: new Date().toISOString()
+            };
+            
+            if (logoBase64) {
+                configData.logoBase64 = logoBase64;
+            }
+            
+            try {
+                await db.collection('stores').doc(currentStoreId).set(configData, { merge: true });
+                storeConfig = configData;
+                
+                // Atualizar usuário para marcar como configurado
+                await db.collection('users').doc(currentStoreId).update({
+                    storeName: configBusinessName.value,
+                    configCompleted: true
+                });
+                
+                currentUser.storeName = configBusinessName.value;
+                userConfigCompleted = true;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                userAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
+                storeAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
+                storeNameDisplay.textContent = configBusinessName.value;
+                adminStoreName.textContent = `Venda+`;
+                
+                showNotification('Configurações salvas!', 'success');
+                
+                // Fechar modal de boas-vindas se estiver aberto
+                welcomeModal.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error saving store config:', error);
+                showNotification('Erro ao salvar configurações.', 'error');
+            }
+        }
+
+        // Helper functions
+        function formatDate(dateString) {
+            if (!dateString) return 'Data não informada';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+        
+        function formatDateTime(dateString) {
+            if (!dateString) return 'Data/hora não informada';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function formatPhone(phone) {
+            if (!phone) return '';
+            // Remove all non-numeric characters
+            const cleaned = phone.replace(/\D/g, '');
+            // Format as (00) 00000-0000
+            if (cleaned.length === 11) {
+                return `(${cleaned.substring(0,2)}) ${cleaned.substring(2,7)}-${cleaned.substring(7)}`;
+            }
+            return phone;
+        }
+
+        function getDeliveryStatusText(status) {
+            switch(status) {
+                case 'preparing': return 'Preparando';
+                case 'confirmed': return 'Confirmado';
+                case 'delivering': return 'Saiu para entrega';
+                case 'delivered': return 'Entregue';
+                case 'rejected': return 'Rejeitado';
+                default: return 'Preparando';
+            }
+        }
+
+        function getDeliveryStatusClass(status) {
+            switch(status) {
+                case 'preparing': return 'status-preparing';
+                case 'confirmed': return 'status-confirmed';
+                case 'delivering': return 'status-delivering';
+                case 'delivered': return 'status-delivered';
+                case 'rejected': return 'status-rejected';
+                default: return 'status-preparing';
+            }
+        }
+
+        // Show notification
         function showNotification(message, type = 'info') {
             const existingNotifications = document.querySelectorAll('.notification');
             existingNotifications.forEach(notification => {
@@ -566,20 +2745,10 @@
         }
 
         // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const storeId = urlParams.get('store');
-            if (storeId) {
-                window.location.href = `customer.html?store=${storeId}`;
-            }
-            
-            // Carregar tema do localStorage se existir
-            const savedTheme = localStorage.getItem('appTheme');
-            if (savedTheme && document.body.classList.contains('theme-black')) {
-                document.body.classList.remove('theme-black');
-                document.body.classList.add(savedTheme);
-            }
-        });
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Make openImageZoom available globally
+        window.openImageZoom = openImageZoom;
     </script>
 </body>
 </html>

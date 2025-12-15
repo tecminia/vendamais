@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Venda+ | Login</title>
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            background-color: #ffffff;
+            color: #212121;
+        }
+        
+        body {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #ffffff;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo-icon {
+            font-size: 3rem;
+            color: #212121;
+            margin-bottom: 15px;
+        }
+        
+        .logo-section h1 {
+            font-size: 1.8rem;
+            color: #212121;
+            margin-bottom: 5px;
+        }
+        
+        .logo-section p {
+            color: #757575;
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #212121;
+            font-size: 0.95rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+            color: #212121;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #212121;
+            box-shadow: 0 0 0 3px rgba(33, 33, 33, 0.1);
+        }
+        
+        .btn {
+            padding: 14px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-primary {
+            background-color: #212121;
+            color: #ffffff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #000000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 33, 33, 0.2);
+        }
+        
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: #212121;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+            opacity: 0.9;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #757575;
+            font-size: 0.9rem;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background-color: #e0e0e0;
+        }
+        
+        .divider::before {
+            left: 0;
+        }
+        
+        .divider::after {
+            right: 0;
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #757575;
+        }
+        
+        .register-link a {
+            color: #212121;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            background-color: rgba(0, 0, 0, 0.85);
+            max-width: 300px;
+            width: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .notification.success {
+            background-color: rgba(76, 175, 80, 0.95);
+        }
+        
+        .notification.error {
+            background-color: rgba(244, 67, 54, 0.95);
+        }
+        
+        .notification.info {
+            background-color: rgba(33, 150, 243, 0.95);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 20px;
+            }
+            
+            .logo-section h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-store"></i>
+            </div>
+            <h1>Venda+</h1>
+            <p>Sistema Multi-Usuários</p>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label">E-mail</label>
+                <input type="email" id="email" class="form-input" placeholder="seu@email.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <input type="password" id="password" class="form-input" placeholder="Sua senha" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> Entrar
+            </button>
+        </form>
+        
+        <div class="divider">ou</div>
+        
+        <!-- Register Form -->
+        <form id="registerForm">
+            <div class="form-group">
+                <label class="form-label">Nome da Loja</label>
+                <input type="text" id="storeName" class="form-input" placeholder="Nome do seu negócio" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">E-mail</label>
+                <input type="email" id="regEmail" class="form-input" placeholder="seu@email.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+            </div>
+            
+            <button type="submit" class="btn btn-secondary" id="registerBtn">
+                <i class="fas fa-user-plus"></i> Criar Conta
+            </button>
+        </form>
+        
+        <div class="register-link">
+            Já tem conta? <a href="#" id="showLogin">Faça login</a>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7U-JfKAlkPxSyL4AEf5u0BgcDzSXf41M",
+            authDomain: "appvendas-1eebf.firebaseapp.com",
+            projectId: "appvendas-1eebf",
+            storageBucket: "appvendas-1eebf.firebasestorage.app",
+            messagingSenderId: "229472373918",
+            appId: "1:229472373918:web:39cd4940b052b2375f3f8f"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // DOM Elements
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const showLogin = document.getElementById('showLogin');
+
+        // Show login form by default
+        registerForm.style.display = 'none';
+
+        // Toggle between login and register forms
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (registerForm.style.display === 'none') {
+                registerForm.style.display = 'block';
+                loginForm.style.display = 'none';
+                showLogin.textContent = 'Faça login';
+            } else {
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                showLogin.textContent = 'Criar conta';
+            }
+        });
+
+        // Login function
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                loginBtn.innerHTML = '<div class="loading"></div>';
+                loginBtn.disabled = true;
+                
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Get user data from Firestore
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    // Store user data in localStorage
+                    const userData = userDoc.data();
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        uid: user.uid,
+                        email: user.email,
+                        storeName: userData.storeName,
+                        isAdmin: true
+                    }));
+                    
+                    showNotification('Login realizado com sucesso!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    showNotification('Erro: dados do usuário não encontrados.', 'error');
+                    await auth.signOut();
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification(getErrorMessage(error), 'error');
+            } finally {
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
+                loginBtn.disabled = false;
+            }
+        });
+
+        // Register function
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const storeName = document.getElementById('storeName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            try {
+                registerBtn.innerHTML = '<div class="loading"></div>';
+                registerBtn.disabled = true;
+                
+                // Create user in Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Create user document in Firestore
+                await db.collection('users').doc(user.uid).set({
+                    uid: user.uid,
+                    email: user.email,
+                    storeName: storeName,
+                    createdAt: new Date().toISOString(),
+                    isActive: true,
+                    customerLink: null,
+                    configCompleted: false // Flag para verificar se completou cadastro
+                });
+                
+                // Create default store configuration
+                await db.collection('stores').doc(user.uid).set({
+                    businessName: storeName,
+                    logoBase64: '',
+                    whatsappNumber: '',
+                    pixKey: '',
+                    contactPhone: '',
+                    productsTitle: 'Nossos Produtos',
+                    ownerId: user.uid,
+                    createdAt: new Date().toISOString(),
+                    theme: 'black' // Tema padrão preto
+                });
+                
+                // Create default welcome product
+                await db.collection('stores').doc(user.uid).collection('products').add({
+                    name: 'Produto Exemplo',
+                    description: 'Este é um produto de exemplo. Você pode editá-lo ou excluí-lo.',
+                    price: 29.90,
+                    category: 'outro',
+                    active: true,
+                    imageBase64: '',
+                    createdAt: new Date().toISOString()
+                });
+                
+                // Store user data in localStorage
+                localStorage.setItem('currentUser', JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    storeName: storeName,
+                    isAdmin: true
+                }));
+                
+                showNotification('Conta criada com sucesso!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } catch (error) {
+                console.error('Registration error:', error);
+                showNotification(getErrorMessage(error), 'error');
+            } finally {
+                registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Criar Conta';
+                registerBtn.disabled = false;
+            }
+        });
+
+        // Check if user is already logged in
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        uid: user.uid,
+                        email: user.email,
+                        storeName: userData.storeName,
+                        isAdmin: true
+                    }));
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+
+        // Helper functions
+        function getErrorMessage(error) {
+            switch (error.code) {
+                case 'auth/email-already-in-use':
+                    return 'Este e-mail já está em uso.';
+                case 'auth/invalid-email':
+                    return 'E-mail inválido.';
+                case 'auth/weak-password':
+                    return 'Senha muito fraca. Use pelo menos 6 caracteres.';
+                case 'auth/user-not-found':
+                    return 'Usuário não encontrado.';
+                case 'auth/wrong-password':
+                    return 'Senha incorreta.';
+                case 'auth/too-many-requests':
+                    return 'Muitas tentativas. Tente novamente mais tarde.';
+                default:
+                    return 'Erro: ' + error.message;
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => {
+                notification.remove();
+            });
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const storeId = urlParams.get('store');
+            if (storeId) {
+                window.location.href = `vitrine.html?store=${storeId}`;
+            }
+        });
+    </script>
+</body>
+</html>
