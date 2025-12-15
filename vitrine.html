@@ -720,42 +720,6 @@
             background-color: var(--background-color);
         }
         
-        /* PDF Info */
-        .pdf-info {
-            display: none;
-            background-color: var(--surface-color);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-            border: 1px solid var(--border-color);
-        }
-        
-        .pdf-info-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .pdf-icon {
-            color: #f44336;
-            font-size: 1.5rem;
-        }
-        
-        .pdf-details {
-            flex: 1;
-        }
-        
-        .pdf-name {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        
-        .pdf-size {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-        
         /* Image Zoom Modal */
         .image-zoom-modal {
             display: none;
@@ -1346,25 +1310,11 @@
                             
                             <div class="upload-area" id="receiptUploadArea">
                                 <div class="upload-icon">
-                                    <i class="fas fa-file-pdf"></i>
+                                    <i class="fas fa-file-upload"></i>
                                 </div>
-                                <div class="upload-text">Clique para enviar comprovante (PDF)</div>
+                                <div class="upload-text">Clique para enviar comprovante</div>
                                 <div class="upload-size">Tamanho máximo: 5MB</div>
-                                <input type="file" id="receiptUpload" accept=".pdf,application/pdf" style="display: none;">
-                            </div>
-                            
-                            <!-- PDF Info -->
-                            <div class="pdf-info" id="pdfInfo">
-                                <div class="pdf-info-content">
-                                    <i class="fas fa-file-pdf pdf-icon"></i>
-                                    <div class="pdf-details">
-                                        <div class="pdf-name" id="pdfFileName"></div>
-                                        <div class="pdf-size" id="pdfFileSize"></div>
-                                    </div>
-                                </div>
-                                <button class="btn btn-sm" id="viewPdfBtn">
-                                    <i class="fas fa-eye"></i> Visualizar PDF
-                                </button>
+                                <input type="file" id="receiptUpload" accept="image/*" style="display: none;">
                             </div>
                             
                             <img id="receiptPreview" class="receipt-preview" alt="Comprovante">
@@ -1518,10 +1468,6 @@
         const receiptUploadArea = document.getElementById('receiptUploadArea');
         const receiptUpload = document.getElementById('receiptUpload');
         const receiptPreview = document.getElementById('receiptPreview');
-        const pdfInfo = document.getElementById('pdfInfo');
-        const pdfFileName = document.getElementById('pdfFileName');
-        const pdfFileSize = document.getElementById('pdfFileSize');
-        const viewPdfBtn = document.getElementById('viewPdfBtn');
         
         // Success elements
         const successMessage = document.getElementById('successMessage');
@@ -1840,27 +1786,6 @@
             
             receiptUpload.addEventListener('change', handleReceiptUpload);
             
-            // View PDF button
-            viewPdfBtn.addEventListener('click', () => {
-                if (receiptBase64) {
-                    const pdfWindow = window.open();
-                    pdfWindow.document.write(`
-                        <html>
-                            <head>
-                                <title>Comprovante PIX</title>
-                                <style>
-                                    body { margin: 0; padding: 20px; background: #f5f5f5; }
-                                    iframe { width: 100%; height: calc(100vh - 40px); border: none; }
-                                </style>
-                            </head>
-                            <body>
-                                <iframe src="${receiptBase64}"></iframe>
-                            </body>
-                        </html>
-                    `);
-                }
-            });
-            
             // Receipt preview click for zoom
             receiptPreview.addEventListener('click', () => {
                 if (receiptPreview.src) {
@@ -2135,8 +2060,6 @@
                 status: 'pending',
                 paymentMethod: null,
                 receiptBase64: null,
-                receiptFileName: null,
-                receiptFileType: null,
                 deliveryStatus: 'preparing',
                 storeId: currentStoreId
             };
@@ -2169,14 +2092,7 @@
             const file = e.target.files[0];
             if (file) {
                 if (file.size > 5 * 1024 * 1024) {
-                    showNotification('O arquivo deve ter no máximo 5MB.', 'error');
-                    receiptUpload.value = '';
-                    return;
-                }
-                
-                // Verificar se é um PDF
-                if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-                    showNotification('Por favor, envie um arquivo PDF.', 'error');
+                    showNotification('A imagem deve ter no máximo 5MB.', 'error');
                     receiptUpload.value = '';
                     return;
                 }
@@ -2184,27 +2100,12 @@
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     receiptBase64 = event.target.result;
+                    receiptPreview.src = receiptBase64;
+                    receiptPreview.style.display = 'block';
                     orderData.receiptBase64 = receiptBase64;
-                    orderData.receiptFileName = file.name;
-                    orderData.receiptFileType = file.type;
-                    
-                    // Mostrar informações do PDF
-                    pdfFileName.textContent = file.name;
-                    pdfFileSize.textContent = formatFileSize(file.size);
-                    pdfInfo.style.display = 'block';
-                    receiptPreview.style.display = 'none'; // Esconder preview de imagem
                 };
                 reader.readAsDataURL(file);
             }
-        }
-
-        // Format file size
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
         // Confirm order and send WhatsApp
@@ -2240,7 +2141,7 @@
                 
             } catch (error) {
                 console.error('Error saving order:', error);
-                showNotification('Erro ao processar pedido. Tente novamente.', 'error');
+                showNotification('Erro ao processar pedido.', 'error');
             }
         }
 
@@ -2269,10 +2170,7 @@
             }
             
             if (orderData.paymentMethod === 'pix' && orderData.receiptBase64) {
-                message += `✅ Comprovante PIX em PDF enviado pelo cliente\n`;
-                if (orderData.receiptFileName) {
-                    message += `📄 Arquivo: ${orderData.receiptFileName}\n`;
-                }
+                message += `✅ Comprovante PIX enviado pelo cliente\n`;
             }
             
             message += `Status: ⏳ Aguardando confirmação`;
@@ -2441,18 +2339,7 @@
                             ${order.receiptBase64 ? `
                             <div class="profile-card mt-3">
                                 <h3 class="mb-2">Comprovante PIX</h3>
-                                <div style="background-color: var(--surface-color); padding: 15px; border-radius: 10px;">
-                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                        <i class="fas fa-file-pdf" style="color: #f44336; font-size: 1.5rem;"></i>
-                                        <div>
-                                            <div style="font-weight: 600; color: var(--text-primary);">${order.receiptFileName || 'Comprovante.pdf'}</div>
-                                            ${order.receiptFileType === 'application/pdf' ? '<div style="font-size: 0.8rem; color: var(--text-secondary);">Arquivo PDF</div>' : ''}
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-sm" onclick="window.open('${order.receiptBase64}', '_blank')" style="margin-top: 10px;">
-                                        <i class="fas fa-external-link-alt"></i> Abrir PDF
-                                    </button>
-                                </div>
+                                <img src="${order.receiptBase64}" class="receipt-preview d-block" style="cursor: pointer;" onclick="openImageZoom('${order.receiptBase64}', 'Comprovante PIX')">
                             </div>
                             ` : ''}
                             
@@ -2783,10 +2670,6 @@
             deliveryForm.reset();
             receiptPreview.style.display = 'none';
             receiptUpload.value = '';
-            
-            // Resetar informações do PDF
-            pdfInfo.style.display = 'none';
-            
             paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
             loadUserDataToForm();
         }
