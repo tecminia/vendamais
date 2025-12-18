@@ -1618,8 +1618,8 @@
                             <button class="btn btn-primary flex-1" id="copyLinkBtn">
                                 <i class="fas fa-copy"></i> Copiar Link
                             </button>
-                            <button class="btn btn-secondary flex-1" id="refreshLinkBtn">
-                                <i class="fas fa-sync-alt"></i> Atualizar
+                            <button class="btn btn-success flex-1" id="openLinkBtn">
+                                <i class="fas fa-external-link-alt"></i> Abrir Link
                             </button>
                             <button class="btn btn-secondary flex-1" id="shareLinkBtn">
                                 <i class="fas fa-share-alt"></i> Compartilhar
@@ -1834,7 +1834,7 @@
         let phoneMask = null;
         let userConfigCompleted = false;
         let storeVisits = 0;
-        let visitsData = [];
+        let dailyVisitsData = []; // MUDADO: Nome alterado para evitar conflito
         let visitsChart = null;
         let revenueChart = null;
         let paymentMethodsChart = null;
@@ -1855,7 +1855,7 @@
         const adminStoreName = document.getElementById('adminStoreName');
         const customerLinkContainer = document.getElementById('customerLinkContainer');
         const copyLinkBtn = document.getElementById('copyLinkBtn');
-        const refreshLinkBtn = document.getElementById('refreshLinkBtn');
+        const openLinkBtn = document.getElementById('openLinkBtn');
         const shareLinkBtn = document.getElementById('shareLinkBtn');
         const loadingOverlay = document.getElementById('loadingOverlay');
         
@@ -2077,9 +2077,9 @@
             try {
                 const visitsDoc = await db.collection('storeVisits').doc(currentStoreId).get();
                 if (visitsDoc.exists) {
-                    const visitsData = visitsDoc.data();
-                    storeVisits = visitsData.totalVisits || 0;
-                    visitsData = visitsData.dailyVisits || [];
+                    const visitsDataFromDB = visitsDoc.data(); // MUDADO: Nome diferente
+                    storeVisits = visitsDataFromDB.totalVisits || 0;
+                    dailyVisitsData = visitsDataFromDB.dailyVisits || []; // MUDADO: Usando dailyVisitsData
                     
                     totalVisitsElement.textContent = storeVisits;
                     totalVisitsConfig.textContent = storeVisits;
@@ -2106,7 +2106,7 @@
             
             // Prepare data for last 7 days
             const last7Days = [];
-            const visitsData = [];
+            const visitsDataForChart = []; // MUDADO: Nome diferente
             
             for (let i = 6; i >= 0; i--) {
                 const date = new Date();
@@ -2115,10 +2115,9 @@
                 last7Days.push(dateStr);
                 
                 // Find visits for this date
-                const visitsForDay = storeVisits.dailyVisits?.find(v => 
-                    v.date === date.toISOString().split('T')[0]
-                )?.count || 0;
-                visitsData.push(visitsForDay);
+                const dateString = date.toISOString().split('T')[0];
+                const visitsForDay = dailyVisitsData.find(v => v.date === dateString)?.count || 0;
+                visitsDataForChart.push(visitsForDay); // MUDADO: Usando visitsDataForChart
             }
             
             if (visitsChart) {
@@ -2131,7 +2130,7 @@
                     labels: last7Days,
                     datasets: [{
                         label: 'Acessos',
-                        data: visitsData,
+                        data: visitsDataForChart, // MUDADO: Usando visitsDataForChart
                         borderColor: '#212121',
                         backgroundColor: 'rgba(33, 33, 33, 0.1)',
                         borderWidth: 2,
@@ -2655,10 +2654,12 @@
                     });
             });
             
-            // Refresh link button
-            refreshLinkBtn.addEventListener('click', () => {
-                updateCustomerLink();
-                showNotification('Link atualizado!', 'info');
+            // Open link button
+            openLinkBtn.addEventListener('click', () => {
+                if (customerLink) {
+                    window.open(customerLink, '_blank');
+                    showNotification('Link aberto em nova aba!', 'info');
+                }
             });
             
             // Share link button
