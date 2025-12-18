@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="pageTitle">Carregando...</title>
+    <title id="pageTitle">Venda+ | Vitrine</title>
     <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
@@ -506,6 +506,34 @@
             padding: 5px;
         }
         
+        /* Cart Summary */
+        .cart-summary {
+            margin-bottom: 15px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.9rem;
+        }
+        
+        .summary-label {
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+        
+        .summary-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+        
+        .delivery-fee {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
         .cart-total {
             display: flex;
             justify-content: space-between;
@@ -703,10 +731,28 @@
             transition: color 0.3s ease;
         }
         
-        .upload-size {
+        .upload-info {
             font-size: 0.8rem;
             color: var(--text-secondary);
             transition: color 0.3s ease;
+            margin-top: 5px;
+        }
+        
+        .file-types {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .file-type-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            background-color: var(--background-color);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
         }
         
         .receipt-preview {
@@ -1241,6 +1287,18 @@
                         <!-- Cart items will be loaded dynamically -->
                     </div>
                     
+                    <!-- Cart Summary -->
+                    <div class="cart-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">Subtotal:</span>
+                            <span class="summary-value" id="cartSubtotal">R$ 0,00</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Taxa de Entrega:</span>
+                            <span class="summary-value delivery-fee" id="deliveryFee">R$ 0,00</span>
+                        </div>
+                    </div>
+                    
                     <div class="cart-total">
                         <span>Total:</span>
                         <span id="cartTotal">R$ 0,00</span>
@@ -1313,11 +1371,23 @@
                                     <i class="fas fa-file-upload"></i>
                                 </div>
                                 <div class="upload-text">Clique para enviar comprovante</div>
-                                <div class="upload-size">Tamanho máximo: 5MB</div>
-                                <input type="file" id="receiptUpload" accept="image/*" style="display: none;">
+                                <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                                <div class="file-types">
+                                    <span class="file-type-badge">JPG</span>
+                                    <span class="file-type-badge">PNG</span>
+                                    <span class="file-type-badge">PDF</span>
+                                </div>
+                                <input type="file" id="receiptUpload" accept="image/*,.pdf" style="display: none;">
                             </div>
                             
                             <img id="receiptPreview" class="receipt-preview" alt="Comprovante">
+                            
+                            <!-- PDF Preview Placeholder -->
+                            <div id="pdfPreview" class="receipt-preview" style="display: none; background-color: var(--background-color); align-items: center; justify-content: center; flex-direction: column; padding: 20px;">
+                                <i class="fas fa-file-pdf upload-icon" style="font-size: 3rem; color: #f44336;"></i>
+                                <div class="upload-text" id="pdfFileName">arquivo.pdf</div>
+                                <div class="upload-info">Arquivo PDF carregado</div>
+                            </div>
                         </div>
                     </div>
                     
@@ -1412,6 +1482,7 @@
         let currentStoreId = null;
         let phoneMask = null;
         let zoomScale = 1;
+        let deliveryFee = 0;
         
         // Carrega dados do usuário do localStorage
         const savedUserData = localStorage.getItem('userData');
@@ -1441,8 +1512,10 @@
         
         // Cart elements
         const cartItems = document.getElementById('cartItems');
+        const cartSubtotal = document.getElementById('cartSubtotal');
         const cartTotal = document.getElementById('cartTotal');
         const checkoutBtn = document.getElementById('checkoutBtn');
+        const deliveryFeeElement = document.getElementById('deliveryFee');
         
         // Cart steps
         const cartStep1 = document.getElementById('cartStep1');
@@ -1468,6 +1541,8 @@
         const receiptUploadArea = document.getElementById('receiptUploadArea');
         const receiptUpload = document.getElementById('receiptUpload');
         const receiptPreview = document.getElementById('receiptPreview');
+        const pdfPreview = document.getElementById('pdfPreview');
+        const pdfFileName = document.getElementById('pdfFileName');
         
         // Success elements
         const successMessage = document.getElementById('successMessage');
@@ -1539,6 +1614,9 @@
                 if (configDoc.exists) {
                     storeConfig = configDoc.data();
                     updateStoreUI();
+                    
+                    // Carregar taxa de entrega
+                    deliveryFee = storeConfig.deliveryFee || 0;
                     
                     // Definir favicon se existir logo
                     if (storeConfig.logoBase64) {
@@ -1937,6 +2015,8 @@
                         <p>Adicione produtos ao carrinho</p>
                     </div>
                 `;
+                cartSubtotal.textContent = 'R$ 0,00';
+                deliveryFeeElement.textContent = 'R$ 0,00';
                 cartTotal.textContent = 'R$ 0,00';
                 checkoutBtn.disabled = true;
                 return;
@@ -1944,11 +2024,11 @@
             
             checkoutBtn.disabled = false;
             
-            let total = 0;
+            let subtotal = 0;
             
             cart.forEach(item => {
                 const itemTotal = item.price * item.quantity;
-                total += itemTotal;
+                subtotal += itemTotal;
                 
                 const cartItem = document.createElement('div');
                 cartItem.className = 'cart-item';
@@ -1973,6 +2053,11 @@
                 cartItems.appendChild(cartItem);
             });
             
+            // Calcular total com taxa de entrega
+            const total = subtotal + deliveryFee;
+            
+            cartSubtotal.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            deliveryFeeElement.textContent = `R$ ${deliveryFee.toFixed(2).replace('.', ',')}`;
             cartTotal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
             
             document.querySelectorAll('.quantity-btn').forEach(btn => {
@@ -2044,6 +2129,9 @@
             // Save user data
             saveUserDataFromForm();
             
+            const subtotal = calculateSubtotal();
+            const total = subtotal + deliveryFee;
+            
             orderData = {
                 customerName: fullName,
                 customerAddress: address,
@@ -2055,7 +2143,9 @@
                     price: item.price,
                     quantity: item.quantity
                 })),
-                total: calculateTotal(),
+                subtotal: subtotal,
+                deliveryFee: deliveryFee,
+                total: total,
                 timestamp: new Date().toISOString(),
                 status: 'pending',
                 paymentMethod: null,
@@ -2087,28 +2177,48 @@
             }
         }
 
-        // Handle receipt upload
+        // Handle receipt upload (suporte para PDF e imagens)
         function handleReceiptUpload(e) {
             const file = e.target.files[0];
-            if (file) {
-                if (file.size > 5 * 1024 * 1024) {
-                    showNotification('A imagem deve ter no máximo 5MB.', 'error');
-                    receiptUpload.value = '';
-                    return;
-                }
+            if (!file) return;
+            
+            // Verificar tamanho máximo (10MB para PDF, 5MB para imagens)
+            const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+            const maxSize = isPDF ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+            
+            if (file.size > maxSize) {
+                const maxSizeMB = isPDF ? 10 : 5;
+                showNotification(`O arquivo deve ter no máximo ${maxSizeMB}MB.`, 'error');
+                receiptUpload.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                receiptBase64 = event.target.result;
                 
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    receiptBase64 = event.target.result;
+                if (isPDF) {
+                    // Mostrar preview para PDF
+                    receiptPreview.style.display = 'none';
+                    pdfPreview.style.display = 'flex';
+                    pdfFileName.textContent = file.name;
+                } else {
+                    // Mostrar preview para imagens
                     receiptPreview.src = receiptBase64;
                     receiptPreview.style.display = 'block';
-                    orderData.receiptBase64 = receiptBase64;
-                };
-                reader.readAsDataURL(file);
-            }
+                    pdfPreview.style.display = 'none';
+                }
+                
+                orderData.receiptBase64 = receiptBase64;
+                orderData.receiptType = isPDF ? 'pdf' : 'image';
+                orderData.receiptFileName = file.name;
+            };
+            
+            reader.readAsDataURL(file);
         }
 
-        // Confirm order and send WhatsApp - CORRIGIDA: ORDEM REORDENADA
+        // Confirm order and send WhatsApp
         async function confirmOrderAndSendWhatsApp() {
             if (!selectedPaymentMethod) {
                 showNotification('Selecione uma forma de pagamento.', 'error');
@@ -2126,7 +2236,9 @@
                 paymentMethod: selectedPaymentMethod,
                 status: selectedPaymentMethod === 'money' ? 'pending_confirmation' : 'pending_receipt_verification',
                 deliveryStatus: 'preparing',
-                receiptBase64: receiptBase64 || null
+                receiptBase64: receiptBase64 || null,
+                receiptType: orderData.receiptType || null,
+                receiptFileName: orderData.receiptFileName || null
             };
             
             try {
@@ -2163,6 +2275,7 @@
             receiptBase64 = null;
             updateCartCount();
             receiptPreview.style.display = 'none';
+            pdfPreview.style.display = 'none';
             receiptUpload.value = '';
             paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
         }
@@ -2170,7 +2283,6 @@
         // Send WhatsApp message
         function sendWhatsAppMessage(orderId, orderDataParam) {
             const phoneNumber = storeConfig.whatsappNumber || "(11) 99999-9999";
-            const total = orderDataParam.total;
             
             let message = `📱 *NOVO PEDIDO - ${storeConfig.businessName}* 📱\n\n`;
             message += `*Pedido:* #${orderId.substring(0, 8)}\n`;
@@ -2185,7 +2297,9 @@
                 message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
             });
             
-            message += `\n*TOTAL: R$ ${total.toFixed(2).replace('.', ',')}*\n\n`;
+            message += `\n*Subtotal:* R$ ${orderDataParam.subtotal.toFixed(2).replace('.', ',')}\n`;
+            message += `*Taxa de Entrega:* R$ ${orderDataParam.deliveryFee.toFixed(2).replace('.', ',')}\n`;
+            message += `*TOTAL: R$ ${orderDataParam.total.toFixed(2).replace('.', ',')}*\n\n`;
             
             if (orderDataParam.notes) {
                 message += `*Observações:* ${orderDataParam.notes}\n\n`;
@@ -2193,6 +2307,11 @@
             
             if (orderDataParam.paymentMethod === 'pix' && orderDataParam.receiptBase64) {
                 message += `✅ Comprovante PIX enviado pelo cliente\n`;
+                if (orderDataParam.receiptType === 'pdf') {
+                    message += `📄 Formato: PDF (${orderDataParam.receiptFileName || 'arquivo.pdf'})\n`;
+                } else {
+                    message += `🖼️ Formato: Imagem\n`;
+                }
             }
             
             message += `Status: ⏳ Aguardando confirmação`;
@@ -2244,6 +2363,10 @@
                     }
                 }
                 
+                const subtotal = order.subtotal || 0;
+                const deliveryFee = order.deliveryFee || 0;
+                const total = order.total || subtotal + deliveryFee;
+                
                 orderCard.innerHTML = `
                     <div class="order-header">
                         <div class="order-id">Pedido #${order.id.substring(0, 8)}</div>
@@ -2254,13 +2377,16 @@
                             <i class="fas ${getDeliveryStatusIcon(status)} mr-1"></i>
                             ${statusText}
                         </span>
-                        <div class="order-total">R$ ${order.total?.toFixed(2).replace('.', ',') || '0,00'}</div>
+                        <div class="order-total">R$ ${total.toFixed(2).replace('.', ',')}</div>
                     </div>
                     <div class="mb-2">
                         <small>${itemsText || 'Sem itens'}</small>
                     </div>
                     <div class="mb-2">
                         <small><strong>Pagamento:</strong> ${order.paymentMethod === 'money' ? 'Dinheiro' : 'PIX'}</small>
+                    </div>
+                    <div class="mb-2">
+                        <small><strong>Taxa de entrega:</strong> R$ ${deliveryFee.toFixed(2).replace('.', ',')}</small>
                     </div>
                     <div class="d-flex gap-2 mt-3">
                         <button class="btn btn-secondary btn-sm view-details-btn" data-id="${order.id}">
@@ -2333,6 +2459,14 @@
                                     <span class="detail-value">${formatDateTime(order.timestamp || order.createdAt)}</span>
                                 </div>
                                 <div class="detail-item">
+                                    <span class="detail-label">Subtotal:</span>
+                                    <span class="detail-value">R$ ${(order.subtotal || 0).toFixed(2).replace('.', ',')}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Taxa de Entrega:</span>
+                                    <span class="detail-value">R$ ${(order.deliveryFee || 0).toFixed(2).replace('.', ',')}</span>
+                                </div>
+                                <div class="detail-item">
                                     <span class="detail-label">Total:</span>
                                     <span class="detail-value">R$ ${order.total?.toFixed(2).replace('.', ',') || '0,00'}</span>
                                 </div>
@@ -2361,7 +2495,15 @@
                             ${order.receiptBase64 ? `
                             <div class="profile-card mt-3">
                                 <h3 class="mb-2">Comprovante PIX</h3>
-                                <img src="${order.receiptBase64}" class="receipt-preview d-block" style="cursor: pointer;" onclick="openImageZoom('${order.receiptBase64}', 'Comprovante PIX')">
+                                ${order.receiptType === 'pdf' ? `
+                                    <div class="pix-details text-center">
+                                        <i class="fas fa-file-pdf upload-icon" style="font-size: 3rem; color: #f44336;"></i>
+                                        <div class="upload-text">${order.receiptFileName || 'comprovante.pdf'}</div>
+                                        <div class="upload-info">Arquivo PDF enviado</div>
+                                    </div>
+                                ` : `
+                                    <img src="${order.receiptBase64}" class="receipt-preview d-block" style="cursor: pointer;" onclick="openImageZoom('${order.receiptBase64}', 'Comprovante PIX')">
+                                `}
                             </div>
                             ` : ''}
                             
@@ -2681,6 +2823,11 @@
             }
         }
 
+        // Calculate subtotal
+        function calculateSubtotal() {
+            return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        }
+
         // Reset cart
         function resetCart() {
             cart = [];
@@ -2691,14 +2838,10 @@
             updateCartCount();
             deliveryForm.reset();
             receiptPreview.style.display = 'none';
+            pdfPreview.style.display = 'none';
             receiptUpload.value = '';
             paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
             loadUserDataToForm();
-        }
-
-        // Calculate total
-        function calculateTotal() {
-            return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         }
 
         // Format date

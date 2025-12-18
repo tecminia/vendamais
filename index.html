@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Venda+</title>
+    <title>Venda+ | Painel Adm.</title>
     <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
@@ -340,6 +340,11 @@
         .stat-icon.revenue {
             background-color: rgba(33, 33, 33, 0.1);
             color: #212121;
+        }
+        
+        .stat-icon.delivery {
+            background-color: rgba(156, 39, 176, 0.1);
+            color: #9c27b0;
         }
         
         .stat-info h3 {
@@ -828,10 +833,28 @@
             transition: color 0.3s ease;
         }
         
-        .upload-size {
+        .upload-info {
             font-size: 0.8rem;
             color: #757575;
             transition: color 0.3s ease;
+            margin-top: 5px;
+        }
+        
+        .file-types {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .file-type-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            background-color: #f5f5f5;
+            color: #757575;
+            border: 1px solid #e0e0e0;
         }
         
         .image-preview {
@@ -843,6 +866,22 @@
             display: none;
             cursor: pointer;
             background-color: #f5f5f5;
+        }
+        
+        /* PDF Preview Placeholder */
+        .pdf-preview {
+            display: none;
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+            background-color: #f5f5f5;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+            border: 2px dashed #e0e0e0;
+            cursor: pointer;
         }
         
         /* Toggle Switch */
@@ -1186,6 +1225,16 @@
                             <div class="stat-number" id="totalRevenue">R$ 0</div>
                         </div>
                     </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon delivery">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Taxa de Entrega</h3>
+                            <div class="stat-number" id="deliveryFeeStat">R$ 0</div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Recent Orders -->
@@ -1267,7 +1316,7 @@
                                 <i class="fas fa-image"></i>
                             </div>
                             <div class="upload-text">Clique para fazer upload</div>
-                            <div class="upload-size">Tamanho máximo: 5MB</div>
+                            <div class="upload-info">Tamanho máximo: 5MB</div>
                             <input type="file" id="configLogoUpload" accept="image/*" style="display: none;">
                         </div>
                         <img id="configLogoPreview" class="image-preview" alt="Logo">
@@ -1292,6 +1341,12 @@
                     <div class="form-group">
                         <label class="form-label">Título dos Produtos *</label>
                         <input type="text" id="configProductsTitle" class="form-input" required placeholder="Nossos Produtos">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Taxa de Entrega (R$)</label>
+                        <input type="number" id="configDeliveryFee" class="form-input" step="0.01" min="0" value="0" placeholder="0.00">
+                        <small class="text-gray">Valor da taxa de entrega que será adicionada ao total dos pedidos</small>
                     </div>
                     
                     <div class="form-group">
@@ -1421,7 +1476,7 @@
                                 <i class="fas fa-image"></i>
                             </div>
                             <div class="upload-text">Clique para fazer upload</div>
-                            <div class="upload-size">Tamanho máximo: 5MB</div>
+                            <div class="upload-info">Tamanho máximo: 5MB</div>
                             <input type="file" id="productImageUpload" accept="image/*" style="display: none;">
                         </div>
                         <img id="productImagePreview" class="image-preview" alt="Produto">
@@ -1526,6 +1581,7 @@
         const deliveredOrdersCountElement = document.getElementById('deliveredOrders');
         const totalOrdersCountElement = document.getElementById('totalOrders');
         const totalRevenueElement = document.getElementById('totalRevenue');
+        const deliveryFeeStat = document.getElementById('deliveryFeeStat');
         const recentOrdersList = document.getElementById('recentOrdersList');
         const recentOrdersEmpty = document.getElementById('recentOrdersEmpty');
         
@@ -1550,6 +1606,7 @@
         const configPixKey = document.getElementById('configPixKey');
         const configContactPhone = document.getElementById('configContactPhone');
         const configProductsTitle = document.getElementById('configProductsTitle');
+        const configDeliveryFee = document.getElementById('configDeliveryFee');
         const configTheme = document.getElementById('configTheme');
         const themeOptions = document.querySelectorAll('.theme-option');
         
@@ -1700,6 +1757,7 @@
                         pixKey: '',
                         contactPhone: '',
                         productsTitle: 'Nossos Produtos',
+                        deliveryFee: 0,
                         theme: 'black',
                         ownerId: currentStoreId,
                         createdAt: new Date().toISOString()
@@ -1720,6 +1778,7 @@
             configPixKey.value = storeConfig.pixKey || '';
             configContactPhone.value = storeConfig.contactPhone || '';
             configProductsTitle.value = storeConfig.productsTitle || 'Nossos Produtos';
+            configDeliveryFee.value = storeConfig.deliveryFee || 0;
             configTheme.value = storeConfig.theme || 'black';
             
             // Update theme selection
@@ -1735,6 +1794,9 @@
                 configLogoPreview.style.display = 'block';
                 logoBase64 = storeConfig.logoBase64;
             }
+            
+            // Update delivery fee stat
+            deliveryFeeStat.textContent = `R$ ${(storeConfig.deliveryFee || 0).toFixed(2)}`;
         }
 
         // Update customer link
@@ -2102,6 +2164,7 @@
             deliveredOrdersCountElement.textContent = deliveredOrders;
             totalOrdersCountElement.textContent = totalOrders;
             totalRevenueElement.textContent = `R$ ${totalRevenue.toFixed(0)}`;
+            deliveryFeeStat.textContent = `R$ ${(storeConfig.deliveryFee || 0).toFixed(2)}`;
         }
 
         // Update recent orders
@@ -2157,6 +2220,10 @@
             const statusText = getDeliveryStatusText(status);
             const statusClass = getDeliveryStatusClass(status);
             
+            const subtotal = order.subtotal || 0;
+            const deliveryFee = order.deliveryFee || 0;
+            const total = order.total || subtotal + deliveryFee;
+            
             orderCard.innerHTML = `
                 <div class="order-header">
                     <div class="order-id">#${order.id.substring(0, 8)}</div>
@@ -2168,7 +2235,11 @@
                 
                 <div class="order-info">
                     <span class="order-status ${statusClass}">${statusText}</span>
-                    <div class="order-total">R$ ${order.total ? order.total.toFixed(2).replace('.', ',') : '0,00'}</div>
+                    <div class="order-total">R$ ${total.toFixed(2).replace('.', ',')}</div>
+                </div>
+                
+                <div class="mb-1">
+                    <small><strong>Taxa de entrega:</strong> R$ ${deliveryFee.toFixed(2).replace('.', ',')}</small>
                 </div>
                 
                 <div class="order-actions">
@@ -2301,6 +2372,10 @@
             const status = selectedOrder.deliveryStatus || 'preparing';
             const statusText = getDeliveryStatusText(status);
             
+            const subtotal = selectedOrder.subtotal || 0;
+            const deliveryFee = selectedOrder.deliveryFee || 0;
+            const total = selectedOrder.total || subtotal + deliveryFee;
+            
             let itemsHTML = '';
             if (selectedOrder.items && selectedOrder.items.length > 0) {
                 selectedOrder.items.forEach(item => {
@@ -2312,6 +2387,24 @@
                         </div>
                     `;
                 });
+            }
+            
+            // PDF preview HTML
+            let receiptHTML = '';
+            if (selectedOrder.receiptBase64) {
+                if (selectedOrder.receiptType === 'pdf') {
+                    receiptHTML = `
+                        <div class="pdf-preview d-flex" onclick="downloadReceipt('${orderId}')">
+                            <i class="fas fa-file-pdf upload-icon" style="font-size: 3rem; color: #f44336;"></i>
+                            <div class="upload-text">${selectedOrder.receiptFileName || 'comprovante.pdf'}</div>
+                            <div class="upload-info">Clique para baixar o PDF</div>
+                        </div>
+                    `;
+                } else {
+                    receiptHTML = `
+                        <img src="${selectedOrder.receiptBase64}" class="image-preview d-block" style="height: 150px; cursor: pointer;" onclick="openImageZoom('${selectedOrder.receiptBase64}', 'Comprovante PIX')">
+                    `;
+                }
             }
             
             const content = `
@@ -2352,6 +2445,18 @@
                         <span>${selectedOrder.paymentMethod === 'money' ? 'Dinheiro' : 'PIX'}</span>
                     </div>
                     <div class="d-flex justify-between mb-1">
+                        <strong>Subtotal:</strong>
+                        <span>R$ ${subtotal.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Taxa de Entrega:</strong>
+                        <span>R$ ${deliveryFee.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Total:</strong>
+                        <span class="order-total">R$ ${total.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
                         <strong>Status:</strong>
                         <span class="order-status ${getDeliveryStatusClass(status)}">${statusText}</span>
                     </div>
@@ -2360,16 +2465,12 @@
                 <div class="mb-3">
                     <h3 class="mb-2">Itens do Pedido</h3>
                     ${itemsHTML || '<p>Nenhum item</p>'}
-                    <div class="d-flex justify-between mt-2 pt-2 border-top">
-                        <strong>TOTAL:</strong>
-                        <strong class="order-total">R$ ${selectedOrder.total ? selectedOrder.total.toFixed(2).replace('.', ',') : '0,00'}</strong>
-                    </div>
                 </div>
                 
                 ${selectedOrder.receiptBase64 ? `
                     <div class="mb-3">
                         <h3 class="mb-2">Comprovante PIX</h3>
-                        <img src="${selectedOrder.receiptBase64}" class="image-preview d-block" style="height: 150px; cursor: pointer;" onclick="openImageZoom('${selectedOrder.receiptBase64}', 'Comprovante PIX')">
+                        ${receiptHTML}
                     </div>
                 ` : ''}
                 
@@ -2392,6 +2493,17 @@
             document.getElementById('closeDetailsBtn').addEventListener('click', () => {
                 orderDetailsModal.style.display = 'none';
             });
+            
+            // Atualizar a função downloadReceipt no escopo global
+            window.downloadReceipt = function(orderId) {
+                const order = orders.find(o => o.id === orderId);
+                if (order && order.receiptBase64) {
+                    const link = document.createElement('a');
+                    link.href = order.receiptBase64;
+                    link.download = order.receiptFileName || 'comprovante.pdf';
+                    link.click();
+                }
+            };
             
             orderDetailsModal.style.display = 'block';
         }
@@ -2503,6 +2615,9 @@
         // Generate order message for WhatsApp
         function generateOrderMessage(order) {
             const status = order.deliveryStatus || 'preparing';
+            const subtotal = order.subtotal || 0;
+            const deliveryFee = order.deliveryFee || 0;
+            const total = order.total || subtotal + deliveryFee;
             
             let message = `📱 *DETALHES DO PEDIDO* 📱\n\n`;
             message += `*Pedido:* #${order.id.substring(0, 8)}\n`;
@@ -2519,7 +2634,9 @@
                 });
             }
             
-            message += `\n*TOTAL: R$ ${order.total ? order.total.toFixed(2).replace('.', ',') : '0,00'}*\n`;
+            message += `\n*Subtotal:* R$ ${subtotal.toFixed(2).replace('.', ',')}\n`;
+            message += `*Taxa de Entrega:* R$ ${deliveryFee.toFixed(2).replace('.', ',')}\n`;
+            message += `*TOTAL: R$ ${total.toFixed(2).replace('.', ',')}*\n`;
             message += `*Pagamento:* ${order.paymentMethod === 'money' ? 'Dinheiro' : 'PIX'}\n\n`;
             
             if (order.notes) {
@@ -2631,6 +2748,7 @@
             // Format phone numbers
             const whatsappNumber = configWhatsApp.value;
             const contactPhone = configContactPhone.value;
+            const deliveryFee = parseFloat(configDeliveryFee.value) || 0;
             
             const configData = {
                 businessName: configBusinessName.value,
@@ -2638,6 +2756,7 @@
                 pixKey: configPixKey.value,
                 contactPhone: contactPhone,
                 productsTitle: configProductsTitle.value,
+                deliveryFee: deliveryFee,
                 theme: configTheme.value,
                 updatedAt: new Date().toISOString()
             };
@@ -2664,6 +2783,9 @@
                 storeAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
                 storeNameDisplay.textContent = configBusinessName.value;
                 adminStoreName.textContent = `Venda+`;
+                
+                // Update delivery fee stat
+                deliveryFeeStat.textContent = `R$ ${deliveryFee.toFixed(2)}`;
                 
                 showNotification('Configurações salvas!', 'success');
                 
