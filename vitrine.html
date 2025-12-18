@@ -266,6 +266,7 @@
             height: 100%;
             object-fit: cover;
             cursor: pointer;
+            touch-action: pan-x pan-y;
         }
         
         .product-image i {
@@ -711,6 +712,12 @@
             margin: 15px 0;
             cursor: pointer;
             transition: border-color 0.3s ease;
+            position: relative;
+        }
+        
+        .upload-area.uploading {
+            cursor: not-allowed;
+            opacity: 0.7;
         }
         
         .upload-area:active {
@@ -764,6 +771,7 @@
             display: none;
             cursor: pointer;
             background-color: var(--background-color);
+            touch-action: pan-x pan-y;
         }
         
         /* Image Zoom Modal */
@@ -791,6 +799,7 @@
             height: auto;
             max-height: 80vh;
             object-fit: contain;
+            touch-action: pan-x pan-y;
         }
         
         .close-zoom {
@@ -804,27 +813,34 @@
             cursor: pointer;
         }
         
-        .zoom-controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-        }
-        
-        .zoom-btn {
-            background-color: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            display: none;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            font-size: 1.2rem;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--text-on-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            color: white;
+            font-weight: 600;
         }
         
         /* Success Screen */
@@ -1166,6 +1182,11 @@
             to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
         }
         
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         /* Utilities */
         .text-center { text-align: center; }
         .mb-1 { margin-bottom: 5px; }
@@ -1184,6 +1205,12 @@
     </style>
 </head>
 <body class="theme-black">
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Enviando comprovante...</div>
+    </div>
+
     <!-- App Container -->
     <div class="app-container">
         <!-- App Header -->
@@ -1440,17 +1467,6 @@
         <div class="image-zoom-content">
             <button class="close-zoom" id="closeZoom">&times;</button>
             <img id="zoomedImage" src="" alt="Imagem ampliada">
-            <div class="zoom-controls">
-                <button class="zoom-btn" id="zoomIn">
-                    <i class="fas fa-search-plus"></i>
-                </button>
-                <button class="zoom-btn" id="zoomOut">
-                    <i class="fas fa-search-minus"></i>
-                </button>
-                <button class="zoom-btn" id="zoomReset">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            </div>
         </div>
     </div>
 
@@ -1481,8 +1497,9 @@
         let receiptBase64 = null;
         let currentStoreId = null;
         let phoneMask = null;
-        let zoomScale = 1;
         let deliveryFee = 0;
+        let lastTouchDistance = null;
+        let zoomScale = 1;
         
         // Carrega dados do usuário do localStorage
         const savedUserData = localStorage.getItem('userData');
@@ -1503,6 +1520,7 @@
         const ordersEmpty = document.getElementById('ordersEmpty');
         const profileCard = document.getElementById('profileCard');
         const profileStatusCard = document.getElementById('profileStatusCard');
+        const loadingOverlay = document.getElementById('loadingOverlay');
         
         // Store config elements
         const businessName = document.getElementById('businessName');
@@ -1554,9 +1572,6 @@
         const imageZoomModal = document.getElementById('imageZoomModal');
         const closeZoom = document.getElementById('closeZoom');
         const zoomedImage = document.getElementById('zoomedImage');
-        const zoomInBtn = document.getElementById('zoomIn');
-        const zoomOutBtn = document.getElementById('zoomOut');
-        const zoomResetBtn = document.getElementById('zoomReset');
 
         // Initialize the app
         async function init() {
@@ -1571,6 +1586,9 @@
                 }, 2000);
                 return;
             }
+            
+            // Register store visit
+            await registerStoreVisit();
             
             await loadStoreConfig();
             setupPhoneMask();
@@ -1587,6 +1605,53 @@
             
             updateProfileScreen();
             applyTheme();
+            
+            // Setup pinch-to-zoom
+            setupPinchZoom();
+        }
+
+        // Register store visit
+        async function registerStoreVisit() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const visitsRef = db.collection('storeVisits').doc(currentStoreId);
+                
+                const visitsDoc = await visitsRef.get();
+                if (visitsDoc.exists) {
+                    const visitsData = visitsDoc.data();
+                    const dailyVisits = visitsData.dailyVisits || [];
+                    
+                    // Check if we have today's date
+                    const todayIndex = dailyVisits.findIndex(v => v.date === today);
+                    
+                    if (todayIndex >= 0) {
+                        // Increment today's count
+                        dailyVisits[todayIndex].count += 1;
+                    } else {
+                        // Add new entry for today
+                        dailyVisits.push({ date: today, count: 1 });
+                    }
+                    
+                    // Keep only last 30 days
+                    const recentVisits = dailyVisits.slice(-30);
+                    
+                    await visitsRef.update({
+                        totalVisits: visitsData.totalVisits + 1,
+                        dailyVisits: recentVisits,
+                        lastUpdated: new Date().toISOString()
+                    });
+                } else {
+                    // Create new visits document
+                    await visitsRef.set({
+                        totalVisits: 1,
+                        dailyVisits: [{ date: today, count: 1 }],
+                        storeId: currentStoreId,
+                        lastUpdated: new Date().toISOString()
+                    });
+                }
+            } catch (error) {
+                console.error('Error registering store visit:', error);
+            }
         }
 
         // Apply theme
@@ -1605,6 +1670,65 @@
                 mask: '(00) 00000-0000',
                 lazy: false
             });
+        }
+
+        // Setup pinch-to-zoom for images
+        function setupPinchZoom() {
+            // Product images
+            document.addEventListener('DOMContentLoaded', () => {
+                document.addEventListener('touchstart', handleTouchStart, { passive: false });
+                document.addEventListener('touchmove', handleTouchMove, { passive: false });
+                document.addEventListener('touchend', handleTouchEnd);
+                
+                // Also setup for zoomed image
+                zoomedImage.addEventListener('touchstart', handleTouchStart, { passive: false });
+                zoomedImage.addEventListener('touchmove', handleTouchMove, { passive: false });
+                zoomedImage.addEventListener('touchend', handleTouchEnd);
+            });
+        }
+
+        // Handle touch start for pinch zoom
+        function handleTouchStart(e) {
+            if (e.target.tagName === 'IMG' && e.touches.length === 2) {
+                e.preventDefault();
+                lastTouchDistance = getTouchDistance(e.touches[0], e.touches[1]);
+                zoomScale = parseFloat(e.target.style.transform?.match(/scale\(([^)]+)\)/)?.[1] || 1);
+            }
+        }
+
+        // Handle touch move for pinch zoom
+        function handleTouchMove(e) {
+            if (e.target.tagName === 'IMG' && e.touches.length === 2) {
+                e.preventDefault();
+                const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
+                
+                if (lastTouchDistance) {
+                    const scaleChange = currentDistance / lastTouchDistance;
+                    zoomScale = Math.max(0.5, Math.min(5, zoomScale * scaleChange));
+                    e.target.style.transform = `scale(${zoomScale})`;
+                }
+                
+                lastTouchDistance = currentDistance;
+            }
+        }
+
+        // Handle touch end for pinch zoom
+        function handleTouchEnd(e) {
+            lastTouchDistance = null;
+        }
+
+        // Get distance between two touch points
+        function getTouchDistance(touch1, touch2) {
+            const dx = touch1.clientX - touch2.clientX;
+            const dy = touch1.clientY - touch2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // Reset zoom
+        function resetZoom() {
+            zoomScale = 1;
+            zoomedImage.style.transform = `scale(${zoomScale})`;
+            lastTouchDistance = null;
         }
 
         // Load store configuration from Firebase
@@ -1857,9 +1981,11 @@
             // Confirm order button
             confirmOrderBtn.addEventListener('click', confirmOrderAndSendWhatsApp);
             
-            // Receipt upload
+            // Receipt upload with loading indicator
             receiptUploadArea.addEventListener('click', () => {
-                receiptUpload.click();
+                if (!receiptUploadArea.classList.contains('uploading')) {
+                    receiptUpload.click();
+                }
             });
             
             receiptUpload.addEventListener('change', handleReceiptUpload);
@@ -1896,40 +2022,33 @@
             // Image zoom modal
             closeZoom.addEventListener('click', () => {
                 imageZoomModal.style.display = 'none';
-                zoomScale = 1;
-            });
-            
-            zoomInBtn.addEventListener('click', () => {
-                zoomScale += 0.2;
-                zoomedImage.style.transform = `scale(${zoomScale})`;
-            });
-            
-            zoomOutBtn.addEventListener('click', () => {
-                if (zoomScale > 0.4) {
-                    zoomScale -= 0.2;
-                    zoomedImage.style.transform = `scale(${zoomScale})`;
-                }
-            });
-            
-            zoomResetBtn.addEventListener('click', () => {
-                zoomScale = 1;
-                zoomedImage.style.transform = `scale(${zoomScale})`;
+                resetZoom();
             });
             
             // Close image zoom when clicking outside
             imageZoomModal.addEventListener('click', (e) => {
                 if (e.target === imageZoomModal) {
                     imageZoomModal.style.display = 'none';
-                    zoomScale = 1;
+                    resetZoom();
                 }
             });
+        }
+
+        // Show loading
+        function showLoading() {
+            loadingOverlay.style.display = 'flex';
+        }
+
+        // Hide loading
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
         }
 
         // Open image zoom modal
         function openImageZoom(imageSrc, altText) {
             zoomedImage.src = imageSrc;
             zoomedImage.alt = altText;
-            zoomedImage.style.transform = `scale(${zoomScale})`;
+            resetZoom();
             imageZoomModal.style.display = 'flex';
         }
 
@@ -2177,7 +2296,7 @@
             }
         }
 
-        // Handle receipt upload (suporte para PDF e imagens)
+        // Handle receipt upload with loading indicator
         function handleReceiptUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -2192,6 +2311,15 @@
                 receiptUpload.value = '';
                 return;
             }
+            
+            // Show loading state
+            receiptUploadArea.classList.add('uploading');
+            receiptUploadArea.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <div class="upload-text">Processando arquivo...</div>
+            `;
             
             const reader = new FileReader();
             
@@ -2213,6 +2341,41 @@
                 orderData.receiptBase64 = receiptBase64;
                 orderData.receiptType = isPDF ? 'pdf' : 'image';
                 orderData.receiptFileName = file.name;
+                
+                // Reset upload area
+                receiptUploadArea.classList.remove('uploading');
+                receiptUploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <div class="upload-text">Clique para enviar comprovante</div>
+                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                    <div class="file-types">
+                        <span class="file-type-badge">JPG</span>
+                        <span class="file-type-badge">PNG</span>
+                        <span class="file-type-badge">PDF</span>
+                    </div>
+                `;
+                
+                showNotification('Comprovante carregado com sucesso!', 'success');
+            };
+            
+            reader.onerror = function() {
+                showNotification('Erro ao carregar arquivo.', 'error');
+                receiptUploadArea.classList.remove('uploading');
+                receiptUploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <div class="upload-text">Clique para enviar comprovante</div>
+                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                    <div class="file-types">
+                        <span class="file-type-badge">JPG</span>
+                        <span class="file-type-badge">PNG</span>
+                        <span class="file-type-badge">PDF</span>
+                    </div>
+                `;
+                receiptUpload.value = '';
             };
             
             reader.readAsDataURL(file);
@@ -2241,10 +2404,14 @@
                 receiptFileName: orderData.receiptFileName || null
             };
             
+            showLoading();
+            
             try {
                 // 1. Primeiro salvar no Firebase
                 const docRef = await db.collection('orders').add(orderDataCopy);
                 currentOrderId = docRef.id;
+                
+                hideLoading();
                 
                 // 2. Depois enviar WhatsApp (com os dados ainda intactos)
                 sendWhatsAppMessage(currentOrderId, orderDataCopy);
@@ -2263,6 +2430,7 @@
                 await loadUserOrders(userPhone);
                 
             } catch (error) {
+                hideLoading();
                 console.error('Error saving order:', error);
                 showNotification('Erro ao processar pedido.', 'error');
             }
@@ -2500,6 +2668,9 @@
                                         <i class="fas fa-file-pdf upload-icon" style="font-size: 3rem; color: #f44336;"></i>
                                         <div class="upload-text">${order.receiptFileName || 'comprovante.pdf'}</div>
                                         <div class="upload-info">Arquivo PDF enviado</div>
+                                        <button class="btn btn-primary btn-sm mt-2" onclick="downloadReceipt('${orderId}')">
+                                            <i class="fas fa-download"></i> Baixar PDF
+                                        </button>
                                     </div>
                                 ` : `
                                     <img src="${order.receiptBase64}" class="receipt-preview d-block" style="cursor: pointer;" onclick="openImageZoom('${order.receiptBase64}', 'Comprovante PIX')">
@@ -2532,6 +2703,16 @@
             
             window.openWhatsAppForOrderHelper = function(orderId) {
                 openWhatsAppForOrder(orderId);
+            };
+            
+            window.downloadReceipt = function(orderId) {
+                const order = userOrders.find(o => o.id === orderId);
+                if (order && order.receiptBase64) {
+                    const link = document.createElement('a');
+                    link.href = order.receiptBase64;
+                    link.download = order.receiptFileName || 'comprovante.pdf';
+                    link.click();
+                }
             };
         }
 

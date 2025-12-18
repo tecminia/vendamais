@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -187,6 +188,8 @@
             color: #212121;
             border-bottom: 2px solid #212121;
             padding-bottom: 5px;
+            display: flex;
+            align-items: center;
             transition: all 0.3s ease;
         }
         
@@ -345,6 +348,11 @@
         .stat-icon.delivery {
             background-color: rgba(156, 39, 176, 0.1);
             color: #9c27b0;
+        }
+        
+        .stat-icon.visits {
+            background-color: rgba(103, 58, 183, 0.1);
+            color: #673ab7;
         }
         
         .stat-info h3 {
@@ -738,6 +746,7 @@
             height: auto;
             max-height: 80vh;
             object-fit: contain;
+            touch-action: pan-x pan-y;
         }
         
         .close-zoom {
@@ -751,27 +760,135 @@
             cursor: pointer;
         }
         
-        .zoom-controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
+        /* Chart Container */
+        .chart-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+            position: relative;
         }
         
-        .zoom-btn {
-            background-color: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+        .chart-title {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #212121;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 8px;
+        }
+        
+        /* Finance History */
+        .finance-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 15px;
+        }
+        
+        .finance-tab {
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 2px solid #e0e0e0;
+            background-color: transparent;
+            color: #757575;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-weight: 500;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .finance-tab.active {
+            border-color: #212121;
+            background-color: #212121;
+            color: #ffffff;
+        }
+        
+        .monthly-summary {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .month-name {
+            font-weight: 600;
+            color: #212121;
+        }
+        
+        .month-revenue {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #4caf50;
+        }
+        
+        .daily-orders {
+            margin-top: 10px;
+        }
+        
+        .daily-order {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .daily-order:last-child {
+            border-bottom: none;
+        }
+        
+        .order-count {
+            font-weight: 600;
+            color: #212121;
+        }
+        
+        .order-amount {
+            color: #757575;
+        }
+        
+        /* Loading Indicator */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #212121;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            color: white;
+            font-weight: 600;
         }
         
         /* Form Styles */
@@ -813,6 +930,12 @@
             margin: 15px 0;
             cursor: pointer;
             transition: border-color 0.3s ease;
+            position: relative;
+        }
+        
+        .upload-area.uploading {
+            cursor: not-allowed;
+            opacity: 0.7;
         }
         
         .upload-area:active {
@@ -866,6 +989,7 @@
             display: none;
             cursor: pointer;
             background-color: #f5f5f5;
+            touch-action: pan-x pan-y;
         }
         
         /* PDF Preview Placeholder */
@@ -1070,6 +1194,11 @@
             to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
         }
         
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         /* Utilities */
         .d-none { display: none !important; }
         .d-flex { display: flex !important; }
@@ -1106,6 +1235,12 @@
         </div>
     </div>
 
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Enviando comprovante...</div>
+    </div>
+
     <!-- App Container -->
     <div class="app-container">
         <!-- App Header -->
@@ -1139,27 +1274,6 @@
                         <div class="user-card-info">
                             <h3 id="storeNameDisplay">Carregando...</h3>
                             <p id="storeEmail">carregando...</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Customer Link Section -->
-                    <div class="link-section">
-                        <h3 class="link-title">Link para Clientes</h3>
-                        <p class="link-description">
-                            Compartilhe este link com seus clientes para que eles possam acessar sua loja virtual:
-                        </p>
-                        
-                        <div class="link-container" id="customerLinkContainer">
-                            <strong>Carregando link...</strong>
-                        </div>
-                        
-                        <div class="link-actions">
-                            <button class="btn btn-primary flex-1" id="copyLinkBtn">
-                                <i class="fas fa-copy"></i> Copiar Link
-                            </button>
-                            <button class="btn btn-secondary flex-1" id="refreshLinkBtn">
-                                <i class="fas fa-sync-alt"></i> Atualizar
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -1235,6 +1349,25 @@
                             <div class="stat-number" id="deliveryFeeStat">R$ 0</div>
                         </div>
                     </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon visits">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Acessos</h3>
+                            <div class="stat-number" id="totalVisits">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Visits Chart -->
+                <div class="chart-container">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Acessos da Loja (Últimos 7 dias)
+                    </div>
+                    <canvas id="visitsChart" height="150"></canvas>
                 </div>
                 
                 <!-- Recent Orders -->
@@ -1299,6 +1432,127 @@
                 </div>
             </div>
 
+            <!-- Finance Screen -->
+            <div id="financeScreen" class="screen" style="display: none;">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-pie"></i> Financeiro
+                </h2>
+                
+                <!-- Finance Overview -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon revenue">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Receita Total</h3>
+                            <div class="stat-number" id="financeTotalRevenue">R$ 0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Pedidos</h3>
+                            <div class="stat-number" id="financeTotalOrders">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon confirmed">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Média por Pedido</h3>
+                            <div class="stat-number" id="averageOrderValue">R$ 0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon delivery">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Mês Atual</h3>
+                            <div class="stat-number" id="currentMonthRevenue">R$ 0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Revenue Chart -->
+                <div class="chart-container">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-line"></i>
+                        Receita Mensal
+                    </div>
+                    <canvas id="revenueChart" height="150"></canvas>
+                </div>
+                
+                <!-- Finance Tabs -->
+                <div class="finance-tabs">
+                    <button class="finance-tab active" data-tab="all">Todos os Pagamentos</button>
+                    <button class="finance-tab" data-tab="monthly">Mensal</button>
+                    <button class="finance-tab" data-tab="summary">Resumo</button>
+                </div>
+                
+                <!-- All Payments -->
+                <div id="financeAllTab" class="finance-tab-content">
+                    <div class="orders-list" id="allPaymentsList">
+                        <!-- Payments will be loaded here -->
+                    </div>
+                    
+                    <div class="empty-state" id="allPaymentsEmpty" style="display: none;">
+                        <div class="empty-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <h3>Nenhum pagamento</h3>
+                        <p>Os pagamentos aparecerão aqui.</p>
+                    </div>
+                </div>
+                
+                <!-- Monthly Summary -->
+                <div id="financeMonthlyTab" class="finance-tab-content" style="display: none;">
+                    <div id="monthlySummaryList">
+                        <!-- Monthly summaries will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Finance Summary -->
+                <div id="financeSummaryTab" class="finance-tab-content" style="display: none;">
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-pie"></i>
+                            Métodos de Pagamento
+                        </div>
+                        <canvas id="paymentMethodsChart" height="150"></canvas>
+                    </div>
+                    
+                    <div class="monthly-summary">
+                        <h3 class="mb-2">Resumo Financeiro</h3>
+                        <div class="daily-orders">
+                            <div class="daily-order">
+                                <span>Total em PIX:</span>
+                                <span class="order-amount" id="totalPixAmount">R$ 0,00</span>
+                            </div>
+                            <div class="daily-order">
+                                <span>Total em Dinheiro:</span>
+                                <span class="order-amount" id="totalMoneyAmount">R$ 0,00</span>
+                            </div>
+                            <div class="daily-order">
+                                <span>Total em Taxas de Entrega:</span>
+                                <span class="order-amount" id="totalDeliveryFees">R$ 0,00</span>
+                            </div>
+                            <div class="daily-order">
+                                <span>Pedidos com Comprovante:</span>
+                                <span class="order-amount" id="ordersWithReceipt">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Config Screen -->
             <div id="configScreen" class="screen" style="display: none;">
                 <h2 class="section-title">Configurações</h2>
@@ -1347,6 +1601,34 @@
                         <label class="form-label">Taxa de Entrega (R$)</label>
                         <input type="number" id="configDeliveryFee" class="form-input" step="0.01" min="0" value="0" placeholder="0.00">
                         <small class="text-gray">Valor da taxa de entrega que será adicionada ao total dos pedidos</small>
+                    </div>
+                    
+                    <!-- Link para Clientes (movido para Configurações) -->
+                    <div class="link-section">
+                        <h3 class="link-title">Link para Clientes</h3>
+                        <p class="link-description">
+                            Compartilhe este link com seus clientes para que eles possam acessar sua loja virtual:
+                        </p>
+                        
+                        <div class="link-container" id="customerLinkContainer">
+                            <strong>Carregando link...</strong>
+                        </div>
+                        
+                        <div class="link-actions">
+                            <button class="btn btn-primary flex-1" id="copyLinkBtn">
+                                <i class="fas fa-copy"></i> Copiar Link
+                            </button>
+                            <button class="btn btn-secondary flex-1" id="refreshLinkBtn">
+                                <i class="fas fa-sync-alt"></i> Atualizar
+                            </button>
+                            <button class="btn btn-secondary flex-1" id="shareLinkBtn">
+                                <i class="fas fa-share-alt"></i> Compartilhar
+                            </button>
+                        </div>
+                        
+                        <div class="mt-2">
+                            <small><strong>Acessos totais:</strong> <span id="totalVisitsConfig">0</span></small>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -1409,6 +1691,10 @@
             <button class="nav-btn" data-screen="products">
                 <i class="fas fa-utensils"></i>
                 <span>Produtos</span>
+            </button>
+            <button class="nav-btn" data-screen="finance">
+                <i class="fas fa-chart-pie"></i>
+                <span>Financeiro</span>
             </button>
             <button class="nav-btn" data-screen="config">
                 <i class="fas fa-cog"></i>
@@ -1511,17 +1797,6 @@
         <div class="image-zoom-content">
             <button class="close-zoom" id="closeZoom">&times;</button>
             <img id="zoomedImage" src="" alt="Imagem ampliada">
-            <div class="zoom-controls">
-                <button class="zoom-btn" id="zoomIn">
-                    <i class="fas fa-search-plus"></i>
-                </button>
-                <button class="zoom-btn" id="zoomOut">
-                    <i class="fas fa-search-minus"></i>
-                </button>
-                <button class="zoom-btn" id="zoomReset">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            </div>
         </div>
     </div>
 
@@ -1558,6 +1833,14 @@
         let preparingOrdersCount = 0;
         let phoneMask = null;
         let userConfigCompleted = false;
+        let storeVisits = 0;
+        let visitsData = [];
+        let visitsChart = null;
+        let revenueChart = null;
+        let paymentMethodsChart = null;
+        let financeTab = 'all';
+        let pinchZoom = null;
+        let lastTouchDistance = null;
 
         // DOM Elements
         const welcomeModal = document.getElementById('welcomeModal');
@@ -1573,6 +1856,8 @@
         const customerLinkContainer = document.getElementById('customerLinkContainer');
         const copyLinkBtn = document.getElementById('copyLinkBtn');
         const refreshLinkBtn = document.getElementById('refreshLinkBtn');
+        const shareLinkBtn = document.getElementById('shareLinkBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
         
         // Dashboard elements
         const preparingOrdersCountElement = document.getElementById('preparingOrders');
@@ -1582,8 +1867,24 @@
         const totalOrdersCountElement = document.getElementById('totalOrders');
         const totalRevenueElement = document.getElementById('totalRevenue');
         const deliveryFeeStat = document.getElementById('deliveryFeeStat');
+        const totalVisitsElement = document.getElementById('totalVisits');
+        const totalVisitsConfig = document.getElementById('totalVisitsConfig');
         const recentOrdersList = document.getElementById('recentOrdersList');
         const recentOrdersEmpty = document.getElementById('recentOrdersEmpty');
+        
+        // Finance elements
+        const financeTotalRevenue = document.getElementById('financeTotalRevenue');
+        const financeTotalOrders = document.getElementById('financeTotalOrders');
+        const averageOrderValue = document.getElementById('averageOrderValue');
+        const currentMonthRevenue = document.getElementById('currentMonthRevenue');
+        const financeTabs = document.querySelectorAll('.finance-tab');
+        const allPaymentsList = document.getElementById('allPaymentsList');
+        const allPaymentsEmpty = document.getElementById('allPaymentsEmpty');
+        const monthlySummaryList = document.getElementById('monthlySummaryList');
+        const totalPixAmount = document.getElementById('totalPixAmount');
+        const totalMoneyAmount = document.getElementById('totalMoneyAmount');
+        const totalDeliveryFees = document.getElementById('totalDeliveryFees');
+        const ordersWithReceipt = document.getElementById('ordersWithReceipt');
         
         // Orders elements
         const statusFilterBtns = document.querySelectorAll('.status-filter-btn');
@@ -1632,9 +1933,6 @@
         const imageZoomModal = document.getElementById('imageZoomModal');
         const closeZoom = document.getElementById('closeZoom');
         const zoomedImage = document.getElementById('zoomedImage');
-        const zoomIn = document.getElementById('zoomIn');
-        const zoomOut = document.getElementById('zoomOut');
-        const zoomReset = document.getElementById('zoomReset');
 
         // Initialize the app
         async function init() {
@@ -1647,6 +1945,9 @@
             loadProducts();
             updateCustomerLink();
             showScreen('dashboard');
+            
+            // Load store visits data
+            await loadStoreVisits();
             
             // Verificar se precisa mostrar o modal de boas-vindas
             checkWelcomeModal();
@@ -1771,6 +2072,216 @@
             }
         }
 
+        // Load store visits data
+        async function loadStoreVisits() {
+            try {
+                const visitsDoc = await db.collection('storeVisits').doc(currentStoreId).get();
+                if (visitsDoc.exists) {
+                    const visitsData = visitsDoc.data();
+                    storeVisits = visitsData.totalVisits || 0;
+                    visitsData = visitsData.dailyVisits || [];
+                    
+                    totalVisitsElement.textContent = storeVisits;
+                    totalVisitsConfig.textContent = storeVisits;
+                    
+                    // Update visits chart
+                    updateVisitsChart();
+                } else {
+                    // Create initial visits document
+                    await db.collection('storeVisits').doc(currentStoreId).set({
+                        totalVisits: 0,
+                        dailyVisits: [],
+                        storeId: currentStoreId,
+                        lastUpdated: new Date().toISOString()
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading store visits:', error);
+            }
+        }
+
+        // Update visits chart
+        function updateVisitsChart() {
+            const ctx = document.getElementById('visitsChart').getContext('2d');
+            
+            // Prepare data for last 7 days
+            const last7Days = [];
+            const visitsData = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toLocaleDateString('pt-BR', { weekday: 'short' });
+                last7Days.push(dateStr);
+                
+                // Find visits for this date
+                const visitsForDay = storeVisits.dailyVisits?.find(v => 
+                    v.date === date.toISOString().split('T')[0]
+                )?.count || 0;
+                visitsData.push(visitsForDay);
+            }
+            
+            if (visitsChart) {
+                visitsChart.destroy();
+            }
+            
+            visitsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last7Days,
+                    datasets: [{
+                        label: 'Acessos',
+                        data: visitsData,
+                        borderColor: '#212121',
+                        backgroundColor: 'rgba(33, 33, 33, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update finance charts
+        function updateFinanceCharts() {
+            // Prepare monthly revenue data
+            const monthlyRevenue = {};
+            orders.forEach(order => {
+                if (order.total) {
+                    const date = new Date(order.timestamp || order.createdAt);
+                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    const monthName = date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+                    
+                    if (!monthlyRevenue[monthKey]) {
+                        monthlyRevenue[monthKey] = {
+                            name: monthName,
+                            revenue: 0
+                        };
+                    }
+                    monthlyRevenue[monthKey].revenue += order.total;
+                }
+            });
+            
+            // Sort by date
+            const sortedMonths = Object.keys(monthlyRevenue).sort().reverse().slice(0, 6);
+            const monthLabels = sortedMonths.map(key => monthlyRevenue[key].name);
+            const monthData = sortedMonths.map(key => monthlyRevenue[key].revenue);
+            
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            if (revenueChart) {
+                revenueChart.destroy();
+            }
+            
+            revenueChart = new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: monthLabels,
+                    datasets: [{
+                        label: 'Receita (R$)',
+                        data: monthData,
+                        backgroundColor: 'rgba(76, 175, 80, 0.6)',
+                        borderColor: '#4caf50',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Payment Methods Chart
+            const paymentMethods = {
+                pix: 0,
+                money: 0
+            };
+            
+            orders.forEach(order => {
+                if (order.paymentMethod && order.total) {
+                    paymentMethods[order.paymentMethod] += order.total;
+                }
+            });
+            
+            const paymentCtx = document.getElementById('paymentMethodsChart').getContext('2d');
+            if (paymentMethodsChart) {
+                paymentMethodsChart.destroy();
+            }
+            
+            paymentMethodsChart = new Chart(paymentCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['PIX', 'Dinheiro'],
+                    datasets: [{
+                        data: [paymentMethods.pix, paymentMethods.money],
+                        backgroundColor: ['#4caf50', '#2196f3'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Update summary data
+            let totalPix = 0;
+            let totalMoney = 0;
+            let totalDelivery = 0;
+            let ordersWithReceiptCount = 0;
+            
+            orders.forEach(order => {
+                if (order.paymentMethod === 'pix') {
+                    totalPix += order.total || 0;
+                } else if (order.paymentMethod === 'money') {
+                    totalMoney += order.total || 0;
+                }
+                totalDelivery += order.deliveryFee || 0;
+                if (order.receiptBase64) {
+                    ordersWithReceiptCount++;
+                }
+            });
+            
+            totalPixAmount.textContent = `R$ ${totalPix.toFixed(2).replace('.', ',')}`;
+            totalMoneyAmount.textContent = `R$ ${totalMoney.toFixed(2).replace('.', ',')}`;
+            totalDeliveryFees.textContent = `R$ ${totalDelivery.toFixed(2).replace('.', ',')}`;
+            ordersWithReceipt.textContent = ordersWithReceiptCount;
+        }
+
         // Update configuration form
         function updateConfigForm() {
             configBusinessName.value = storeConfig.businessName || '';
@@ -1836,10 +2347,181 @@
                     updateRecentOrders();
                     updateAllOrders();
                     updateNotificationBadge();
+                    updateFinanceData();
+                    
+                    if (currentScreen === 'finance') {
+                        updateFinanceUI();
+                    }
                 }, (error) => {
                     console.error("Error in orders listener:", error);
                     loadOrdersWithoutListener();
                 });
+        }
+
+        // Update finance data
+        function updateFinanceData() {
+            // Calculate finance metrics
+            const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+            const averageOrder = orders.length > 0 ? totalRevenue / orders.length : 0;
+            
+            // Current month revenue
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const currentMonthRevenueTotal = orders.reduce((sum, order) => {
+                const orderDate = new Date(order.timestamp || order.createdAt);
+                if (orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear) {
+                    return sum + (order.total || 0);
+                }
+                return sum;
+            }, 0);
+            
+            financeTotalRevenue.textContent = `R$ ${totalRevenue.toFixed(0)}`;
+            financeTotalOrders.textContent = orders.length;
+            averageOrderValue.textContent = `R$ ${averageOrder.toFixed(2)}`;
+            currentMonthRevenue.textContent = `R$ ${currentMonthRevenueTotal.toFixed(0)}`;
+        }
+
+        // Update finance UI based on selected tab
+        function updateFinanceUI() {
+            if (financeTab === 'all') {
+                showAllPayments();
+            } else if (financeTab === 'monthly') {
+                showMonthlySummary();
+            } else if (financeTab === 'summary') {
+                showFinanceSummary();
+            }
+        }
+
+        // Show all payments
+        function showAllPayments() {
+            allPaymentsList.innerHTML = '';
+            
+            if (orders.length === 0) {
+                allPaymentsEmpty.style.display = 'block';
+                return;
+            }
+            
+            allPaymentsEmpty.style.display = 'none';
+            
+            orders.forEach(order => {
+                const status = order.deliveryStatus || 'preparing';
+                const total = order.total || 0;
+                
+                const paymentCard = document.createElement('div');
+                paymentCard.className = 'order-card';
+                paymentCard.innerHTML = `
+                    <div class="order-header">
+                        <div class="order-id">#${order.id.substring(0, 8)}</div>
+                        <div class="order-date">${formatDate(order.timestamp || order.createdAt)}</div>
+                    </div>
+                    
+                    <div class="order-customer">${order.customerName}</div>
+                    
+                    <div class="order-info">
+                        <div>
+                            <span class="order-status ${getDeliveryStatusClass(status)}">
+                                ${getDeliveryStatusText(status)}
+                            </span>
+                        </div>
+                        <div class="order-total">R$ ${total.toFixed(2).replace('.', ',')}</div>
+                    </div>
+                    
+                    <div class="mb-1">
+                        <small><strong>Pagamento:</strong> ${order.paymentMethod === 'money' ? 'Dinheiro' : 'PIX'}</small>
+                    </div>
+                    
+                    <div class="mb-1">
+                        <small><strong>Taxa de entrega:</strong> R$ ${(order.deliveryFee || 0).toFixed(2).replace('.', ',')}</small>
+                    </div>
+                    
+                    ${order.receiptBase64 ? `
+                        <div class="mb-1">
+                            <small><strong>Comprovante:</strong> Enviado</small>
+                        </div>
+                    ` : ''}
+                `;
+                
+                allPaymentsList.appendChild(paymentCard);
+            });
+        }
+
+        // Show monthly summary
+        function showMonthlySummary() {
+            monthlySummaryList.innerHTML = '';
+            
+            // Group orders by month
+            const monthlyOrders = {};
+            orders.forEach(order => {
+                const date = new Date(order.timestamp || order.createdAt);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                const monthName = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                
+                if (!monthlyOrders[monthKey]) {
+                    monthlyOrders[monthKey] = {
+                        name: monthName,
+                        revenue: 0,
+                        orders: 0,
+                        deliveryFees: 0
+                    };
+                }
+                monthlyOrders[monthKey].revenue += order.total || 0;
+                monthlyOrders[monthKey].orders += 1;
+                monthlyOrders[monthKey].deliveryFees += order.deliveryFee || 0;
+            });
+            
+            // Sort months descending
+            const sortedMonths = Object.keys(monthlyOrders).sort().reverse();
+            
+            if (sortedMonths.length === 0) {
+                monthlySummaryList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <h3>Nenhum pedido</h3>
+                        <p>Os resumos mensais aparecerão aqui.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            sortedMonths.forEach(monthKey => {
+                const month = monthlyOrders[monthKey];
+                const averageOrder = month.orders > 0 ? month.revenue / month.orders : 0;
+                
+                const monthCard = document.createElement('div');
+                monthCard.className = 'monthly-summary';
+                monthCard.innerHTML = `
+                    <div class="month-header">
+                        <div class="month-name">${month.name}</div>
+                        <div class="month-revenue">R$ ${month.revenue.toFixed(2).replace('.', ',')}</div>
+                    </div>
+                    
+                    <div class="daily-orders">
+                        <div class="daily-order">
+                            <span>Total Pedidos:</span>
+                            <span class="order-count">${month.orders}</span>
+                        </div>
+                        <div class="daily-order">
+                            <span>Média por Pedido:</span>
+                            <span class="order-amount">R$ ${averageOrder.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div class="daily-order">
+                            <span>Taxas de Entrega:</span>
+                            <span class="order-amount">R$ ${month.deliveryFees.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                    </div>
+                `;
+                
+                monthlySummaryList.appendChild(monthCard);
+            });
+        }
+
+        // Show finance summary
+        function showFinanceSummary() {
+            // Update finance charts
+            updateFinanceCharts();
         }
 
         // Update notification badge
@@ -1882,6 +2564,11 @@
                 updateRecentOrders();
                 updateAllOrders();
                 updateNotificationBadge();
+                updateFinanceData();
+                
+                if (currentScreen === 'finance') {
+                    updateFinanceUI();
+                }
             } catch (error) {
                 console.error('Error loading orders:', error);
                 showNotification('Erro ao carregar pedidos.', 'error');
@@ -1942,6 +2629,12 @@
                     if (screen === 'orders') {
                         ordersBadge.classList.add('d-none');
                     }
+                    
+                    // Update finance UI if needed
+                    if (screen === 'finance') {
+                        updateFinanceUI();
+                        updateFinanceCharts();
+                    }
                 });
             });
             
@@ -1966,6 +2659,45 @@
             refreshLinkBtn.addEventListener('click', () => {
                 updateCustomerLink();
                 showNotification('Link atualizado!', 'info');
+            });
+            
+            // Share link button
+            shareLinkBtn.addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: storeConfig.businessName || 'Minha Loja',
+                        text: 'Acesse minha loja virtual:',
+                        url: customerLink
+                    });
+                } else {
+                    copyLinkBtn.click();
+                }
+            });
+            
+            // Finance tabs
+            financeTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    financeTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    financeTab = tab.getAttribute('data-tab');
+                    
+                    // Hide all tab contents
+                    document.querySelectorAll('.finance-tab-content').forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    
+                    // Show selected tab content
+                    if (financeTab === 'all') {
+                        document.getElementById('financeAllTab').style.display = 'block';
+                        showAllPayments();
+                    } else if (financeTab === 'monthly') {
+                        document.getElementById('financeMonthlyTab').style.display = 'block';
+                        showMonthlySummary();
+                    } else if (financeTab === 'summary') {
+                        document.getElementById('financeSummaryTab').style.display = 'block';
+                        showFinanceSummary();
+                    }
+                });
             });
             
             // Status filter
@@ -2041,25 +2773,11 @@
             // Image zoom modal
             closeZoom.addEventListener('click', () => {
                 imageZoomModal.style.display = 'none';
+                resetZoom();
             });
             
-            zoomIn.addEventListener('click', () => {
-                const currentTransform = zoomedImage.style.transform || 'scale(1)';
-                const currentScale = parseFloat(currentTransform.match(/scale\(([^)]+)\)/)?.[1] || 1);
-                zoomedImage.style.transform = `scale(${currentScale + 0.2})`;
-            });
-            
-            zoomOut.addEventListener('click', () => {
-                const currentTransform = zoomedImage.style.transform || 'scale(1)';
-                const currentScale = parseFloat(currentTransform.match(/scale\(([^)]+)\)/)?.[1] || 1);
-                if (currentScale > 0.2) {
-                    zoomedImage.style.transform = `scale(${currentScale - 0.2})`;
-                }
-            });
-            
-            zoomReset.addEventListener('click', () => {
-                zoomedImage.style.transform = 'scale(1)';
-            });
+            // Setup pinch-to-zoom for images
+            setupPinchZoom();
             
             // Close modals when clicking outside
             window.addEventListener('click', (e) => {
@@ -2071,11 +2789,63 @@
                 }
                 if (e.target === imageZoomModal) {
                     imageZoomModal.style.display = 'none';
+                    resetZoom();
                 }
             });
         }
 
-        // Handle logo upload
+        // Setup pinch-to-zoom for images
+        function setupPinchZoom() {
+            zoomedImage.addEventListener('touchstart', handleTouchStart);
+            zoomedImage.addEventListener('touchmove', handleTouchMove);
+            zoomedImage.addEventListener('touchend', handleTouchEnd);
+        }
+
+        // Handle touch start for pinch zoom
+        function handleTouchStart(e) {
+            if (e.touches.length === 2) {
+                lastTouchDistance = getTouchDistance(e.touches[0], e.touches[1]);
+            }
+        }
+
+        // Handle touch move for pinch zoom
+        function handleTouchMove(e) {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
+                
+                if (lastTouchDistance) {
+                    const scaleChange = currentDistance / lastTouchDistance;
+                    const currentTransform = zoomedImage.style.transform || 'scale(1)';
+                    const currentScale = parseFloat(currentTransform.match(/scale\(([^)]+)\)/)?.[1] || 1);
+                    const newScale = Math.max(0.5, Math.min(5, currentScale * scaleChange));
+                    
+                    zoomedImage.style.transform = `scale(${newScale})`;
+                }
+                
+                lastTouchDistance = currentDistance;
+            }
+        }
+
+        // Handle touch end for pinch zoom
+        function handleTouchEnd(e) {
+            lastTouchDistance = null;
+        }
+
+        // Get distance between two touch points
+        function getTouchDistance(touch1, touch2) {
+            const dx = touch1.clientX - touch2.clientX;
+            const dy = touch1.clientY - touch2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // Reset zoom
+        function resetZoom() {
+            zoomedImage.style.transform = 'scale(1)';
+            lastTouchDistance = null;
+        }
+
+        // Handle logo upload with loading indicator
         function handleLogoUpload(e) {
             const file = e.target.files[0];
             if (file) {
@@ -2085,17 +2855,49 @@
                     return;
                 }
                 
+                // Show loading
+                logoUploadArea.classList.add('uploading');
+                logoUploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div class="upload-text">Processando imagem...</div>
+                `;
+                
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     logoBase64 = event.target.result;
                     configLogoPreview.src = logoBase64;
                     configLogoPreview.style.display = 'block';
+                    
+                    // Reset upload area
+                    logoUploadArea.classList.remove('uploading');
+                    logoUploadArea.innerHTML = `
+                        <div class="upload-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="upload-text">Clique para fazer upload</div>
+                        <div class="upload-info">Tamanho máximo: 5MB</div>
+                    `;
                 };
+                
+                reader.onerror = function() {
+                    showNotification('Erro ao carregar imagem.', 'error');
+                    logoUploadArea.classList.remove('uploading');
+                    logoUploadArea.innerHTML = `
+                        <div class="upload-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="upload-text">Clique para fazer upload</div>
+                        <div class="upload-info">Tamanho máximo: 5MB</div>
+                    `;
+                };
+                
                 reader.readAsDataURL(file);
             }
         }
 
-        // Handle product image upload
+        // Handle product image upload with loading indicator
         function handleProductImageUpload(e) {
             const file = e.target.files[0];
             if (file) {
@@ -2105,12 +2907,44 @@
                     return;
                 }
                 
+                // Show loading
+                productImageUploadArea.classList.add('uploading');
+                productImageUploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div class="upload-text">Processando imagem...</div>
+                `;
+                
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     productImageBase64 = event.target.result;
                     productImagePreview.src = productImageBase64;
                     productImagePreview.style.display = 'block';
+                    
+                    // Reset upload area
+                    productImageUploadArea.classList.remove('uploading');
+                    productImageUploadArea.innerHTML = `
+                        <div class="upload-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="upload-text">Clique para fazer upload</div>
+                        <div class="upload-info">Tamanho máximo: 5MB</div>
+                    `;
                 };
+                
+                reader.onerror = function() {
+                    showNotification('Erro ao carregar imagem.', 'error');
+                    productImageUploadArea.classList.remove('uploading');
+                    productImageUploadArea.innerHTML = `
+                        <div class="upload-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="upload-text">Clique para fazer upload</div>
+                        <div class="upload-info">Tamanho máximo: 5MB</div>
+                    `;
+                };
+                
                 reader.readAsDataURL(file);
             }
         }
@@ -2119,7 +2953,7 @@
         function openImageZoom(imageSrc, altText) {
             zoomedImage.src = imageSrc;
             zoomedImage.alt = altText;
-            zoomedImage.style.transform = 'scale(1)';
+            resetZoom();
             imageZoomModal.style.display = 'flex';
         }
 
@@ -2165,6 +2999,10 @@
             totalOrdersCountElement.textContent = totalOrders;
             totalRevenueElement.textContent = `R$ ${totalRevenue.toFixed(0)}`;
             deliveryFeeStat.textContent = `R$ ${(storeConfig.deliveryFee || 0).toFixed(2)}`;
+            
+            // Update visits
+            totalVisitsElement.textContent = storeVisits;
+            totalVisitsConfig.textContent = storeVisits;
         }
 
         // Update recent orders
@@ -2866,10 +3704,20 @@
             }, 3000);
         }
 
+        // Show loading overlay
+        function showLoading() {
+            loadingOverlay.style.display = 'flex';
+        }
+
+        // Hide loading overlay
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
         // Initialize the app
         document.addEventListener('DOMContentLoaded', init);
         
-        // Make openImageZoom available globally
+        // Make functions available globally
         window.openImageZoom = openImageZoom;
     </script>
 </body>
