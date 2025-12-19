@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -175,6 +176,250 @@
             text-decoration: underline;
         }
         
+        /* Payment Modal */
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .payment-content {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .payment-icon {
+            font-size: 3.5rem;
+            color: #212121;
+            margin-bottom: 20px;
+        }
+        
+        .payment-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #212121;
+        }
+        
+        .payment-message {
+            color: #757575;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .plan-card {
+            background-color: #f5f5f5;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .plan-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 10px;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+        
+        .plan-features li {
+            margin-bottom: 8px;
+            color: #757575;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .plan-features li i {
+            color: #4caf50;
+        }
+        
+        .plan-price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #212121;
+            text-align: center;
+        }
+        
+        .pix-info {
+            background-color: #f0f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            border: 2px dashed #2196f3;
+        }
+        
+        .pix-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2196f3;
+            margin-bottom: 10px;
+        }
+        
+        .pix-key {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            word-break: break-all;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .upload-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+            position: relative;
+        }
+        
+        .upload-area.uploading {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .upload-area:active {
+            border-color: #212121;
+        }
+        
+        .upload-icon {
+            font-size: 2rem;
+            color: #757575;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+        
+        .upload-text {
+            color: #757575;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+        
+        .upload-info {
+            font-size: 0.8rem;
+            color: #757575;
+            transition: color 0.3s ease;
+            margin-top: 5px;
+        }
+        
+        .file-types {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .file-type-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            background-color: #f5f5f5;
+            color: #757575;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            object-fit: contain;
+            margin-top: 10px;
+            display: none;
+            cursor: pointer;
+            background-color: #f5f5f5;
+        }
+        
+        /* PDF Preview Placeholder */
+        .pdf-preview {
+            display: none;
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+            background-color: #f5f5f5;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+            border: 2px dashed #e0e0e0;
+            cursor: pointer;
+        }
+        
+        /* Status Modal */
+        .status-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .status-content {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .status-icon {
+            font-size: 3.5rem;
+            color: #212121;
+            margin-bottom: 20px;
+        }
+        
+        .status-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #212121;
+        }
+        
+        .status-message {
+            color: #757575;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        /* Notification */
         .notification {
             position: fixed;
             top: 50%;
@@ -246,6 +491,7 @@
     </style>
 </head>
 <body>
+    <!-- Login Container -->
     <div class="login-container">
         <div class="logo-section">
             <div class="logo-icon">
@@ -277,18 +523,28 @@
         <!-- Register Form -->
         <form id="registerForm">
             <div class="form-group">
-                <label class="form-label">Nome da Loja</label>
+                <label class="form-label">Nome da Loja *</label>
                 <input type="text" id="storeName" class="form-input" placeholder="Nome do seu negócio" required>
             </div>
             
             <div class="form-group">
-                <label class="form-label">E-mail</label>
+                <label class="form-label">E-mail *</label>
                 <input type="email" id="regEmail" class="form-input" placeholder="seu@email.com" required>
             </div>
             
             <div class="form-group">
-                <label class="form-label">Senha</label>
+                <label class="form-label">Senha *</label>
                 <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Telefone (WhatsApp) *</label>
+                <input type="text" id="userPhone" class="form-input" placeholder="(11) 99999-9999" required>
+                <small class="text-gray">Este número será usado para confirmações de cadastro e notificações</small>
+            </div>
+            
+            <div class="mb-2" style="background-color: #fff3cd; padding: 12px; border-radius: 8px; border: 1px solid #ff9800; color: #856404; font-size: 0.85rem;">
+                <i class="fas fa-info-circle"></i> <strong>Atenção:</strong> O acesso ao sistema será liberado apenas após a confirmação do pagamento. Você receberá uma confirmação via WhatsApp.
             </div>
             
             <button type="submit" class="btn btn-secondary" id="registerBtn">
@@ -298,6 +554,99 @@
         
         <div class="register-link">
             Já tem conta? <a href="#" id="showLogin">Faça login</a>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="payment-modal" id="paymentModal">
+        <div class="payment-content">
+            <div class="payment-icon">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <h2 class="payment-title">Escolha seu Plano</h2>
+            <p class="payment-message">
+                Para ativar sua loja virtual, escolha um plano de contrato e realize o pagamento.
+                <strong>O acesso será liberado após a confirmação do pagamento.</strong>
+            </p>
+            
+            <div class="plan-card">
+                <div class="plan-name">Plano Mensal</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Loja virtual completa</li>
+                    <li><i class="fas fa-check"></i> Sistema de pedidos</li>
+                    <li><i class="fas fa-check"></i> Painel administrativo</li>
+                    <li><i class="fas fa-check"></i> Suporte técnico</li>
+                    <li><i class="fas fa-check"></i> Atualizações gratuitas</li>
+                </ul>
+                <div class="plan-price" id="planPrice">R$ 99,00/mês</div>
+            </div>
+            
+            <form id="paymentForm">
+                <input type="hidden" id="paymentUserId">
+                <input type="hidden" id="paymentPlan" value="monthly">
+                
+                <div class="pix-info">
+                    <div class="pix-title">Pagamento via PIX</div>
+                    <div class="pix-key" id="pixKeyDisplay">Carregando chave PIX...</div>
+                    <p>Copie a chave PIX acima e faça o pagamento no seu aplicativo bancário.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Envie o comprovante do pagamento</label>
+                    <div class="upload-area" id="receiptUploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <div class="upload-text">Clique para fazer upload</div>
+                        <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                        <div class="file-types">
+                            <span class="file-type-badge">JPG</span>
+                            <span class="file-type-badge">PNG</span>
+                            <span class="file-type-badge">PDF</span>
+                        </div>
+                        <input type="file" id="receiptUpload" accept="image/*,.pdf" style="display: none;">
+                    </div>
+                    
+                    <img id="receiptImagePreview" class="image-preview" alt="Comprovante">
+                    
+                    <div class="pdf-preview" id="receiptPdfPreview">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="upload-text" id="pdfFileName">comprovante.pdf</div>
+                        <div class="upload-info">Clique para visualizar</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Observações (opcional)</label>
+                    <textarea id="paymentNotes" class="form-input" rows="3" placeholder="Alguma observação sobre o pagamento..."></textarea>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-secondary flex-1" id="cancelPaymentBtn">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary flex-1" id="submitPaymentBtn">
+                        <i class="fas fa-paper-plane"></i> Enviar Comprovante
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Status Modal -->
+    <div class="status-modal" id="statusModal">
+        <div class="status-content">
+            <div class="status-icon">
+                <i class="fas fa-clock" id="statusIcon"></i>
+            </div>
+            <h2 class="status-title" id="statusTitle">Aguardando Análise</h2>
+            <p class="status-message" id="statusMessage">
+                Seu cadastro está em análise. Aguarde a confirmação do pagamento para acessar o sistema.
+                Você receberá uma notificação por WhatsApp quando seu acesso for liberado.
+            </p>
+            <button class="btn btn-primary" id="closeStatusBtn">
+                <i class="fas fa-check"></i> Entendido
+            </button>
         </div>
     </div>
 
@@ -323,9 +672,49 @@
         const loginBtn = document.getElementById('loginBtn');
         const registerBtn = document.getElementById('registerBtn');
         const showLogin = document.getElementById('showLogin');
+        const userPhone = document.getElementById('userPhone');
+        
+        // Payment modal elements
+        const paymentModal = document.getElementById('paymentModal');
+        const paymentForm = document.getElementById('paymentForm');
+        const paymentUserId = document.getElementById('paymentUserId');
+        const pixKeyDisplay = document.getElementById('pixKeyDisplay');
+        const planPrice = document.getElementById('planPrice');
+        const receiptUploadArea = document.getElementById('receiptUploadArea');
+        const receiptUpload = document.getElementById('receiptUpload');
+        const receiptImagePreview = document.getElementById('receiptImagePreview');
+        const receiptPdfPreview = document.getElementById('receiptPdfPreview');
+        const pdfFileName = document.getElementById('pdfFileName');
+        const submitPaymentBtn = document.getElementById('submitPaymentBtn');
+        const cancelPaymentBtn = document.getElementById('cancelPaymentBtn');
+        
+        // Status modal elements
+        const statusModal = document.getElementById('statusModal');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusMessage = document.getElementById('statusMessage');
+        const closeStatusBtn = document.getElementById('closeStatusBtn');
+
+        // Application state
+        let currentUser = null;
+        let systemConfig = {};
+        let receiptBase64 = '';
+        let receiptType = '';
+        let receiptFileName = '';
+        let phoneMask = null;
 
         // Show login form by default
         registerForm.style.display = 'none';
+
+        // Setup phone mask
+        function setupPhoneMask() {
+            if (userPhone) {
+                phoneMask = new IMask(userPhone, {
+                    mask: '(00) 00000-0000',
+                    lazy: false
+                });
+            }
+        }
 
         // Toggle between login and register forms
         showLogin.addEventListener('click', (e) => {
@@ -334,12 +723,35 @@
                 registerForm.style.display = 'block';
                 loginForm.style.display = 'none';
                 showLogin.textContent = 'Faça login';
+                setupPhoneMask();
             } else {
                 registerForm.style.display = 'none';
                 loginForm.style.display = 'block';
                 showLogin.textContent = 'Criar conta';
             }
         });
+
+        // Load system configuration
+        async function loadSystemConfig() {
+            try {
+                const configDoc = await db.collection('systemConfig').doc('paymentSettings').get();
+                if (configDoc.exists) {
+                    systemConfig = configDoc.data();
+                    
+                    // Update UI with system config
+                    if (pixKeyDisplay) {
+                        pixKeyDisplay.textContent = systemConfig.pixKey || 'chave-pix@empresa.com';
+                    }
+                    
+                    if (planPrice) {
+                        const price = systemConfig.monthlyPlanPrice || 99.00;
+                        planPrice.textContent = `R$ ${price.toFixed(2).replace('.', ',')}/mês`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading system config:', error);
+            }
+        }
 
         // Login function
         loginForm.addEventListener('submit', async (e) => {
@@ -357,19 +769,87 @@
                 // Get user data from Firestore
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 if (userDoc.exists) {
-                    // Store user data in localStorage
                     const userData = userDoc.data();
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        uid: user.uid,
-                        email: user.email,
-                        storeName: userData.storeName,
-                        isAdmin: true
-                    }));
                     
-                    showNotification('Login realizado com sucesso!', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1000);
+                    // Check user status
+                    if (userData.status === 'blocked') {
+                        showNotification('Sua conta está bloqueada. Entre em contato com o suporte.', 'error');
+                        await auth.signOut();
+                        return;
+                    }
+                    
+                    if (userData.status === 'expired') {
+                        showNotification('Seu plano expirou. Renove seu plano para continuar.', 'error');
+                        await auth.signOut();
+                        return;
+                    }
+                    
+                    if (userData.status === 'pending') {
+                        showNotification('Seu pagamento está em análise. Aguarde a confirmação.', 'info');
+                        await auth.signOut();
+                        return;
+                    }
+                    
+                    // Check if user has active status
+                    if (userData.status === 'active' && userData.isActive !== false) {
+                        // Check expiry date
+                        if (userData.expiryDate) {
+                            const expiryDate = new Date(userData.expiryDate);
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            
+                            if (expiryDate < today) {
+                                // Account expired
+                                await db.collection('users').doc(user.uid).update({
+                                    status: 'expired',
+                                    isActive: false
+                                });
+                                showNotification('Seu plano expirou. Renove seu plano para continuar.', 'error');
+                                await auth.signOut();
+                                return;
+                            }
+                            
+                            // Check if expiry is near (show warning)
+                            const warningDays = systemConfig.expirationWarningDays || 7;
+                            const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                            
+                            if (daysUntilExpiry <= warningDays && daysUntilExpiry > 0) {
+                                showNotification(`Seu plano expira em ${daysUntilExpiry} dia(s). Renove para continuar.`, 'warning');
+                            }
+                        }
+                        
+                        // Store user data in localStorage
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            uid: user.uid,
+                            email: user.email,
+                            storeName: userData.storeName,
+                            phone: userData.phone,
+                            isAdmin: true,
+                            expiryDate: userData.expiryDate
+                        }));
+                        
+                        // Update last login
+                        await db.collection('users').doc(user.uid).update({
+                            lastLogin: new Date().toISOString()
+                        });
+                        
+                        // Record user activity
+                        await db.collection('userActivities').add({
+                            userId: user.uid,
+                            action: 'login',
+                            timestamp: new Date().toISOString(),
+                            userEmail: user.email,
+                            storeName: userData.storeName
+                        });
+                        
+                        showNotification('Login realizado com sucesso!', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1000);
+                    } else {
+                        showNotification('Sua conta não está ativa. Entre em contato com o suporte.', 'error');
+                        await auth.signOut();
+                    }
                 } else {
                     showNotification('Erro: dados do usuário não encontrados.', 'error');
                     await auth.signOut();
@@ -389,62 +869,51 @@
             const storeName = document.getElementById('storeName').value;
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPassword').value;
+            const phone = userPhone.value;
+            
+            if (!phone || phone.replace(/\D/g, '').length < 11) {
+                showNotification('Por favor, informe um número de WhatsApp válido.', 'error');
+                return;
+            }
             
             try {
                 registerBtn.innerHTML = '<div class="loading"></div>';
                 registerBtn.disabled = true;
                 
+                // Load system config first
+                await loadSystemConfig();
+                
                 // Create user in Firebase Auth
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                // Create user document in Firestore
+                // Create user document with pending status
                 await db.collection('users').doc(user.uid).set({
                     uid: user.uid,
                     email: user.email,
                     storeName: storeName,
+                    phone: phone,
+                    status: 'pending',
+                    plan: 'monthly',
+                    isActive: false,
+                    configCompleted: false,
+                    paymentConfirmed: false,
                     createdAt: new Date().toISOString(),
-                    isActive: true,
-                    customerLink: null,
-                    configCompleted: false // Flag para verificar se completou cadastro
+                    lastActivity: new Date().toISOString()
                 });
                 
-                // Create default store configuration
-                await db.collection('stores').doc(user.uid).set({
-                    businessName: storeName,
-                    logoBase64: '',
-                    whatsappNumber: '',
-                    pixKey: '',
-                    contactPhone: '',
-                    productsTitle: 'Nossos Produtos',
-                    ownerId: user.uid,
-                    createdAt: new Date().toISOString(),
-                    theme: 'black' // Tema padrão preto
-                });
-                
-                // Create default welcome product
-                await db.collection('stores').doc(user.uid).collection('products').add({
-                    name: 'Produto Exemplo',
-                    description: 'Este é um produto de exemplo. Você pode editá-lo ou excluí-lo.',
-                    price: 29.90,
-                    category: 'outro',
-                    active: true,
-                    imageBase64: '',
-                    createdAt: new Date().toISOString()
-                });
-                
-                // Store user data in localStorage
-                localStorage.setItem('currentUser', JSON.stringify({
+                // Store temporary user data for payment
+                currentUser = {
                     uid: user.uid,
                     email: user.email,
                     storeName: storeName,
-                    isAdmin: true
-                }));
+                    phone: phone
+                };
                 
-                showNotification('Conta criada com sucesso!', 'success');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
+                // Show payment modal
+                paymentUserId.value = user.uid;
+                showPaymentModal();
+                
             } catch (error) {
                 console.error('Registration error:', error);
                 showNotification(getErrorMessage(error), 'error');
@@ -454,19 +923,302 @@
             }
         });
 
+        // Show payment modal
+        function showPaymentModal() {
+            paymentModal.style.display = 'flex';
+            
+            // Reset receipt upload
+            receiptBase64 = '';
+            receiptType = '';
+            receiptFileName = '';
+            receiptImagePreview.style.display = 'none';
+            receiptPdfPreview.style.display = 'none';
+            
+            // Setup receipt upload
+            setupReceiptUpload();
+        }
+
+        // Setup receipt upload
+        function setupReceiptUpload() {
+            receiptUploadArea.addEventListener('click', () => {
+                if (!receiptUploadArea.classList.contains('uploading')) {
+                    receiptUpload.click();
+                }
+            });
+            
+            receiptUpload.addEventListener('change', handleReceiptUpload);
+            
+            // PDF preview click
+            receiptPdfPreview.addEventListener('click', () => {
+                if (receiptBase64) {
+                    const link = document.createElement('a');
+                    link.href = receiptBase64;
+                    link.download = receiptFileName || 'comprovante.pdf';
+                    link.target = '_blank';
+                    link.click();
+                }
+            });
+            
+            // Image preview click
+            receiptImagePreview.addEventListener('click', () => {
+                if (receiptBase64) {
+                    const newWindow = window.open();
+                    newWindow.document.write(`<img src="${receiptBase64}" style="max-width: 100%; max-height: 100%;">`);
+                }
+            });
+            
+            // Cancel button
+            cancelPaymentBtn.addEventListener('click', () => {
+                paymentModal.style.display = 'none';
+                // Sign out the user since they cancelled payment
+                auth.signOut();
+                // Show login form
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                showLogin.textContent = 'Criar conta';
+            });
+            
+            // Payment form submission
+            paymentForm.addEventListener('submit', submitPayment);
+        }
+
+        // Handle receipt upload
+        function handleReceiptUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('O arquivo deve ter no máximo 5MB.', 'error');
+                receiptUpload.value = '';
+                return;
+            }
+            
+            // Check file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+            if (!validTypes.includes(file.type)) {
+                showNotification('Tipo de arquivo inválido. Use JPG, PNG ou PDF.', 'error');
+                receiptUpload.value = '';
+                return;
+            }
+            
+            // Show loading
+            receiptUploadArea.classList.add('uploading');
+            receiptUploadArea.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <div class="upload-text">Processando arquivo...</div>
+            `;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                receiptBase64 = event.target.result;
+                receiptType = file.type.includes('pdf') ? 'pdf' : 'image';
+                receiptFileName = file.name;
+                
+                // Show preview
+                if (receiptType === 'pdf') {
+                    receiptPdfPreview.style.display = 'flex';
+                    pdfFileName.textContent = file.name;
+                    receiptImagePreview.style.display = 'none';
+                } else {
+                    receiptImagePreview.src = receiptBase64;
+                    receiptImagePreview.style.display = 'block';
+                    receiptPdfPreview.style.display = 'none';
+                }
+                
+                // Reset upload area
+                receiptUploadArea.classList.remove('uploading');
+                receiptUploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <div class="upload-text">Clique para fazer upload</div>
+                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                    <div class="file-types">
+                        <span class="file-type-badge">JPG</span>
+                        <span class="file-type-badge">PNG</span>
+                        <span class="file-type-badge">PDF</span>
+                    </div>
+                `;
+            };
+            
+            reader.onerror = function() {
+                showNotification('Erro ao carregar arquivo.', 'error');
+                receiptUploadArea.classList.remove('uploading');
+                receiptUploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <div class="upload-text">Clique para fazer upload</div>
+                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                    <div class="file-types">
+                        <span class="file-type-badge">JPG</span>
+                        <span class="file-type-badge">PNG</span>
+                        <span class="file-type-badge">PDF</span>
+                    </div>
+                `;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // Submit payment
+        async function submitPayment(e) {
+            e.preventDefault();
+            
+            if (!receiptBase64) {
+                showNotification('Por favor, envie o comprovante do pagamento.', 'error');
+                return;
+            }
+            
+            try {
+                submitPaymentBtn.innerHTML = '<div class="loading"></div>';
+                submitPaymentBtn.disabled = true;
+                
+                const paymentNotes = document.getElementById('paymentNotes').value;
+                const plan = document.getElementById('paymentPlan').value;
+                const amount = systemConfig.monthlyPlanPrice || 99.00;
+                
+                // Create payment record
+                await db.collection('payments').add({
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    userName: currentUser.storeName,
+                    userPhone: currentUser.phone,
+                    storeName: currentUser.storeName,
+                    plan: plan,
+                    amount: amount,
+                    status: 'pending',
+                    receiptBase64: receiptBase64,
+                    receiptType: receiptType,
+                    receiptFileName: receiptFileName,
+                    notes: paymentNotes,
+                    createdAt: new Date().toISOString(),
+                    type: 'initial'
+                });
+                
+                // Send WhatsApp notification to admin
+                await sendWhatsAppNotification(amount);
+                
+                // Send confirmation WhatsApp to user
+                await sendUserConfirmationWhatsApp();
+                
+                // Show status modal
+                showStatusModal();
+                
+                // Close payment modal
+                paymentModal.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error submitting payment:', error);
+                showNotification('Erro ao enviar comprovante.', 'error');
+            } finally {
+                submitPaymentBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Comprovante';
+                submitPaymentBtn.disabled = false;
+            }
+        }
+
+        // Send WhatsApp notification to admin
+        async function sendWhatsAppNotification(amount) {
+            try {
+                const adminWhatsApp = systemConfig.adminWhatsApp || '(11) 99999-9999';
+                const whatsappMessage = systemConfig.whatsappMessage || '';
+                
+                // Format message with user data
+                let message = whatsappMessage
+                    .replace('{nome}', currentUser.storeName)
+                    .replace('{loja}', currentUser.storeName)
+                    .replace('{email}', currentUser.email)
+                    .replace('{telefone}', currentUser.phone)
+                    .replace('{valor}', (amount || 99.00).toFixed(2))
+                    .replace('{data}', new Date().toLocaleDateString('pt-BR'));
+                
+                // Encode message for WhatsApp URL
+                const encodedMessage = encodeURIComponent(message);
+                
+                // Create WhatsApp URL
+                const whatsappUrl = `https://wa.me/${adminWhatsApp.replace(/\D/g, '')}?text=${encodedMessage}`;
+                
+                // Open WhatsApp in new tab
+                window.open(whatsappUrl, '_blank');
+                
+            } catch (error) {
+                console.error('Error sending WhatsApp notification:', error);
+            }
+        }
+
+        // Send confirmation WhatsApp to user
+        async function sendUserConfirmationWhatsApp() {
+            try {
+                const userPhone = currentUser.phone.replace(/\D/g, '');
+                
+                let message = `📋 *CONFIRMAÇÃO DE CADASTRO* 📋\n\n`;
+                message += `Olá ${currentUser.storeName}!\n\n`;
+                message += `Seu cadastro no *Venda+* foi recebido com sucesso! 🎉\n\n`;
+                message += `📧 *E-mail:* ${currentUser.email}\n`;
+                message += `🏪 *Loja:* ${currentUser.storeName}\n`;
+                message += `📅 *Data do cadastro:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+                message += `⏳ *Status:* Seu pagamento está em análise\n\n`;
+                message += `Aguardamos a confirmação do pagamento para liberar seu acesso ao sistema.\n`;
+                message += `Você receberá uma mensagem neste WhatsApp quando seu acesso for liberado.\n\n`;
+                message += `Agradecemos pela preferência! 🙏`;
+                
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappUrl = `https://wa.me/${userPhone}?text=${encodedMessage}`;
+                
+                // Open WhatsApp in new tab
+                window.open(whatsappUrl, '_blank');
+                
+            } catch (error) {
+                console.error('Error sending user confirmation WhatsApp:', error);
+            }
+        }
+
+        // Show status modal
+        function showStatusModal() {
+            statusIcon.className = 'fas fa-clock';
+            statusIcon.style.color = '#ff9800';
+            statusTitle.textContent = 'Aguardando Análise';
+            statusMessage.textContent = 'Seu cadastro está em análise. Aguarde a confirmação do pagamento para acessar o sistema. Você receberá uma notificação por WhatsApp quando seu acesso for liberado.';
+            
+            statusModal.style.display = 'flex';
+            
+            // Close status modal button
+            closeStatusBtn.onclick = () => {
+                statusModal.style.display = 'none';
+                // Sign out the user
+                auth.signOut();
+                // Show login form
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                showLogin.textContent = 'Criar conta';
+            };
+        }
+
         // Check if user is already logged in
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        uid: user.uid,
-                        email: user.email,
-                        storeName: userData.storeName,
-                        isAdmin: true
-                    }));
-                    window.location.href = 'index.html';
+                    
+                    // Check user status
+                    if (userData.status === 'active' && userData.isActive !== false) {
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            uid: user.uid,
+                            email: user.email,
+                            storeName: userData.storeName,
+                            phone: userData.phone,
+                            isAdmin: true,
+                            expiryDate: userData.expiryDate
+                        }));
+                        window.location.href = 'index.html';
+                    } else if (userData.status === 'pending') {
+                        // Show status modal for pending users
+                        showStatusModal();
+                    }
                 }
             }
         });
@@ -514,6 +1266,9 @@
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
+            loadSystemConfig();
+            setupPhoneMask();
+            
             const urlParams = new URLSearchParams(window.location.search);
             const storeId = urlParams.get('store');
             if (storeId) {

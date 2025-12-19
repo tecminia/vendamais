@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Venda+ | Admin Login</title>
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #212121 0%, #424242 100%);
+            color: #ffffff;
+        }
+        
+        body {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .admin-login-container {
+            max-width: 400px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo-icon {
+            font-size: 4rem;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+        
+        .logo-section h1 {
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+        
+        .logo-section p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .btn {
+            padding: 16px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .btn-primary {
+            background-color: #ffffff;
+            color: #212121;
+        }
+        
+        .btn-primary:hover {
+            background-color: #f5f5f5;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            margin-top: 15px;
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            background-color: rgba(0, 0, 0, 0.85);
+            max-width: 300px;
+            width: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .notification.success {
+            background-color: rgba(76, 175, 80, 0.95);
+        }
+        
+        .notification.error {
+            background-color: rgba(244, 67, 54, 0.95);
+        }
+        
+        .notification.info {
+            background-color: rgba(33, 150, 243, 0.95);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(33, 33, 33, 0.3);
+            border-radius: 50%;
+            border-top-color: #212121;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 480px) {
+            .admin-login-container {
+                padding: 30px 20px;
+            }
+            
+            .logo-section h1 {
+                font-size: 1.5rem;
+            }
+            
+            .logo-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-login-container">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h1>Venda+ Admin</h1>
+            <p>Acesso Restrito ao Gerenciador</p>
+        </div>
+        
+        <form id="adminLoginForm">
+            <div class="form-group">
+                <label class="form-label">E-mail Administrativo</label>
+                <input type="email" id="adminEmail" class="form-input" placeholder="admin@email.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <input type="password" id="adminPassword" class="form-input" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="adminLoginBtn">
+                <i class="fas fa-sign-in-alt"></i> Acessar Gerenciador
+            </button>
+            
+            <button type="button" class="btn btn-secondary" id="backToLoginBtn">
+                <i class="fas fa-arrow-left"></i> Voltar para Login Normal
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7U-JfKAlkPxSyL4AEf5u0BgcDzSXf41M",
+            authDomain: "appvendas-1eebf.firebaseapp.com",
+            projectId: "appvendas-1eebf",
+            storageBucket: "appvendas-1eebf.firebasestorage.app",
+            messagingSenderId: "229472373918",
+            appId: "1:229472373918:web:39cd4940b052b2375f3f8f"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // DOM Elements
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const backToLoginBtn = document.getElementById('backToLoginBtn');
+
+        // Admin login
+        adminLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            try {
+                adminLoginBtn.innerHTML = '<div class="loading"></div>';
+                adminLoginBtn.disabled = true;
+                
+                // Check admin credentials in Firestore
+                const adminDoc = await db.collection('admin').doc('credentials').get();
+                
+                if (!adminDoc.exists) {
+                    // Create default admin credentials if they don't exist
+                    await db.collection('admin').doc('credentials').set({
+                        email: 'admin@vendaplus.com',
+                        password: 'admin123', // Note: In production, use proper hashing
+                        createdAt: new Date().toISOString()
+                    });
+                }
+                
+                const adminData = adminDoc.data();
+                
+                // Simple credential check (in production, use proper authentication)
+                if (adminData.email === email && adminData.password === password) {
+                    // Create admin session
+                    const adminSession = {
+                        email: email,
+                        loggedIn: true,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('adminSession', JSON.stringify(adminSession));
+                    
+                    showNotification('Acesso concedido!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'gerenciador.html';
+                    }, 1000);
+                } else {
+                    showNotification('Credenciais inválidas.', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Admin login error:', error);
+                showNotification('Erro ao acessar o sistema.', 'error');
+            } finally {
+                adminLoginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Acessar Gerenciador';
+                adminLoginBtn.disabled = false;
+            }
+        });
+
+        // Back to normal login
+        backToLoginBtn.addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+
+        // Helper functions
+        function showNotification(message, type = 'info') {
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => {
+                notification.remove();
+            });
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Check for existing admin session
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminSession = localStorage.getItem('adminSession');
+            if (adminSession) {
+                try {
+                    const sessionData = JSON.parse(adminSession);
+                    const sessionAge = new Date() - new Date(sessionData.timestamp);
+                    const maxAge = 2 * 60 * 60 * 1000; // 2 hours
+                    
+                    if (sessionAge < maxAge) {
+                        window.location.href = 'gerenciador.html';
+                    } else {
+                        localStorage.removeItem('adminSession');
+                    }
+                } catch (error) {
+                    localStorage.removeItem('adminSession');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

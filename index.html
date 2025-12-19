@@ -158,6 +158,24 @@
             line-height: 1.5;
         }
         
+        /* Expiry Warning Modal */
+        .expiry-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ff9800;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+            position: relative;
+        }
+        
+        .expiry-warning-icon {
+            font-size: 2rem;
+            color: #ff9800;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
         /* Notification Badge */
         .notification-badge {
             position: absolute;
@@ -1178,6 +1196,51 @@
             background-color: rgba(33, 150, 243, 0.95);
         }
         
+        /* Block Modal */
+        .block-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 5000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .block-content {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .block-icon {
+            font-size: 3.5rem;
+            color: #f44336;
+            margin-bottom: 20px;
+        }
+        
+        .block-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #212121;
+        }
+        
+        .block-message {
+            color: #757575;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
         /* Animations */
         @keyframes slideUp {
             from { transform: translateY(100%); }
@@ -1235,6 +1298,22 @@
         </div>
     </div>
 
+    <!-- Block Modal -->
+    <div class="block-modal" id="blockModal">
+        <div class="block-content">
+            <div class="block-icon">
+                <i class="fas fa-ban"></i>
+            </div>
+            <h2 class="block-title">Conta Bloqueada</h2>
+            <p class="block-message" id="blockMessage">
+                Sua conta foi bloqueada pelo administrador. Entre em contato para mais informações.
+            </p>
+            <button class="btn btn-primary" id="logoutBlockedBtn">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
@@ -1266,6 +1345,18 @@
             <!-- Dashboard Screen -->
             <div id="dashboardScreen" class="screen active">
                 <h2 class="section-title">Dashboard</h2>
+                
+                <!-- Expiry Warning -->
+                <div class="expiry-warning d-none" id="expiryWarningBanner">
+                    <div class="expiry-warning-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="mb-2" id="expiryWarningText"></h3>
+                    <p class="text-gray mb-2">Renove seu plano para continuar usando todos os recursos do sistema.</p>
+                    <button class="btn btn-primary btn-sm" id="renewPlanBannerBtn">
+                        <i class="fas fa-sync-alt"></i> Renovar Plano
+                    </button>
+                </div>
                 
                 <!-- User Info Card -->
                 <div class="user-card">
@@ -1800,6 +1891,107 @@
         </div>
     </div>
 
+    <!-- Expiry Warning Modal -->
+    <div class="modal" id="expiryWarningModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">⚠️ Aviso de Vencimento</h2>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="mb-3" style="font-size: 3rem; color: #ff9800;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="mb-2">Seu plano está prestes a vencer!</h3>
+                    <p class="mb-3" id="expiryWarningMessage">
+                        <!-- Message will be filled by JavaScript -->
+                    </p>
+                    <p class="text-gray">Renove seu plano para continuar usando todos os recursos do sistema.</p>
+                    
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-primary flex-1" id="renewPlanBtn">
+                            <i class="fas fa-sync-alt"></i> Renovar Plano
+                        </button>
+                        <button class="btn btn-secondary flex-1" id="closeExpiryWarningBtn">
+                            Fechar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Renew Payment Modal -->
+    <div class="modal" id="renewPaymentModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🔄 Renovar Plano</h2>
+                <button class="close-modal" id="closeRenewModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <div class="payment-icon" style="font-size: 3rem; color: #212121;">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h3 class="mb-2">Renovação do Plano Mensal</h3>
+                    <p class="text-gray">Realize o pagamento para renovar seu plano por mais 30 dias.</p>
+                </div>
+                
+                <div class="pix-info" style="background-color: #f0f9ff; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 2px dashed #2196f3;">
+                    <div class="pix-title" style="font-size: 1.1rem; font-weight: 600; color: #2196f3; margin-bottom: 10px;">
+                        Pagamento via PIX
+                    </div>
+                    <div class="pix-key" style="background-color: #ffffff; padding: 15px; border-radius: 8px; font-family: monospace; word-break: break-all; margin-bottom: 15px; border: 1px solid #e0e0e0;" id="renewPixKeyDisplay">
+                        Carregando chave PIX...
+                    </div>
+                    <p>Copie a chave PIX acima e faça o pagamento no seu aplicativo bancário.</p>
+                    <div class="plan-price" style="font-size: 1.8rem; font-weight: 700; color: #212121; text-align: center; margin-top: 15px;" id="renewPlanPrice">
+                        R$ 99,00
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Envie o comprovante da renovação</label>
+                    <div class="upload-area" id="renewReceiptUploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <div class="upload-text">Clique para fazer upload</div>
+                        <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                        <div class="file-types">
+                            <span class="file-type-badge">JPG</span>
+                            <span class="file-type-badge">PNG</span>
+                            <span class="file-type-badge">PDF</span>
+                        </div>
+                        <input type="file" id="renewReceiptUpload" accept="image/*,.pdf" style="display: none;">
+                    </div>
+                    
+                    <img id="renewReceiptImagePreview" class="image-preview" alt="Comprovante">
+                    
+                    <div class="pdf-preview" id="renewReceiptPdfPreview">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="upload-text" id="renewPdfFileName">comprovante.pdf</div>
+                        <div class="upload-info">Clique para visualizar</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Observações (opcional)</label>
+                    <textarea id="renewPaymentNotes" class="form-input" rows="3" placeholder="Alguma observação sobre o pagamento..."></textarea>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-secondary flex-1" id="cancelRenewBtn">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary flex-1" id="submitRenewBtn">
+                        <i class="fas fa-paper-plane"></i> Enviar Comprovante
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Firebase Configuration
         const firebaseConfig = {
@@ -1834,13 +2026,17 @@
         let phoneMask = null;
         let userConfigCompleted = false;
         let storeVisits = 0;
-        let dailyVisitsData = []; // MUDADO: Nome alterado para evitar conflito
+        let dailyVisitsData = [];
         let visitsChart = null;
         let revenueChart = null;
         let paymentMethodsChart = null;
         let financeTab = 'all';
         let pinchZoom = null;
         let lastTouchDistance = null;
+        let renewReceiptBase64 = '';
+        let renewReceiptType = '';
+        let renewReceiptFileName = '';
+        let userActivityListener = null;
 
         // DOM Elements
         const welcomeModal = document.getElementById('welcomeModal');
@@ -1858,6 +2054,15 @@
         const openLinkBtn = document.getElementById('openLinkBtn');
         const shareLinkBtn = document.getElementById('shareLinkBtn');
         const loadingOverlay = document.getElementById('loadingOverlay');
+        
+        // Expiry warning elements
+        const expiryWarningModal = document.getElementById('expiryWarningModal');
+        const expiryWarningMessage = document.getElementById('expiryWarningMessage');
+        const renewPlanBtn = document.getElementById('renewPlanBtn');
+        const closeExpiryWarningBtn = document.getElementById('closeExpiryWarningBtn');
+        const expiryWarningBanner = document.getElementById('expiryWarningBanner');
+        const expiryWarningText = document.getElementById('expiryWarningText');
+        const renewPlanBannerBtn = document.getElementById('renewPlanBannerBtn');
         
         // Dashboard elements
         const preparingOrdersCountElement = document.getElementById('preparingOrders');
@@ -1925,6 +2130,25 @@
         const productActive = document.getElementById('productActive');
         const cancelProductBtn = document.getElementById('cancelProductBtn');
         
+        // Renew payment elements
+        const renewPaymentModal = document.getElementById('renewPaymentModal');
+        const closeRenewModal = document.getElementById('closeRenewModal');
+        const renewPixKeyDisplay = document.getElementById('renewPixKeyDisplay');
+        const renewPlanPrice = document.getElementById('renewPlanPrice');
+        const renewReceiptUploadArea = document.getElementById('renewReceiptUploadArea');
+        const renewReceiptUpload = document.getElementById('renewReceiptUpload');
+        const renewReceiptImagePreview = document.getElementById('renewReceiptImagePreview');
+        const renewReceiptPdfPreview = document.getElementById('renewReceiptPdfPreview');
+        const renewPdfFileName = document.getElementById('renewPdfFileName');
+        const renewPaymentNotes = document.getElementById('renewPaymentNotes');
+        const cancelRenewBtn = document.getElementById('cancelRenewBtn');
+        const submitRenewBtn = document.getElementById('submitRenewBtn');
+        
+        // Block modal elements
+        const blockModal = document.getElementById('blockModal');
+        const blockMessage = document.getElementById('blockMessage');
+        const logoutBlockedBtn = document.getElementById('logoutBlockedBtn');
+        
         // Modals
         const orderDetailsModal = document.getElementById('orderDetailsModal');
         const closeOrderModal = document.getElementById('closeOrderModal');
@@ -1937,11 +2161,13 @@
         // Initialize the app
         async function init() {
             await checkAuth();
+            await checkUserStatus();
             await loadUserData();
             await loadStoreConfig();
             setupPhoneMasks();
             setupEventListeners();
             setupOrdersListener();
+            setupUserActivityListener();
             loadProducts();
             updateCustomerLink();
             showScreen('dashboard');
@@ -1951,6 +2177,9 @@
             
             // Verificar se precisa mostrar o modal de boas-vindas
             checkWelcomeModal();
+            
+            // Check expiry warning
+            await checkExpiryWarning();
         }
 
         // Setup phone masks
@@ -1970,6 +2199,50 @@
             }
         }
 
+        // Check user status for blocking
+        async function checkUserStatus() {
+            try {
+                if (!currentStoreId) return;
+                
+                const userDoc = await db.collection('users').doc(currentStoreId).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    
+                    if (userData.status === 'blocked' || userData.isActive === false) {
+                        // Show block modal and prevent any action
+                        showBlockModal('Sua conta foi bloqueada pelo administrador. Entre em contato para mais informações.');
+                        return false;
+                    }
+                    
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error checking user status:', error);
+            }
+            return true;
+        }
+
+        // Show block modal
+        function showBlockModal(message) {
+            blockMessage.textContent = message;
+            blockModal.style.display = 'flex';
+            
+            // Disable all navigation and functionality
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.pointerEvents = 'none';
+            });
+            
+            // Disable logout button in header
+            logoutBtn.disabled = true;
+            
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.style.display = 'none';
+            });
+        }
+
         // Check welcome modal
         function checkWelcomeModal() {
             if (!userConfigCompleted) {
@@ -1982,6 +2255,51 @@
                         e.stopPropagation();
                     }
                 });
+            }
+        }
+
+        // Check expiry date and show warning if needed
+        async function checkExpiryWarning() {
+            try {
+                const storedUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                if (!storedUser.expiryDate) return;
+                
+                const expiryDate = new Date(storedUser.expiryDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                // Calculate days until expiry
+                const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysUntilExpiry <= 7 && daysUntilExpiry > 0) {
+                    // Show warning banner
+                    const bannerMessage = daysUntilExpiry === 1 
+                        ? 'Seu plano vence AMANHÃ!' 
+                        : `Seu plano vence em ${daysUntilExpiry} dias.`;
+                    
+                    expiryWarningText.textContent = bannerMessage;
+                    expiryWarningBanner.classList.remove('d-none');
+                    
+                    // Show modal on first load if less than 3 days
+                    if (daysUntilExpiry <= 3) {
+                        const modalMessage = daysUntilExpiry === 1 
+                            ? 'Seu plano vence AMANHÃ!' 
+                            : `Seu plano vence em ${daysUntilExpiry} dias.`;
+                        
+                        expiryWarningMessage.textContent = modalMessage;
+                        expiryWarningModal.style.display = 'block';
+                    }
+                } else if (daysUntilExpiry <= 0) {
+                    // Plan has expired
+                    expiryWarningText.textContent = 'Seu plano está VENCIDO!';
+                    expiryWarningBanner.classList.remove('d-none');
+                    
+                    const modalMessage = 'Seu plano está VENCIDO! Renove agora para continuar usando o sistema.';
+                    expiryWarningMessage.textContent = modalMessage;
+                    expiryWarningModal.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error checking expiry warning:', error);
             }
         }
 
@@ -2028,6 +2346,8 @@
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     currentUser.storeName = userData.storeName;
+                    currentUser.expiryDate = userData.expiryDate || null;
+                    currentUser.phone = userData.phone || '';
                     userConfigCompleted = userData.configCompleted || false;
                     
                     userAvatar.textContent = userData.storeName ? userData.storeName.charAt(0).toUpperCase() : 'U';
@@ -2040,6 +2360,54 @@
                 }
             } catch (error) {
                 console.error('Error loading user data:', error);
+            }
+        }
+
+        // Setup user activity listener
+        function setupUserActivityListener() {
+            if (userActivityListener) {
+                userActivityListener();
+            }
+            
+            // Record initial activity
+            recordUserActivity('login');
+            
+            // Listen for screen changes
+            document.addEventListener('click', () => {
+                recordUserActivity('interaction');
+            });
+            
+            // Listen for navigation
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const screen = btn.getAttribute('data-screen');
+                    recordUserActivity(`navigate_${screen}`);
+                });
+            });
+        }
+
+        // Record user activity
+        async function recordUserActivity(action) {
+            try {
+                if (!currentStoreId) return;
+                
+                const activityData = {
+                    userId: currentStoreId,
+                    action: action,
+                    timestamp: new Date().toISOString(),
+                    userEmail: currentUser.email,
+                    storeName: currentUser.storeName || 'Minha Loja'
+                };
+                
+                await db.collection('userActivities').add(activityData);
+                
+                // Update last activity timestamp
+                await db.collection('users').doc(currentStoreId).update({
+                    lastActivity: new Date().toISOString()
+                });
+                
+            } catch (error) {
+                console.error('Error recording user activity:', error);
             }
         }
 
@@ -2077,9 +2445,9 @@
             try {
                 const visitsDoc = await db.collection('storeVisits').doc(currentStoreId).get();
                 if (visitsDoc.exists) {
-                    const visitsDataFromDB = visitsDoc.data(); // MUDADO: Nome diferente
-                    storeVisits = visitsDataFromDB.totalVisits || 0;
-                    dailyVisitsData = visitsDataFromDB.dailyVisits || []; // MUDADO: Usando dailyVisitsData
+                    const visitsData = visitsDoc.data();
+                    storeVisits = visitsData.totalVisits || 0;
+                    dailyVisitsData = visitsData.dailyVisits || [];
                     
                     totalVisitsElement.textContent = storeVisits;
                     totalVisitsConfig.textContent = storeVisits;
@@ -2106,7 +2474,7 @@
             
             // Prepare data for last 7 days
             const last7Days = [];
-            const visitsDataForChart = []; // MUDADO: Nome diferente
+            const visitsData = [];
             
             for (let i = 6; i >= 0; i--) {
                 const date = new Date();
@@ -2117,7 +2485,7 @@
                 // Find visits for this date
                 const dateString = date.toISOString().split('T')[0];
                 const visitsForDay = dailyVisitsData.find(v => v.date === dateString)?.count || 0;
-                visitsDataForChart.push(visitsForDay); // MUDADO: Usando visitsDataForChart
+                visitsData.push(visitsForDay);
             }
             
             if (visitsChart) {
@@ -2130,7 +2498,7 @@
                     labels: last7Days,
                     datasets: [{
                         label: 'Acessos',
-                        data: visitsDataForChart, // MUDADO: Usando visitsDataForChart
+                        data: visitsData,
                         borderColor: '#212121',
                         backgroundColor: 'rgba(33, 33, 33, 0.1)',
                         borderWidth: 2,
@@ -2615,6 +2983,17 @@
                 }
             });
             
+            // Logout blocked user
+            logoutBlockedBtn.addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+            });
+            
             // Navigation
             navBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -2673,6 +3052,20 @@
                 } else {
                     copyLinkBtn.click();
                 }
+            });
+            
+            // Expiry warning buttons
+            renewPlanBtn.addEventListener('click', () => {
+                expiryWarningModal.style.display = 'none';
+                showRenewPaymentModal();
+            });
+            
+            closeExpiryWarningBtn.addEventListener('click', () => {
+                expiryWarningModal.style.display = 'none';
+            });
+            
+            renewPlanBannerBtn.addEventListener('click', () => {
+                showRenewPaymentModal();
             });
             
             // Finance tabs
@@ -2762,6 +3155,25 @@
                 closeProductForm();
             });
             
+            // Renew payment
+            submitRenewBtn.addEventListener('click', submitRenewalPayment);
+            cancelRenewBtn.addEventListener('click', () => {
+                renewPaymentModal.style.display = 'none';
+                resetRenewReceipt();
+            });
+            
+            closeRenewModal.addEventListener('click', () => {
+                renewPaymentModal.style.display = 'none';
+                resetRenewReceipt();
+            });
+            
+            // Renew receipt upload
+            renewReceiptUploadArea.addEventListener('click', () => {
+                renewReceiptUpload.click();
+            });
+            
+            renewReceiptUpload.addEventListener('change', handleRenewReceiptUpload);
+            
             // Close modals
             closeOrderModal.addEventListener('click', () => {
                 orderDetailsModal.style.display = 'none';
@@ -2792,7 +3204,220 @@
                     imageZoomModal.style.display = 'none';
                     resetZoom();
                 }
+                if (e.target === expiryWarningModal) {
+                    expiryWarningModal.style.display = 'none';
+                }
+                if (e.target === renewPaymentModal) {
+                    renewPaymentModal.style.display = 'none';
+                    resetRenewReceipt();
+                }
+                if (e.target === blockModal) {
+                    // Não permitir fechar o modal de bloqueio clicando fora
+                    e.stopPropagation();
+                }
             });
+        }
+
+        // Show renew payment modal
+        async function showRenewPaymentModal() {
+            try {
+                // Load system config for PIX key
+                const configDoc = await db.collection('systemConfig').doc('paymentSettings').get();
+                if (configDoc.exists) {
+                    const configData = configDoc.data();
+                    renewPixKeyDisplay.textContent = configData.pixKey || 'chave-pix@empresa.com';
+                    renewPlanPrice.textContent = `R$ ${(configData.monthlyPlanPrice || 99.00).toFixed(2).replace('.', ',')}`;
+                }
+                
+                renewPaymentModal.style.display = 'block';
+                resetRenewReceipt();
+                
+            } catch (error) {
+                console.error('Error loading renewal data:', error);
+                showNotification('Erro ao carregar informações de pagamento.', 'error');
+            }
+        }
+
+        // Reset renew receipt
+        function resetRenewReceipt() {
+            renewReceiptBase64 = '';
+            renewReceiptType = '';
+            renewReceiptFileName = '';
+            renewReceiptImagePreview.style.display = 'none';
+            renewReceiptPdfPreview.style.display = 'none';
+            renewReceiptUpload.value = '';
+            renewPaymentNotes.value = '';
+        }
+
+        // Handle renew receipt upload
+        function handleRenewReceiptUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('O arquivo deve ter no máximo 5MB.', 'error');
+                renewReceiptUpload.value = '';
+                return;
+            }
+            
+            // Check file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+            if (!validTypes.includes(file.type)) {
+                showNotification('Tipo de arquivo inválido. Use JPG, PNG ou PDF.', 'error');
+                renewReceiptUpload.value = '';
+                return;
+            }
+            
+            // Show loading
+            renewReceiptUploadArea.classList.add('uploading');
+            renewReceiptUploadArea.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <div class="upload-text">Processando arquivo...</div>
+            `;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                renewReceiptBase64 = event.target.result;
+                renewReceiptType = file.type.includes('pdf') ? 'pdf' : 'image';
+                renewReceiptFileName = file.name;
+                
+                // Show preview
+                if (renewReceiptType === 'pdf') {
+                    renewReceiptPdfPreview.style.display = 'flex';
+                    renewPdfFileName.textContent = file.name;
+                    renewReceiptImagePreview.style.display = 'none';
+                } else {
+                    renewReceiptImagePreview.src = renewReceiptBase64;
+                    renewReceiptImagePreview.style.display = 'block';
+                    renewReceiptPdfPreview.style.display = 'none';
+                }
+                
+                // Reset upload area
+                renewReceiptUploadArea.classList.remove('uploading');
+                renewReceiptUploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <div class="upload-text">Clique para fazer upload</div>
+                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                    <div class="file-types">
+                        <span class="file-type-badge">JPG</span>
+                        <span class="file-type-badge">PNG</span>
+                        <span class="file-type-badge">PDF</span>
+                    </div>
+                `;
+            };
+            
+            reader.onerror = function() {
+                showNotification('Erro ao carregar arquivo.', 'error');
+                renewReceiptUploadArea.classList.remove('uploading');
+                renewReceiptUploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <div class="upload-text">Clique para fazer upload</div>
+                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                    <div class="file-types">
+                        <span class="file-type-badge">JPG</span>
+                        <span class="file-type-badge">PNG</span>
+                        <span class="file-type-badge">PDF</span>
+                    </div>
+                `;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // Submit renewal payment
+        async function submitRenewalPayment() {
+            if (!renewReceiptBase64) {
+                showNotification('Por favor, envie o comprovante do pagamento.', 'error');
+                return;
+            }
+            
+            try {
+                submitRenewBtn.innerHTML = '<div class="loading"></div>';
+                submitRenewBtn.disabled = true;
+                
+                // Load system config for amount
+                const configDoc = await db.collection('systemConfig').doc('paymentSettings').get();
+                const configData = configDoc.exists ? configDoc.data() : {};
+                const amount = configData.monthlyPlanPrice || 99.00;
+                
+                // Create renewal payment record
+                await db.collection('renewalPayments').add({
+                    userId: currentStoreId,
+                    userEmail: currentUser.email,
+                    userName: currentUser.storeName,
+                    storeName: currentUser.storeName,
+                    amount: amount,
+                    status: 'pending',
+                    receiptBase64: renewReceiptBase64,
+                    receiptType: renewReceiptType,
+                    receiptFileName: renewReceiptFileName,
+                    notes: renewPaymentNotes.value,
+                    createdAt: new Date().toISOString(),
+                    type: 'renewal'
+                });
+                
+                // Send WhatsApp notification to admin
+                await sendRenewalWhatsAppNotification(amount);
+                
+                // Update user status to pending renewal
+                await db.collection('users').doc(currentStoreId).update({
+                    renewalStatus: 'pending',
+                    lastRenewalRequest: new Date().toISOString()
+                });
+                
+                showNotification('Comprovante de renovação enviado! Aguarde a confirmação.', 'success');
+                
+                // Close modal
+                renewPaymentModal.style.display = 'none';
+                resetRenewReceipt();
+                
+                // Update expiry warning banner
+                expiryWarningBanner.classList.add('d-none');
+                
+            } catch (error) {
+                console.error('Error submitting renewal payment:', error);
+                showNotification('Erro ao enviar comprovante.', 'error');
+            } finally {
+                submitRenewBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Comprovante';
+                submitRenewBtn.disabled = false;
+            }
+        }
+
+        // Send renewal WhatsApp notification to admin
+        async function sendRenewalWhatsAppNotification(amount) {
+            try {
+                const configDoc = await db.collection('systemConfig').doc('paymentSettings').get();
+                if (!configDoc.exists) return;
+                
+                const configData = configDoc.data();
+                const adminWhatsApp = configData.adminWhatsApp || '(11) 99999-9999';
+                
+                let message = `🔄 *SOLICITAÇÃO DE RENOVAÇÃO* 🔄\n\n`;
+                message += `👤 *Cliente:* ${currentUser.storeName}\n`;
+                message += `🏪 *Loja:* ${currentUser.storeName}\n`;
+                message += `📧 *E-mail:* ${currentUser.email}\n`;
+                message += `💰 *Valor:* R$ ${amount.toFixed(2)}\n`;
+                message += `📅 *Data:* ${new Date().toLocaleDateString('pt-BR')}\n`;
+                message += `⏰ *Hora:* ${new Date().toLocaleTimeString('pt-BR')}\n\n`;
+                message += `⚠️ *Status:* Aguardando confirmação\n\n`;
+                message += `Por favor, acesse o painel administrativo para verificar o comprovante e liberar a renovação.`;
+                
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappUrl = `https://wa.me/${adminWhatsApp.replace(/\D/g, '')}?text=${encodedMessage}`;
+                
+                // Open WhatsApp in new tab
+                window.open(whatsappUrl, '_blank');
+                
+            } catch (error) {
+                console.error('Error sending WhatsApp notification:', error);
+            }
         }
 
         // Setup pinch-to-zoom for images
@@ -2967,6 +3592,9 @@
             });
             
             document.getElementById(`${screen}Screen`).style.display = 'block';
+            
+            // Record activity
+            recordUserActivity(`view_${screen}`);
         }
 
         // Update dashboard statistics

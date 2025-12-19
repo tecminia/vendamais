@@ -1,0 +1,2683 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Venda+ | Gerenciador</title>
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            background-color: #f5f5f5;
+            color: #212121;
+        }
+        
+        body {
+            font-size: 14px;
+            padding: 0;
+            padding-bottom: 70px;
+        }
+        
+        /* Admin Container */
+        .admin-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        /* Admin Header */
+        .admin-header {
+            background: linear-gradient(135deg, #212121 0%, #424242 100%);
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .admin-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .admin-header .logo-icon {
+            font-size: 2.5rem;
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .admin-header .logo-text h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .admin-header .logo-text p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        
+        .header-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* Stats Cards - Mobile Grid 2x2 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .stat-icon.active {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+        
+        .stat-icon.pending {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+        }
+        
+        .stat-icon.blocked {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+        
+        .stat-icon.expired {
+            background-color: rgba(96, 125, 139, 0.1);
+            color: #607d8b;
+        }
+        
+        .stat-icon.total {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: #2196f3;
+        }
+        
+        .stat-icon.revenue {
+            background-color: rgba(156, 39, 176, 0.1);
+            color: #9c27b0;
+        }
+        
+        .stat-info h3 {
+            font-size: 0.8rem;
+            color: #757575;
+            margin-bottom: 5px;
+        }
+        
+        .stat-number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #212121;
+        }
+        
+        /* Tabs - Mobile Optimized */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            background-color: #ffffff;
+            padding: 5px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e0e0e0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .tab {
+            padding: 10px 12px;
+            background: none;
+            border: none;
+            color: #757575;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .tab.active {
+            background-color: #212121;
+            color: #ffffff;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Users Table - Mobile Optimized */
+        .users-table-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
+        .table-header {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .table-header h2 {
+            font-size: 1.1rem;
+            color: #212121;
+            margin-bottom: 10px;
+        }
+        
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background-color: #fafafa;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #757575;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+        
+        .users-table th {
+            padding: 12px;
+            text-align: left;
+            background-color: #fafafa;
+            color: #212121;
+            font-weight: 600;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.8rem;
+        }
+        
+        .users-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f5f5f5;
+            color: #424242;
+            font-size: 0.8rem;
+        }
+        
+        .users-table tr:hover {
+            background-color: #fafafa;
+        }
+        
+        .users-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+        
+        .status-pending {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+        }
+        
+        .status-blocked {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+        
+        .status-expired {
+            background-color: rgba(96, 125, 139, 0.1);
+            color: #607d8b;
+        }
+        
+        /* User Actions - Compact for Mobile */
+        .user-actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        /* Buttons - Mobile Optimized */
+        .btn {
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .btn-sm {
+            padding: 6px 8px;
+            font-size: 0.75rem;
+        }
+        
+        .btn-primary {
+            background-color: #212121;
+            color: #ffffff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #000000;
+        }
+        
+        .btn-success {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #3d8b40;
+        }
+        
+        .btn-warning {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #f57c00;
+        }
+        
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+        
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: #212121;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+            opacity: 0.9;
+        }
+        
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+        }
+        
+        .btn-whatsapp:hover {
+            background-color: #128C7E;
+        }
+        
+        /* Action Buttons */
+        .action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+        }
+        
+        .edit-btn {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: #2196f3;
+        }
+        
+        .view-btn {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+        
+        .block-btn {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+        
+        .activate-btn {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+        
+        .payment-btn {
+            background-color: rgba(156, 39, 176, 0.1);
+            color: #9c27b0;
+        }
+        
+        /* Settings Card */
+        .settings-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .settings-card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #212121;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #212121;
+        }
+        
+        /* Form Styles - Mobile Optimized */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #212121;
+            font-size: 0.85rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: border-color 0.3s ease;
+            background-color: #ffffff;
+            color: #212121;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #212121;
+            box-shadow: 0 0 0 3px rgba(33, 33, 33, 0.1);
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        /* Payment Card - Mobile Optimized */
+        .payment-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .payment-user {
+            font-weight: 600;
+            color: #212121;
+            font-size: 0.9rem;
+        }
+        
+        .payment-date {
+            color: #757575;
+            font-size: 0.75rem;
+        }
+        
+        .payment-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .payment-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .payment-detail-label {
+            font-size: 0.75rem;
+            color: #757575;
+        }
+        
+        .payment-detail-value {
+            font-weight: 600;
+            color: #212121;
+            font-size: 0.85rem;
+        }
+        
+        .payment-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        /* Receipt Preview */
+        .receipt-preview {
+            margin-top: 12px;
+            padding: 12px;
+            background-color: #fafafa;
+            border-radius: 8px;
+            border: 1px dashed #e0e0e0;
+        }
+        
+        .receipt-image {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .pdf-preview {
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px dashed #e0e0e0;
+        }
+        
+        .pdf-preview i {
+            font-size: 2rem;
+            color: #f44336;
+            margin-bottom: 8px;
+        }
+        
+        /* User Activity Card */
+        .activity-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .activity-user {
+            font-weight: 600;
+            color: #212121;
+            font-size: 0.9rem;
+        }
+        
+        .activity-time {
+            color: #757575;
+            font-size: 0.75rem;
+        }
+        
+        .activity-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        .activity-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .activity-detail-label {
+            font-size: 0.75rem;
+            color: #757575;
+        }
+        
+        .activity-detail-value {
+            font-weight: 600;
+            color: #212121;
+            font-size: 0.85rem;
+        }
+        
+        .activity-status {
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+        
+        .status-inactive {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 15px;
+            color: #757575;
+        }
+        
+        .empty-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            color: #e0e0e0;
+        }
+        
+        /* Modal - Mobile Optimized */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+        
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 100%;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s ease;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            color: #212121;
+            font-weight: 600;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #757575;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        /* Image Zoom Modal */
+        .image-zoom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+        
+        .image-zoom-content {
+            max-width: 100%;
+            max-height: 100%;
+            position: relative;
+        }
+        
+        .image-zoom-content img {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        
+        .close-zoom {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            background-color: rgba(0, 0, 0, 0.85);
+            max-width: 280px;
+            width: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .notification.success {
+            background-color: rgba(76, 175, 80, 0.95);
+        }
+        
+        .notification.error {
+            background-color: rgba(244, 67, 54, 0.95);
+        }
+        
+        .notification.info {
+            background-color: rgba(33, 150, 243, 0.95);
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #212121;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Desktop Optimization */
+        @media (min-width: 768px) {
+            .admin-container {
+                max-width: 1200px;
+                padding: 20px;
+            }
+            
+            .header-controls {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(3, 2fr);
+                gap: 15px;
+            }
+            
+            .form-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .payment-info {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .payment-actions {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .modal-content {
+                max-width: 500px;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+        
+        /* Utilities */
+        .d-none { display: none !important; }
+        .d-flex { display: flex !important; }
+        .d-block { display: block !important; }
+        .flex-1 { flex: 1; }
+        .justify-between { justify-content: space-between; }
+        .align-center { align-items: center; }
+        .gap-1 { gap: 6px; }
+        .gap-2 { gap: 10px; }
+        .mb-1 { margin-bottom: 6px; }
+        .mb-2 { margin-bottom: 10px; }
+        .mb-3 { margin-bottom: 15px; }
+        .mt-1 { margin-top: 6px; }
+        .mt-2 { margin-top: 10px; }
+        .mt-3 { margin-top: 15px; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+    <!-- Admin Container -->
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Venda+ Admin</h1>
+                    <p>Gerenciamento de Usuários e Pagamentos</p>
+                </div>
+            </div>
+            
+            <div class="header-controls">
+                <button class="btn btn-primary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+                <button class="btn btn-success" id="newUserBtn">
+                    <i class="fas fa-user-plus"></i> Novo Usuário
+                </button>
+                <button class="btn btn-secondary" id="backToLoginBtn">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </header>
+        
+        <!-- Stats Cards - Mobile Grid 2x2 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Total Usuários</h3>
+                    <div class="stat-number" id="totalUsers">0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon active">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Ativos</h3>
+                    <div class="stat-number" id="activeUsers">0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon pending">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Pendentes</h3>
+                    <div class="stat-number" id="pendingUsers">0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon blocked">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Bloqueados</h3>
+                    <div class="stat-number" id="blockedUsers">0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon expired">
+                    <i class="fas fa-calendar-times"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Expirados</h3>
+                    <div class="stat-number" id="expiredUsers">0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon revenue">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Receita Mensal</h3>
+                    <div class="stat-number" id="monthlyRevenue">R$ 0</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="users">Usuários</button>
+            <button class="tab" data-tab="payments">Pagamentos</button>
+            <button class="tab" data-tab="activities">Atividades</button>
+            <button class="tab" data-tab="settings">Configurações</button>
+        </div>
+        
+        <!-- Tab Contents -->
+        
+        <!-- Users Tab -->
+        <div id="usersTab" class="tab-content active">
+            <div class="users-table-container">
+                <div class="table-header">
+                    <h2>Lista de Usuários</h2>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchUsers" placeholder="Buscar usuário...">
+                    </div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Loja</th>
+                                <th>E-mail</th>
+                                <th>Status</th>
+                                <th>Expira em</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Users will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="empty-state" id="usersEmpty" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-users-slash"></i>
+                    </div>
+                    <h3>Nenhum usuário encontrado</h3>
+                    <p>Os usuários cadastrados aparecerão aqui.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payments Tab -->
+        <div id="paymentsTab" class="tab-content">
+            <div class="users-table-container">
+                <div class="table-header">
+                    <h2>Pagamentos Pendentes</h2>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchPayments" placeholder="Buscar pagamento...">
+                    </div>
+                </div>
+                
+                <div id="paymentsList">
+                    <!-- Payments will be loaded here -->
+                </div>
+                
+                <div class="empty-state" id="paymentsEmpty" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <h3>Nenhum pagamento pendente</h3>
+                    <p>Os pagamentos aguardando confirmação aparecerão aqui.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Activities Tab -->
+        <div id="activitiesTab" class="tab-content">
+            <div class="users-table-container">
+                <div class="table-header">
+                    <h2>Atividades dos Usuários</h2>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchActivities" placeholder="Buscar atividade...">
+                    </div>
+                </div>
+                
+                <div id="activitiesList">
+                    <!-- Activities will be loaded here -->
+                </div>
+                
+                <div class="empty-state" id="activitiesEmpty" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Nenhuma atividade registrada</h3>
+                    <p>As atividades dos usuários aparecerão aqui.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings Tab -->
+        <div id="settingsTab" class="tab-content">
+            <div class="settings-card">
+                <h2>Configurações de Pagamento</h2>
+                
+                <form id="paymentSettingsForm">
+                    <div class="form-group">
+                        <label class="form-label">Chave PIX Padrão *</label>
+                        <input type="text" id="pixKey" class="form-input" placeholder="Chave PIX para recebimentos" required>
+                        <small>Esta chave PIX será exibida para todos os usuários durante o cadastro.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">WhatsApp para Notificações *</label>
+                        <input type="text" id="adminWhatsApp" class="form-input" placeholder="(11) 99999-9999" required>
+                        <small>Número que receberá notificações de novos pagamentos.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Valor do Plano Mensal (R$) *</label>
+                        <input type="number" id="monthlyPlanPrice" class="form-input" step="0.01" min="0" value="99.00" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Dias para Notificação de Vencimento *</label>
+                        <input type="number" id="expirationWarningDays" class="form-input" min="1" max="30" value="7" required>
+                        <small>Número de dias antes do vencimento para notificar o usuário.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Mensagem de Notificação WhatsApp</label>
+                        <textarea id="whatsappMessage" class="form-textarea" rows="5">
+📱 *NOVO PAGAMENTO PENDENTE* 📱
+
+👤 *Cliente:* {nome}
+🏪 *Loja:* {loja}
+📧 *E-mail:* {email}
+📱 *Telefone:* {telefone}
+💵 *Plano:* Mensal
+💰 *Valor:* R$ {valor}
+📅 *Data:* {data}
+
+⚠️ *Status:* Aguardando confirmação
+
+Por favor, acesse o painel administrativo para verificar o comprovante e liberar o acesso.
+                        </textarea>
+                        <small>Use {nome}, {loja}, {email}, {telefone}, {valor}, {data} como variáveis.</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Configurações
+                    </button>
+                </form>
+            </div>
+            
+            <div class="settings-card">
+                <h2>Configurações do Sistema</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Admin Master</label>
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label">E-mail do Admin *</label>
+                            <input type="email" id="adminEmail" class="form-input" placeholder="admin@email.com" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Senha *</label>
+                            <input type="password" id="adminPassword" class="form-input" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" id="updateAdminBtn">
+                        <i class="fas fa-key"></i> Atualizar Credenciais
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Details Modal -->
+    <div class="modal" id="userDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Detalhes do Usuário</h2>
+                <button class="close-modal" id="closeUserModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="userDetailsContent">
+                    <!-- User details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Details Modal -->
+    <div class="modal" id="paymentDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Detalhes do Pagamento</h2>
+                <button class="close-modal" id="closePaymentModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="paymentDetailsContent">
+                    <!-- Payment details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- New User Modal -->
+    <div class="modal" id="newUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Novo Usuário Manual</h2>
+                <button class="close-modal" id="closeNewUserModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="newUserForm">
+                    <div class="form-group">
+                        <label class="form-label">Nome da Loja *</label>
+                        <input type="text" id="newStoreName" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">E-mail *</label>
+                        <input type="email" id="newUserEmail" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Senha *</label>
+                        <input type="password" id="newUserPassword" class="form-input" required minlength="6">
+                        <small>Mínimo 6 caracteres</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Telefone (WhatsApp) *</label>
+                        <input type="text" id="newUserPhone" class="form-input" placeholder="(11) 99999-9999" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Plano</label>
+                        <select id="newUserPlan" class="form-input">
+                            <option value="monthly">Mensal (R$ 99,00)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select id="newUserStatus" class="form-input">
+                            <option value="active">Ativo</option>
+                            <option value="pending">Pendente</option>
+                            <option value="blocked">Bloqueado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Data de Expiração</label>
+                        <input type="date" id="newUserExpiry" class="form-input">
+                        <small>Deixe em branco para 30 dias a partir de hoje</small>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary flex-1" id="cancelNewUserBtn">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary flex-1">
+                            <i class="fas fa-user-plus"></i> Criar Usuário
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image Zoom Modal -->
+    <div class="image-zoom-modal" id="imageZoomModal">
+        <div class="image-zoom-content">
+            <button class="close-zoom" id="closeZoom">&times;</button>
+            <img id="zoomedImage" src="" alt="Imagem ampliada">
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Carregando...</div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7U-JfKAlkPxSyL4AEf5u0BgcDzSXf41M",
+            authDomain: "appvendas-1eebf.firebaseapp.com",
+            projectId: "appvendas-1eebf",
+            storageBucket: "appvendas-1eebf.firebasestorage.app",
+            messagingSenderId: "229472373918",
+            appId: "1:229472373918:web:39cd4940b052b2375f3f8f"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Application state
+        let adminUser = null;
+        let users = [];
+        let payments = [];
+        let activities = [];
+        let systemConfig = {};
+        let selectedUser = null;
+        let selectedPayment = null;
+        let currentTab = 'users';
+        let phoneMask = null;
+
+        // DOM Elements
+        const refreshBtn = document.getElementById('refreshBtn');
+        const newUserBtn = document.getElementById('newUserBtn');
+        const backToLoginBtn = document.getElementById('backToLoginBtn');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const usersTableBody = document.getElementById('usersTableBody');
+        const usersEmpty = document.getElementById('usersEmpty');
+        const paymentsList = document.getElementById('paymentsList');
+        const paymentsEmpty = document.getElementById('paymentsEmpty');
+        const activitiesList = document.getElementById('activitiesList');
+        const activitiesEmpty = document.getElementById('activitiesEmpty');
+        const searchUsers = document.getElementById('searchUsers');
+        const searchPayments = document.getElementById('searchPayments');
+        const searchActivities = document.getElementById('searchActivities');
+        
+        // Stats elements
+        const totalUsersElement = document.getElementById('totalUsers');
+        const activeUsersElement = document.getElementById('activeUsers');
+        const pendingUsersElement = document.getElementById('pendingUsers');
+        const blockedUsersElement = document.getElementById('blockedUsers');
+        const expiredUsersElement = document.getElementById('expiredUsers');
+        const monthlyRevenueElement = document.getElementById('monthlyRevenue');
+        
+        // Settings elements
+        const paymentSettingsForm = document.getElementById('paymentSettingsForm');
+        const pixKeyInput = document.getElementById('pixKey');
+        const adminWhatsAppInput = document.getElementById('adminWhatsApp');
+        const monthlyPlanPriceInput = document.getElementById('monthlyPlanPrice');
+        const expirationWarningDaysInput = document.getElementById('expirationWarningDays');
+        const whatsappMessageInput = document.getElementById('whatsappMessage');
+        const adminEmailInput = document.getElementById('adminEmail');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        const updateAdminBtn = document.getElementById('updateAdminBtn');
+        
+        // New user form elements
+        const newUserPhone = document.getElementById('newUserPhone');
+        
+        // Modals
+        const userDetailsModal = document.getElementById('userDetailsModal');
+        const closeUserModal = document.getElementById('closeUserModal');
+        const paymentDetailsModal = document.getElementById('paymentDetailsModal');
+        const closePaymentModal = document.getElementById('closePaymentModal');
+        const newUserModal = document.getElementById('newUserModal');
+        const closeNewUserModal = document.getElementById('closeNewUserModal');
+        const newUserForm = document.getElementById('newUserForm');
+        const cancelNewUserBtn = document.getElementById('cancelNewUserBtn');
+        
+        // Image zoom modal
+        const imageZoomModal = document.getElementById('imageZoomModal');
+        const closeZoom = document.getElementById('closeZoom');
+        const zoomedImage = document.getElementById('zoomedImage');
+        
+        // Loading overlay
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // Initialize the app
+        async function init() {
+            await checkAdminAuth();
+            await loadSystemConfig();
+            await loadAllUsers();
+            await loadPendingPayments();
+            await loadRecentActivities();
+            setupEventListeners();
+            updateStats();
+            
+            // Set up phone masks
+            if (adminWhatsAppInput) {
+                phoneMask = new IMask(adminWhatsAppInput, {
+                    mask: '(00) 00000-0000',
+                    lazy: false
+                });
+            }
+            
+            if (newUserPhone) {
+                new IMask(newUserPhone, {
+                    mask: '(00) 00000-0000',
+                    lazy: false
+                });
+            }
+        }
+
+        // Check admin authentication
+        async function checkAdminAuth() {
+            try {
+                // Check for admin session
+                const adminSession = localStorage.getItem('adminSession');
+                if (!adminSession) {
+                    window.location.href = 'admin-login.html';
+                    return;
+                }
+                
+                const sessionData = JSON.parse(adminSession);
+                adminUser = sessionData;
+                
+                // Verify admin credentials in Firestore
+                const adminDoc = await db.collection('admin').doc('credentials').get();
+                if (!adminDoc.exists) {
+                    localStorage.removeItem('adminSession');
+                    window.location.href = 'admin-login.html';
+                    return;
+                }
+                
+                const adminData = adminDoc.data();
+                if (adminData.email !== adminUser.email) {
+                    localStorage.removeItem('adminSession');
+                    window.location.href = 'admin-login.html';
+                    return;
+                }
+                
+            } catch (error) {
+                console.error('Admin auth error:', error);
+                localStorage.removeItem('adminSession');
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        // Load system configuration
+        async function loadSystemConfig() {
+            try {
+                const configDoc = await db.collection('systemConfig').doc('paymentSettings').get();
+                if (configDoc.exists) {
+                    systemConfig = configDoc.data();
+                    updateSettingsForm();
+                } else {
+                    // Create default config
+                    systemConfig = {
+                        pixKey: 'chave-pix@empresa.com',
+                        adminWhatsApp: '(11) 99999-9999',
+                        monthlyPlanPrice: 99.00,
+                        expirationWarningDays: 7,
+                        whatsappMessage: `📱 *NOVO PAGAMENTO PENDENTE* 📱\n\n👤 *Cliente:* {nome}\n🏪 *Loja:* {loja}\n📧 *E-mail:* {email}\n📱 *Telefone:* {telefone}\n💵 *Plano:* Mensal\n💰 *Valor:* R$ {valor}\n📅 *Data:* {data}\n\n⚠️ *Status:* Aguardando confirmação\n\nPor favor, acesse o painel administrativo para verificar o comprovante e liberar o acesso.`
+                    };
+                    await db.collection('systemConfig').doc('paymentSettings').set(systemConfig);
+                    updateSettingsForm();
+                }
+                
+                // Load admin credentials
+                const adminDoc = await db.collection('admin').doc('credentials').get();
+                if (adminDoc.exists) {
+                    const adminData = adminDoc.data();
+                    adminEmailInput.value = adminData.email || 'admin@email.com';
+                }
+            } catch (error) {
+                console.error('Error loading system config:', error);
+                showNotification('Erro ao carregar configurações.', 'error');
+            }
+        }
+
+        // Update settings form
+        function updateSettingsForm() {
+            pixKeyInput.value = systemConfig.pixKey || '';
+            adminWhatsAppInput.value = systemConfig.adminWhatsApp || '';
+            monthlyPlanPriceInput.value = systemConfig.monthlyPlanPrice || 99.00;
+            expirationWarningDaysInput.value = systemConfig.expirationWarningDays || 7;
+            whatsappMessageInput.value = systemConfig.whatsappMessage || '';
+        }
+
+        // Load all users
+        async function loadAllUsers() {
+            try {
+                showLoading();
+                const snapshot = await db.collection('users').get();
+                
+                users = [];
+                snapshot.forEach(doc => {
+                    const userData = doc.data();
+                    users.push({
+                        id: doc.id,
+                        ...userData
+                    });
+                });
+                
+                // Sort by creation date (newest first)
+                users.sort((a, b) => {
+                    return new Date(b.createdAt || b.timestamp) - new Date(a.createdAt || a.timestamp);
+                });
+                
+                updateUsersTable();
+                updateStats();
+                hideLoading();
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showNotification('Erro ao carregar usuários.', 'error');
+                hideLoading();
+            }
+        }
+
+        // Load pending payments
+        async function loadPendingPayments() {
+            try {
+                const snapshot = await db.collection('payments').where('status', '==', 'pending').get();
+                
+                payments = [];
+                snapshot.forEach(doc => {
+                    const paymentData = doc.data();
+                    payments.push({
+                        id: doc.id,
+                        ...paymentData
+                    });
+                });
+                
+                // Sort by creation date (newest first)
+                payments.sort((a, b) => {
+                    return new Date(b.createdAt || b.timestamp) - new Date(a.createdAt || a.timestamp);
+                });
+                
+                updatePaymentsList();
+            } catch (error) {
+                console.error('Error loading payments:', error);
+                showNotification('Erro ao carregar pagamentos.', 'error');
+            }
+        }
+
+        // Load recent activities
+        async function loadRecentActivities() {
+            try {
+                const snapshot = await db.collection('userActivities')
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+                
+                activities = [];
+                snapshot.forEach(doc => {
+                    const activityData = doc.data();
+                    activities.push({
+                        id: doc.id,
+                        ...activityData
+                    });
+                });
+                
+                updateActivitiesList();
+            } catch (error) {
+                console.error('Error loading activities:', error);
+                showNotification('Erro ao carregar atividades.', 'error');
+            }
+        }
+
+        // Update users table
+        function updateUsersTable() {
+            usersTableBody.innerHTML = '';
+            
+            if (users.length === 0) {
+                usersEmpty.style.display = 'block';
+                return;
+            }
+            
+            usersEmpty.style.display = 'none';
+            
+            const searchTerm = searchUsers.value.toLowerCase();
+            
+            users.forEach(user => {
+                // Apply search filter
+                if (searchTerm && 
+                    !user.storeName?.toLowerCase().includes(searchTerm) &&
+                    !user.email?.toLowerCase().includes(searchTerm)) {
+                    return;
+                }
+                
+                const status = user.status || 'pending';
+                const expiryDate = user.expiryDate || 'Não definida';
+                
+                const statusText = getStatusText(status);
+                const statusClass = getStatusClass(status);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <strong>${user.storeName || 'Sem nome'}</strong>
+                        ${user.isActive === false ? '<br><small class="text-red">Inativo</small>' : ''}
+                    </td>
+                    <td>${user.email}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${expiryDate}</td>
+                    <td>
+                        <div class="user-actions">
+                            <button class="action-btn view-btn" data-id="${user.id}" title="Ver detalhes">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${status === 'active' ? `
+                                <button class="action-btn block-btn" data-id="${user.id}" title="Bloquear">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            ` : `
+                                <button class="action-btn activate-btn" data-id="${user.id}" title="Ativar">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            `}
+                        </div>
+                    </td>
+                `;
+                
+                usersTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to action buttons
+            usersTableBody.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const userId = e.currentTarget.getAttribute('data-id');
+                    viewUserDetails(userId);
+                });
+            });
+            
+            usersTableBody.querySelectorAll('.block-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const userId = e.currentTarget.getAttribute('data-id');
+                    toggleUserStatus(userId, 'blocked');
+                });
+            });
+            
+            usersTableBody.querySelectorAll('.activate-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const userId = e.currentTarget.getAttribute('data-id');
+                    toggleUserStatus(userId, 'active');
+                });
+            });
+        }
+
+        // Update payments list
+        function updatePaymentsList() {
+            paymentsList.innerHTML = '';
+            
+            if (payments.length === 0) {
+                paymentsEmpty.style.display = 'block';
+                return;
+            }
+            
+            paymentsEmpty.style.display = 'none';
+            
+            const searchTerm = searchPayments.value.toLowerCase();
+            
+            payments.forEach(payment => {
+                // Apply search filter
+                if (searchTerm && 
+                    !payment.userName?.toLowerCase().includes(searchTerm) &&
+                    !payment.storeName?.toLowerCase().includes(searchTerm) &&
+                    !payment.userEmail?.toLowerCase().includes(searchTerm)) {
+                    return;
+                }
+                
+                const paymentCard = document.createElement('div');
+                paymentCard.className = 'payment-card';
+                paymentCard.innerHTML = `
+                    <div class="payment-header">
+                        <div class="payment-user">${payment.userName || 'Nome não informado'}</div>
+                        <div class="payment-date">${formatDate(payment.createdAt)}</div>
+                    </div>
+                    
+                    <div class="payment-info">
+                        <div class="payment-detail">
+                            <span class="payment-detail-label">Loja</span>
+                            <span class="payment-detail-value">${payment.storeName || 'Sem nome'}</span>
+                        </div>
+                        <div class="payment-detail">
+                            <span class="payment-detail-label">E-mail</span>
+                            <span class="payment-detail-value">${payment.userEmail}</span>
+                        </div>
+                        <div class="payment-detail">
+                            <span class="payment-detail-label">Plano</span>
+                            <span class="payment-detail-value">${payment.plan === 'monthly' ? 'Mensal' : payment.plan}</span>
+                        </div>
+                        <div class="payment-detail">
+                            <span class="payment-detail-label">Valor</span>
+                            <span class="payment-detail-value">R$ ${payment.amount?.toFixed(2).replace('.', ',') || '0,00'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-actions">
+                        <button class="btn btn-success btn-sm" data-id="${payment.id}" data-action="approve">
+                            <i class="fas fa-check"></i> Aprovar
+                        </button>
+                        <button class="btn btn-danger btn-sm" data-id="${payment.id}" data-action="reject">
+                            <i class="fas fa-times"></i> Rejeitar
+                        </button>
+                        <button class="btn btn-primary btn-sm" data-id="${payment.id}" data-action="view">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                    </div>
+                `;
+                
+                paymentsList.appendChild(paymentCard);
+            });
+            
+            // Add event listeners to payment buttons
+            paymentsList.querySelectorAll('[data-action="view"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const paymentId = e.currentTarget.getAttribute('data-id');
+                    viewPaymentDetails(paymentId);
+                });
+            });
+            
+            paymentsList.querySelectorAll('[data-action="approve"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const paymentId = e.currentTarget.getAttribute('data-id');
+                    processPayment(paymentId, 'approved');
+                });
+            });
+            
+            paymentsList.querySelectorAll('[data-action="reject"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const paymentId = e.currentTarget.getAttribute('data-id');
+                    processPayment(paymentId, 'rejected');
+                });
+            });
+        }
+
+        // Update activities list
+        function updateActivitiesList() {
+            activitiesList.innerHTML = '';
+            
+            if (activities.length === 0) {
+                activitiesEmpty.style.display = 'block';
+                return;
+            }
+            
+            activitiesEmpty.style.display = 'none';
+            
+            const searchTerm = searchActivities.value.toLowerCase();
+            
+            activities.forEach(activity => {
+                // Apply search filter
+                if (searchTerm && 
+                    !activity.userEmail?.toLowerCase().includes(searchTerm) &&
+                    !activity.storeName?.toLowerCase().includes(searchTerm) &&
+                    !activity.action?.toLowerCase().includes(searchTerm)) {
+                    return;
+                }
+                
+                // Determine activity status
+                const isActive = activity.action !== 'logout' && 
+                                activity.action !== 'blocked' &&
+                                new Date(activity.timestamp) > new Date(Date.now() - 30 * 60 * 1000); // Last 30 minutes
+                
+                const activityCard = document.createElement('div');
+                activityCard.className = 'activity-card';
+                activityCard.innerHTML = `
+                    <div class="activity-header">
+                        <div class="activity-user">${activity.storeName || activity.userEmail}</div>
+                        <div class="activity-time">${formatDateTime(activity.timestamp)}</div>
+                    </div>
+                    
+                    <div class="activity-details">
+                        <div class="activity-detail">
+                            <span class="activity-detail-label">Ação</span>
+                            <span class="activity-detail-value">${getActivityText(activity.action)}</span>
+                        </div>
+                        <div class="activity-detail">
+                            <span class="activity-detail-label">Usuário</span>
+                            <span class="activity-detail-value">${activity.userEmail}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <span class="activity-status ${isActive ? 'status-active' : 'status-inactive'}">
+                            ${isActive ? 'Ativo agora' : 'Inativo'}
+                        </span>
+                    </div>
+                `;
+                
+                activitiesList.appendChild(activityCard);
+            });
+        }
+
+        // Get activity text
+        function getActivityText(action) {
+            const actions = {
+                'login': 'Login no sistema',
+                'logout': 'Logout do sistema',
+                'interaction': 'Interação com o sistema',
+                'view_dashboard': 'Visualizou dashboard',
+                'view_orders': 'Visualizou pedidos',
+                'view_products': 'Visualizou produtos',
+                'view_finance': 'Visualizou financeiro',
+                'view_config': 'Visualizou configurações',
+                'navigate_dashboard': 'Navegou para dashboard',
+                'navigate_orders': 'Navegou para pedidos',
+                'navigate_products': 'Navegou para produtos',
+                'navigate_finance': 'Navegou para financeiro',
+                'navigate_config': 'Navegou para configurações',
+                'blocked': 'Conta bloqueada',
+                'activated': 'Conta ativada',
+                'renewal_requested': 'Solicitou renovação'
+            };
+            
+            return actions[action] || action;
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalUsers = users.length;
+            const activeUsers = users.filter(user => user.status === 'active').length;
+            const pendingUsers = users.filter(user => user.status === 'pending').length;
+            const blockedUsers = users.filter(user => user.status === 'blocked').length;
+            const expiredUsers = users.filter(user => user.status === 'expired').length;
+            
+            // Calculate monthly revenue (from approved payments this month)
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            let monthlyRevenue = 0;
+            
+            // We would need to load approved payments to calculate revenue
+            // For now, we'll estimate based on active users
+            monthlyRevenue = activeUsers * (systemConfig.monthlyPlanPrice || 99);
+            
+            totalUsersElement.textContent = totalUsers;
+            activeUsersElement.textContent = activeUsers;
+            pendingUsersElement.textContent = pendingUsers;
+            blockedUsersElement.textContent = blockedUsers;
+            expiredUsersElement.textContent = expiredUsers;
+            monthlyRevenueElement.textContent = `R$ ${monthlyRevenue.toFixed(0)}`;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Refresh button
+            refreshBtn.addEventListener('click', async () => {
+                await loadAllUsers();
+                await loadPendingPayments();
+                await loadRecentActivities();
+                showNotification('Dados atualizados!', 'success');
+            });
+            
+            // New user button
+            newUserBtn.addEventListener('click', () => {
+                newUserModal.style.display = 'flex';
+            });
+            
+            // Back to login button
+            backToLoginBtn.addEventListener('click', () => {
+                localStorage.removeItem('adminSession');
+                window.location.href = 'admin-login.html';
+            });
+            
+            // Tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+            
+            // Search inputs
+            searchUsers.addEventListener('input', () => {
+                updateUsersTable();
+            });
+            
+            searchPayments.addEventListener('input', () => {
+                updatePaymentsList();
+            });
+            
+            searchActivities.addEventListener('input', () => {
+                updateActivitiesList();
+            });
+            
+            // Settings form
+            paymentSettingsForm.addEventListener('submit', saveSystemConfig);
+            
+            // Update admin credentials
+            updateAdminBtn.addEventListener('click', updateAdminCredentials);
+            
+            // Close modals
+            closeUserModal.addEventListener('click', () => {
+                userDetailsModal.style.display = 'none';
+            });
+            
+            closePaymentModal.addEventListener('click', () => {
+                paymentDetailsModal.style.display = 'none';
+            });
+            
+            closeNewUserModal.addEventListener('click', () => {
+                newUserModal.style.display = 'none';
+                newUserForm.reset();
+            });
+            
+            cancelNewUserBtn.addEventListener('click', () => {
+                newUserModal.style.display = 'none';
+                newUserForm.reset();
+            });
+            
+            // New user form
+            newUserForm.addEventListener('submit', createNewUser);
+            
+            // Image zoom modal
+            closeZoom.addEventListener('click', () => {
+                imageZoomModal.style.display = 'none';
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === userDetailsModal) {
+                    userDetailsModal.style.display = 'none';
+                }
+                if (e.target === paymentDetailsModal) {
+                    paymentDetailsModal.style.display = 'none';
+                }
+                if (e.target === newUserModal) {
+                    newUserModal.style.display = 'none';
+                    newUserForm.reset();
+                }
+                if (e.target === imageZoomModal) {
+                    imageZoomModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Switch tab
+        function switchTab(tabId) {
+            currentTab = tabId;
+            
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.getAttribute('data-tab') === tabId) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === `${tabId}Tab`) {
+                    content.classList.add('active');
+                }
+            });
+        }
+
+        // View user details
+        function viewUserDetails(userId) {
+            selectedUser = users.find(user => user.id === userId);
+            
+            if (!selectedUser) return;
+            
+            const status = selectedUser.status || 'pending';
+            const plan = selectedUser.plan || 'monthly';
+            const expiryDate = selectedUser.expiryDate || 'Não definida';
+            const createdAt = selectedUser.createdAt ? formatDateTime(selectedUser.createdAt) : 'Não informada';
+            const lastLogin = selectedUser.lastLogin ? formatDateTime(selectedUser.lastLogin) : 'Nunca logou';
+            const lastActivity = selectedUser.lastActivity ? formatDateTime(selectedUser.lastActivity) : 'Sem atividade';
+            const phone = selectedUser.phone || 'Não informado';
+            
+            const statusText = getStatusText(status);
+            const statusClass = getStatusClass(status);
+            
+            // Determine if user is active now (last activity within 30 minutes)
+            const isActiveNow = selectedUser.lastActivity && 
+                               new Date(selectedUser.lastActivity) > new Date(Date.now() - 30 * 60 * 1000);
+            
+            const content = `
+                <div class="mb-3">
+                    <h3 class="mb-2">Informações da Loja</h3>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Nome da Loja:</strong>
+                        <span>${selectedUser.storeName || 'Sem nome'}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>E-mail:</strong>
+                        <span>${selectedUser.email}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Telefone:</strong>
+                        <span>${phone}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Status:</strong>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Status Atual:</strong>
+                        <span class="status-badge ${isActiveNow ? 'status-active' : 'status-inactive'}">
+                            ${isActiveNow ? 'Ativo agora' : 'Inativo'}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h3 class="mb-2">Datas</h3>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Data de Cadastro:</strong>
+                        <span>${createdAt}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Último Login:</strong>
+                        <span>${lastLogin}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Última Atividade:</strong>
+                        <span>${lastActivity}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Expira em:</strong>
+                        <span>${expiryDate}</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h3 class="mb-2">Configuração da Loja</h3>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Loja Configurada:</strong>
+                        <span>${selectedUser.configCompleted ? '✅ Sim' : '❌ Não'}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Ativo:</strong>
+                        <span>${selectedUser.isActive !== false ? '✅ Sim' : '❌ Não'}</span>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-primary flex-1" id="editUserBtn" data-id="${selectedUser.id}">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    ${status === 'active' ? `
+                        <button class="btn btn-danger flex-1" id="blockUserBtn" data-id="${selectedUser.id}">
+                            <i class="fas fa-ban"></i> Bloquear
+                        </button>
+                    ` : `
+                        <button class="btn btn-success flex-1" id="activateUserBtn" data-id="${selectedUser.id}">
+                            <i class="fas fa-check"></i> Ativar
+                        </button>
+                    `}
+                </div>
+            `;
+            
+            document.getElementById('userDetailsContent').innerHTML = content;
+            
+            document.getElementById('editUserBtn')?.addEventListener('click', () => {
+                userDetailsModal.style.display = 'none';
+                editUser(selectedUser.id);
+            });
+            
+            document.getElementById('blockUserBtn')?.addEventListener('click', () => {
+                userDetailsModal.style.display = 'none';
+                toggleUserStatus(selectedUser.id, 'blocked');
+            });
+            
+            document.getElementById('activateUserBtn')?.addEventListener('click', () => {
+                userDetailsModal.style.display = 'none';
+                toggleUserStatus(selectedUser.id, 'active');
+            });
+            
+            userDetailsModal.style.display = 'flex';
+        }
+
+        // Edit user
+        function editUser(userId) {
+            selectedUser = users.find(user => user.id === userId);
+            
+            if (!selectedUser) return;
+            
+            // For now, we'll just show a confirmation dialog for status change
+            // In a more complete implementation, this would open an edit modal
+            const newStatus = selectedUser.status === 'active' ? 'blocked' : 'active';
+            const action = newStatus === 'active' ? 'ativar' : 'bloquear';
+            
+            if (confirm(`Deseja ${action} o usuário "${selectedUser.storeName}"?`)) {
+                toggleUserStatus(userId, newStatus);
+            }
+        }
+
+        // Toggle user status
+        async function toggleUserStatus(userId, newStatus) {
+            try {
+                const user = users.find(u => u.id === userId);
+                if (!user) return;
+                
+                const statusText = getStatusText(newStatus);
+                
+                // Calculate new expiry date if activating
+                let updateData = { 
+                    status: newStatus,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                if (newStatus === 'active') {
+                    // Set expiry date to 30 days from now
+                    const expiryDate = new Date();
+                    expiryDate.setDate(expiryDate.getDate() + 30);
+                    updateData.expiryDate = expiryDate.toISOString().split('T')[0];
+                    updateData.isActive = true;
+                    
+                    // Send activation WhatsApp
+                    await sendStatusWhatsApp(user, 'activated');
+                    
+                } else if (newStatus === 'blocked') {
+                    updateData.isActive = false;
+                    
+                    // Send block WhatsApp
+                    await sendStatusWhatsApp(user, 'blocked');
+                    
+                    // Record activity
+                    await db.collection('userActivities').add({
+                        userId: user.id,
+                        action: 'blocked',
+                        timestamp: new Date().toISOString(),
+                        userEmail: user.email,
+                        storeName: user.storeName,
+                        adminAction: true,
+                        adminEmail: adminUser.email
+                    });
+                }
+                
+                await db.collection('users').doc(userId).update(updateData);
+                
+                // Update local state
+                const userIndex = users.findIndex(u => u.id === userId);
+                if (userIndex !== -1) {
+                    users[userIndex] = { ...users[userIndex], ...updateData };
+                }
+                
+                updateUsersTable();
+                updateStats();
+                showNotification(`Usuário ${statusText.toLowerCase()}!`, 'success');
+                
+            } catch (error) {
+                console.error('Error updating user status:', error);
+                showNotification('Erro ao atualizar status.', 'error');
+            }
+        }
+
+        // Send status WhatsApp to user
+        async function sendStatusWhatsApp(user, action) {
+            try {
+                if (!user.phone) return;
+                
+                const userPhone = user.phone.replace(/\D/g, '');
+                let message = '';
+                
+                if (action === 'activated') {
+                    message = `🎉 *CONTA ATIVADA* 🎉\n\n`;
+                    message += `Olá ${user.storeName}!\n\n`;
+                    message += `Sua conta no *Venda+* foi ativada com sucesso! ✅\n\n`;
+                    message += `Agora você já pode acessar o sistema e começar a usar todas as funcionalidades.\n\n`;
+                    message += `📧 *E-mail:* ${user.email}\n`;
+                    message += `🏪 *Loja:* ${user.storeName}\n`;
+                    message += `📅 *Data de ativação:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+                    message += `Acesse o sistema através do link de login.\n\n`;
+                    message += `Seja bem-vindo(a)! 🚀`;
+                } else if (action === 'blocked') {
+                    message = `🚫 *CONTA BLOQUEADA* 🚫\n\n`;
+                    message += `Olá ${user.storeName},\n\n`;
+                    message += `Sua conta no *Venda+* foi bloqueada pelo administrador.\n\n`;
+                    message += `📧 *E-mail:* ${user.email}\n`;
+                    message += `🏪 *Loja:* ${user.storeName}\n`;
+                    message += `📅 *Data do bloqueio:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+                    message += `Entre em contato com o suporte para mais informações.\n\n`;
+                    message += `Atenciosamente,\nEquipe Venda+`;
+                }
+                
+                if (message) {
+                    const encodedMessage = encodeURIComponent(message);
+                    const whatsappUrl = `https://wa.me/${userPhone}?text=${encodedMessage}`;
+                    
+                    // Open WhatsApp in new tab
+                    window.open(whatsappUrl, '_blank');
+                }
+                
+            } catch (error) {
+                console.error('Error sending status WhatsApp:', error);
+            }
+        }
+
+        // View payment details
+        function viewPaymentDetails(paymentId) {
+            selectedPayment = payments.find(payment => payment.id === paymentId);
+            
+            if (!selectedPayment) return;
+            
+            let receiptHTML = '';
+            if (selectedPayment.receiptBase64) {
+                if (selectedPayment.receiptType === 'pdf') {
+                    receiptHTML = `
+                        <div class="receipt-preview">
+                            <div class="pdf-preview" onclick="downloadReceipt('${paymentId}')">
+                                <i class="fas fa-file-pdf"></i>
+                                <div class="mt-1">${selectedPayment.receiptFileName || 'comprovante.pdf'}</div>
+                                <div class="text-center mt-1">
+                                    <small>Clique para baixar</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    receiptHTML = `
+                        <div class="receipt-preview">
+                            <img src="${selectedPayment.receiptBase64}" 
+                                 class="receipt-image" 
+                                 alt="Comprovante"
+                                 onclick="openImageZoom('${selectedPayment.receiptBase64}', 'Comprovante PIX')">
+                            <div class="text-center">
+                                <small>Clique para ampliar</small>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                receiptHTML = '<p>Comprovante não disponível.</p>';
+            }
+            
+            const content = `
+                <div class="mb-3">
+                    <h3 class="mb-2">Informações do Pagamento</h3>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>ID do Pagamento:</strong>
+                        <span>#${selectedPayment.id.substring(0, 8)}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Data:</strong>
+                        <span>${formatDateTime(selectedPayment.createdAt)}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Status:</strong>
+                        <span class="status-badge ${getStatusClass(selectedPayment.status)}">
+                            ${getStatusText(selectedPayment.status)}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h3 class="mb-2">Informações do Cliente</h3>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Nome:</strong>
+                        <span>${selectedPayment.userName || 'Não informado'}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Loja:</strong>
+                        <span>${selectedPayment.storeName || 'Sem nome'}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>E-mail:</strong>
+                        <span>${selectedPayment.userEmail}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Telefone:</strong>
+                        <span>${selectedPayment.userPhone || 'Não informado'}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Plano:</strong>
+                        <span>${selectedPayment.plan === 'monthly' ? 'Mensal' : selectedPayment.plan}</span>
+                    </div>
+                    <div class="d-flex justify-between mb-1">
+                        <strong>Valor:</strong>
+                        <span class="payment-detail-value">R$ ${selectedPayment.amount?.toFixed(2).replace('.', ',') || '0,00'}</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h3 class="mb-2">Comprovante</h3>
+                    ${receiptHTML}
+                </div>
+                
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-success flex-1" id="approvePaymentBtn" data-id="${selectedPayment.id}">
+                        <i class="fas fa-check"></i> Aprovar
+                    </button>
+                    <button class="btn btn-danger flex-1" id="rejectPaymentBtn" data-id="${selectedPayment.id}">
+                        <i class="fas fa-times"></i> Rejeitar
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('paymentDetailsContent').innerHTML = content;
+            
+            document.getElementById('approvePaymentBtn').addEventListener('click', () => {
+                paymentDetailsModal.style.display = 'none';
+                processPayment(selectedPayment.id, 'approved');
+            });
+            
+            document.getElementById('rejectPaymentBtn').addEventListener('click', () => {
+                paymentDetailsModal.style.display = 'none';
+                processPayment(selectedPayment.id, 'rejected');
+            });
+            
+            // Make downloadReceipt function available
+            window.downloadReceipt = function(paymentId) {
+                const payment = payments.find(p => p.id === paymentId);
+                if (payment && payment.receiptBase64) {
+                    const link = document.createElement('a');
+                    link.href = payment.receiptBase64;
+                    link.download = payment.receiptFileName || 'comprovante.pdf';
+                    link.click();
+                }
+            };
+            
+            paymentDetailsModal.style.display = 'flex';
+        }
+
+        // Process payment (approve or reject)
+        async function processPayment(paymentId, action) {
+            try {
+                const payment = payments.find(p => p.id === paymentId);
+                if (!payment) return;
+                
+                const userId = payment.userId;
+                const user = users.find(u => u.id === userId);
+                
+                if (action === 'approved') {
+                    // Update payment status
+                    await db.collection('payments').doc(paymentId).update({
+                        status: 'approved',
+                        approvedAt: new Date().toISOString(),
+                        approvedBy: adminUser.email
+                    });
+                    
+                    // Update user status and set expiry date
+                    const expiryDate = new Date();
+                    expiryDate.setDate(expiryDate.getDate() + 30);
+                    
+                    await db.collection('users').doc(userId).update({
+                        status: 'active',
+                        isActive: true,
+                        expiryDate: expiryDate.toISOString().split('T')[0],
+                        plan: payment.plan || 'monthly',
+                        paymentConfirmed: true,
+                        lastPaymentDate: new Date().toISOString()
+                    });
+                    
+                    // Create or update user's store configuration
+                    await db.collection('stores').doc(userId).set({
+                        businessName: user?.storeName || 'Minha Loja',
+                        logoBase64: '',
+                        whatsappNumber: '',
+                        pixKey: systemConfig.pixKey || '',
+                        contactPhone: '',
+                        productsTitle: 'Nossos Produtos',
+                        ownerId: userId,
+                        createdAt: new Date().toISOString(),
+                        theme: 'black'
+                    }, { merge: true });
+                    
+                    // Send approval WhatsApp to user
+                    await sendPaymentConfirmationWhatsApp(user, payment, 'approved');
+                    
+                    showNotification('Pagamento aprovado! Usuário ativado.', 'success');
+                    
+                } else if (action === 'rejected') {
+                    // Update payment status
+                    await db.collection('payments').doc(paymentId).update({
+                        status: 'rejected',
+                        rejectedAt: new Date().toISOString(),
+                        rejectedBy: adminUser.email
+                    });
+                    
+                    // Update user status
+                    await db.collection('users').doc(userId).update({
+                        status: 'pending',
+                        paymentConfirmed: false
+                    });
+                    
+                    // Send rejection WhatsApp to user
+                    await sendPaymentConfirmationWhatsApp(user, payment, 'rejected');
+                    
+                    showNotification('Pagamento rejeitado!', 'warning');
+                }
+                
+                // Reload data
+                await loadAllUsers();
+                await loadPendingPayments();
+                
+            } catch (error) {
+                console.error('Error processing payment:', error);
+                showNotification('Erro ao processar pagamento.', 'error');
+            }
+        }
+
+        // Send payment confirmation WhatsApp to user
+        async function sendPaymentConfirmationWhatsApp(user, payment, status) {
+            try {
+                if (!user?.phone) return;
+                
+                const userPhone = user.phone.replace(/\D/g, '');
+                let message = '';
+                
+                if (status === 'approved') {
+                    message = `✅ *PAGAMENTO APROVADO* ✅\n\n`;
+                    message += `Olá ${user.storeName}!\n\n`;
+                    message += `Seu pagamento foi aprovado e sua conta está ativa! 🎉\n\n`;
+                    message += `📧 *E-mail:* ${user.email}\n`;
+                    message += `🏪 *Loja:* ${user.storeName}\n`;
+                    message += `💰 *Valor:* R$ ${payment.amount?.toFixed(2) || '0,00'}\n`;
+                    message += `📅 *Data de ativação:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+                    message += `Agora você já pode acessar o sistema e começar a usar todas as funcionalidades.\n\n`;
+                    message += `Acesse através do link de login.\n\n`;
+                    message += `Seja bem-vindo(a) ao Venda+! 🚀`;
+                } else if (status === 'rejected') {
+                    message = `❌ *PAGAMENTO REJEITADO* ❌\n\n`;
+                    message += `Olá ${user.storeName},\n\n`;
+                    message += `Seu pagamento foi rejeitado. 😔\n\n`;
+                    message += `📧 *E-mail:* ${user.email}\n`;
+                    message += `🏪 *Loja:* ${user.storeName}\n`;
+                    message += `💰 *Valor:* R$ ${payment.amount?.toFixed(2) || '0,00'}\n`;
+                    message += `📅 *Data:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+                    message += `Por favor, entre em contato com o suporte para mais informações ou realize um novo pagamento.\n\n`;
+                    message += `Atenciosamente,\nEquipe Venda+`;
+                }
+                
+                if (message) {
+                    const encodedMessage = encodeURIComponent(message);
+                    const whatsappUrl = `https://wa.me/${userPhone}?text=${encodedMessage}`;
+                    
+                    // Open WhatsApp in new tab
+                    window.open(whatsappUrl, '_blank');
+                }
+                
+            } catch (error) {
+                console.error('Error sending payment confirmation WhatsApp:', error);
+            }
+        }
+
+        // Create new user manually
+        async function createNewUser(e) {
+            e.preventDefault();
+            
+            const storeName = document.getElementById('newStoreName').value;
+            const email = document.getElementById('newUserEmail').value;
+            const password = document.getElementById('newUserPassword').value;
+            const phone = document.getElementById('newUserPhone').value;
+            const plan = document.getElementById('newUserPlan').value;
+            const status = document.getElementById('newUserStatus').value;
+            const expiryDateInput = document.getElementById('newUserExpiry').value;
+            
+            if (!phone || phone.replace(/\D/g, '').length < 11) {
+                showNotification('Por favor, informe um número de WhatsApp válido.', 'error');
+                return;
+            }
+            
+            try {
+                showLoading();
+                
+                // Create user in Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Set expiry date
+                let expiryDate;
+                if (expiryDateInput) {
+                    expiryDate = expiryDateInput;
+                } else {
+                    const date = new Date();
+                    date.setDate(date.getDate() + 30);
+                    expiryDate = date.toISOString().split('T')[0];
+                }
+                
+                // Create user document
+                await db.collection('users').doc(user.uid).set({
+                    uid: user.uid,
+                    email: user.email,
+                    storeName: storeName,
+                    phone: phone,
+                    status: status,
+                    plan: plan,
+                    expiryDate: expiryDate,
+                    isActive: status === 'active',
+                    configCompleted: false,
+                    createdAt: new Date().toISOString(),
+                    createdBy: adminUser.email,
+                    lastActivity: new Date().toISOString()
+                });
+                
+                // If user is active, create store configuration
+                if (status === 'active') {
+                    await db.collection('stores').doc(user.uid).set({
+                        businessName: storeName,
+                        logoBase64: '',
+                        whatsappNumber: '',
+                        pixKey: systemConfig.pixKey || '',
+                        contactPhone: '',
+                        productsTitle: 'Nossos Produtos',
+                        ownerId: user.uid,
+                        createdAt: new Date().toISOString(),
+                        theme: 'black'
+                    });
+                    
+                    // Create default product
+                    await db.collection('stores').doc(user.uid).collection('products').add({
+                        name: 'Produto Exemplo',
+                        description: 'Este é um produto de exemplo. Você pode editá-lo ou excluí-lo.',
+                        price: 29.90,
+                        category: 'outro',
+                        active: true,
+                        imageBase64: '',
+                        createdAt: new Date().toISOString()
+                    });
+                    
+                    // Send activation WhatsApp
+                    await sendStatusWhatsApp({
+                        storeName: storeName,
+                        email: email,
+                        phone: phone
+                    }, 'activated');
+                }
+                
+                // Record admin activity
+                await db.collection('userActivities').add({
+                    userId: user.uid,
+                    action: 'created_by_admin',
+                    timestamp: new Date().toISOString(),
+                    userEmail: email,
+                    storeName: storeName,
+                    adminAction: true,
+                    adminEmail: adminUser.email
+                });
+                
+                // Close modal and reset form
+                newUserModal.style.display = 'none';
+                newUserForm.reset();
+                
+                // Reload users
+                await loadAllUsers();
+                
+                showNotification('Usuário criado com sucesso!', 'success');
+                hideLoading();
+                
+            } catch (error) {
+                console.error('Error creating user:', error);
+                let errorMessage = 'Erro ao criar usuário.';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'Este e-mail já está em uso.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'E-mail inválido.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Senha muito fraca. Use pelo menos 6 caracteres.';
+                }
+                
+                showNotification(errorMessage, 'error');
+                hideLoading();
+            }
+        }
+
+        // Save system configuration
+        async function saveSystemConfig(e) {
+            e.preventDefault();
+            
+            const configData = {
+                pixKey: pixKeyInput.value,
+                adminWhatsApp: adminWhatsAppInput.value,
+                monthlyPlanPrice: parseFloat(monthlyPlanPriceInput.value) || 99.00,
+                expirationWarningDays: parseInt(expirationWarningDaysInput.value) || 7,
+                whatsappMessage: whatsappMessageInput.value,
+                updatedAt: new Date().toISOString(),
+                updatedBy: adminUser.email
+            };
+            
+            try {
+                await db.collection('systemConfig').doc('paymentSettings').set(configData, { merge: true });
+                systemConfig = configData;
+                showNotification('Configurações salvas!', 'success');
+            } catch (error) {
+                console.error('Error saving system config:', error);
+                showNotification('Erro ao salvar configurações.', 'error');
+            }
+        }
+
+        // Update admin credentials
+        async function updateAdminCredentials() {
+            const email = adminEmailInput.value;
+            const password = adminPasswordInput.value;
+            
+            if (!email || !password) {
+                showNotification('Preencha e-mail e senha.', 'warning');
+                return;
+            }
+            
+            try {
+                await db.collection('admin').doc('credentials').set({
+                    email: email,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                
+                // Update admin password in Firebase Auth
+                // Note: This requires admin privileges and appropriate Firebase setup
+                // For now, we'll just store the credentials in Firestore
+                
+                showNotification('Credenciais atualizadas!', 'success');
+                adminPasswordInput.value = '';
+                
+            } catch (error) {
+                console.error('Error updating admin credentials:', error);
+                showNotification('Erro ao atualizar credenciais.', 'error');
+            }
+        }
+
+        // Open image zoom modal
+        function openImageZoom(imageSrc, altText) {
+            zoomedImage.src = imageSrc;
+            zoomedImage.alt = altText;
+            imageZoomModal.style.display = 'flex';
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => {
+                notification.remove();
+            });
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Show loading overlay
+        function showLoading() {
+            loadingOverlay.style.display = 'flex';
+        }
+
+        // Hide loading overlay
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        // Helper functions
+        function formatDate(dateString) {
+            if (!dateString) return 'Data não informada';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+        
+        function formatDateTime(dateString) {
+            if (!dateString) return 'Data/hora não informada';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function getStatusText(status) {
+            switch(status) {
+                case 'active': return 'Ativo';
+                case 'pending': return 'Pendente';
+                case 'blocked': return 'Bloqueado';
+                case 'expired': return 'Expirado';
+                case 'approved': return 'Aprovado';
+                case 'rejected': return 'Rejeitado';
+                default: return 'Desconhecido';
+            }
+        }
+        
+        function getStatusClass(status) {
+            switch(status) {
+                case 'active': return 'status-active';
+                case 'pending': return 'status-pending';
+                case 'blocked': return 'status-blocked';
+                case 'expired': return 'status-expired';
+                case 'approved': return 'status-active';
+                case 'rejected': return 'status-blocked';
+                default: return 'status-pending';
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Make functions available globally
+        window.openImageZoom = openImageZoom;
+    </script>
+</body>
+</html>
