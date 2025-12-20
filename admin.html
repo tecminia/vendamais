@@ -2682,7 +2682,7 @@
             if (!currentStoreId) return;
             
             const currentUrl = window.location.origin + window.location.pathname;
-            const baseUrl = currentUrl.replace('index.html', '');
+            const baseUrl = currentUrl.replace('admin.html', '');
             customerLink = `${baseUrl}vitrine.html?store=${currentStoreId}`;
             customerLinkContainer.innerHTML = `<strong>${customerLink}</strong>`;
         }

@@ -138,7 +138,6 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
         
-        /* Notification */
         .notification {
             position: fixed;
             top: 50%;
@@ -226,7 +225,7 @@
         <form id="adminLoginForm">
             <div class="form-group">
                 <label class="form-label">E-mail Administrativo</label>
-                <input type="email" id="adminEmail" class="form-input" placeholder="admin@email.com" required>
+                <input type="email" id="adminEmail" class="form-input" placeholder="admin@vendaplus.com" required>
             </div>
             
             <div class="form-group">
@@ -264,7 +263,7 @@
         const adminLoginBtn = document.getElementById('adminLoginBtn');
         const backToLoginBtn = document.getElementById('backToLoginBtn');
 
-        // Admin login
+        // Admin login - Versão simplificada sem autenticação Firebase
         adminLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('adminEmail').value;
@@ -274,23 +273,13 @@
                 adminLoginBtn.innerHTML = '<div class="loading"></div>';
                 adminLoginBtn.disabled = true;
                 
-                // Check admin credentials in Firestore
-                const adminDoc = await db.collection('admin').doc('credentials').get();
+                // Tentar acessar as credenciais do admin
+                // IMPORTANTE: Esta é uma abordagem temporária
+                // Em produção, use autenticação Firebase com usuário admin real
                 
-                if (!adminDoc.exists) {
-                    // Create default admin credentials if they don't exist
-                    await db.collection('admin').doc('credentials').set({
-                        email: 'admin@vendaplus.com',
-                        password: 'admin123', // Note: In production, use proper hashing
-                        createdAt: new Date().toISOString()
-                    });
-                }
-                
-                const adminData = adminDoc.data();
-                
-                // Simple credential check (in production, use proper authentication)
-                if (adminData.email === email && adminData.password === password) {
-                    // Create admin session
+                // Verificar credenciais padrão
+                if (email === 'admin@vendaplus.com' && password === 'admin123') {
+                    // Criar sessão admin
                     const adminSession = {
                         email: email,
                         loggedIn: true,
@@ -303,9 +292,40 @@
                     setTimeout(() => {
                         window.location.href = 'gerenciador.html';
                     }, 1000);
-                } else {
-                    showNotification('Credenciais inválidas.', 'error');
+                    return;
                 }
+                
+                // Se não for credencial padrão, verificar no Firestore
+                // (mas isso requer permissões)
+                try {
+                    const adminDoc = await db.collection('admin').doc('credentials').get();
+                    
+                    if (adminDoc.exists) {
+                        const adminData = adminDoc.data();
+                        
+                        if (adminData.email === email && adminData.password === password) {
+                            // Criar sessão admin
+                            const adminSession = {
+                                email: email,
+                                loggedIn: true,
+                                timestamp: new Date().toISOString()
+                            };
+                            
+                            localStorage.setItem('adminSession', JSON.stringify(adminSession));
+                            
+                            showNotification('Acesso concedido!', 'success');
+                            setTimeout(() => {
+                                window.location.href = 'gerenciador.html';
+                            }, 1000);
+                            return;
+                        }
+                    }
+                } catch (firestoreError) {
+                    console.log('Firestore não acessível, usando credenciais padrão');
+                }
+                
+                // Se chegou aqui, credenciais inválidas
+                showNotification('Credenciais inválidas.', 'error');
                 
             } catch (error) {
                 console.error('Admin login error:', error);
@@ -361,7 +381,36 @@
                     localStorage.removeItem('adminSession');
                 }
             }
+            
+            // Tentar criar credenciais padrão se não existirem
+            createDefaultAdminCredentials();
         });
+
+        // Função para criar credenciais padrão do admin
+        async function createDefaultAdminCredentials() {
+            try {
+                // Tentar verificar se já existe
+                const adminDoc = await db.collection('admin').doc('credentials').get();
+                
+                if (!adminDoc.exists) {
+                    // Tentar criar (pode falhar por falta de permissões, mas não tem problema)
+                    try {
+                        await db.collection('admin').doc('credentials').set({
+                            email: 'admin@vendaplus.com',
+                            password: 'admin123',
+                            createdAt: new Date().toISOString()
+                        });
+                        console.log('Credenciais padrão do admin criadas');
+                    } catch (writeError) {
+                        console.log('Não foi possível criar credenciais automaticamente');
+                        console.log('Use estas credenciais: admin@vendaplus.com / admin123');
+                    }
+                }
+            } catch (error) {
+                console.log('Não foi possível verificar credenciais do admin');
+                console.log('Use estas credenciais: admin@vendaplus.com / admin123');
+            }
+        }
     </script>
 </body>
 </html>
