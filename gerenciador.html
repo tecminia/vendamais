@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Venda+ | Gerenciador</title>
+    <title>Venda+ | Admin</title>
     <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
@@ -11,326 +11,375 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
+    
+    <!-- META TAGS PARA PREVENIR DETECÇÃO DE TELEFONE -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="date=no">
+    <meta name="format-detection" content="address=no">
+    <meta name="format-detection" content="email=no">
+    
     <style>
+        :root {
+            --primary-color: #212121;
+            --secondary-color: #424242;
+            --success-color: #4CAF50;
+            --warning-color: #FF9800;
+            --danger-color: #F44336;
+            --info-color: #2196F3;
+            --light-bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
         }
         
         html, body {
             height: 100%;
-            overflow-x: hidden;
-            background-color: #f5f5f5;
-            color: #212121;
+            overflow: hidden;
+            background: var(--light-bg);
+            color: var(--text-primary);
         }
         
         body {
             font-size: 14px;
             padding: 0;
-            padding-bottom: 70px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            height: env(safe-area-inset-top, 0px);
+            background: var(--primary-color);
         }
         
         /* Admin Container */
         .admin-container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 15px;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         
-        /* Admin Header */
+        /* Header - Native Style */
         .admin-header {
-            background: linear-gradient(135deg, #212121 0%, #424242 100%);
-            color: #ffffff;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 16px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            flex-shrink: 0;
         }
         
-        .admin-header .logo {
+        .header-top {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            justify-content: space-between;
+            margin-bottom: 12px;
         }
         
-        .admin-header .logo-icon {
-            font-size: 2.5rem;
-            color: #ffffff;
-            background-color: rgba(255, 255, 255, 0.1);
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(10px);
+            font-size: 1.1rem;
         }
         
-        .admin-header .logo-text h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            line-height: 1.2;
+        .header-text h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
         }
         
-        .admin-header .logo-text p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
+        .header-text p {
+            font-size: 0.75rem;
+            opacity: 0.8;
         }
         
-        .header-controls {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 15px;
+        .header-actions {
+            display: flex;
+            gap: 8px;
         }
         
-        /* Stats Cards - Mobile Grid 2x2 */
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* Stats Grid - Native Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            padding: 12px 16px;
+            background: white;
+            flex-shrink: 0;
         }
         
         .stat-card {
-            background-color: #ffffff;
+            background: var(--card-bg);
             border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid #e0e0e0;
-            transition: all 0.3s ease;
+            padding: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
         }
         
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
         }
         
         .stat-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 0.9rem;
         }
         
-        .stat-icon.active {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: #4caf50;
-        }
-        
-        .stat-icon.pending {
-            background-color: rgba(255, 152, 0, 0.1);
-            color: #ff9800;
-        }
-        
-        .stat-icon.blocked {
-            background-color: rgba(244, 67, 54, 0.1);
-            color: #f44336;
-        }
-        
-        .stat-icon.expired {
-            background-color: rgba(96, 125, 139, 0.1);
-            color: #607d8b;
-        }
-        
-        .stat-icon.total {
-            background-color: rgba(33, 150, 243, 0.1);
-            color: #2196f3;
-        }
-        
-        .stat-icon.revenue {
-            background-color: rgba(156, 39, 176, 0.1);
-            color: #9c27b0;
-        }
-        
-        .stat-info h3 {
-            font-size: 0.8rem;
-            color: #757575;
-            margin-bottom: 5px;
-        }
+        .stat-icon.total { background: rgba(33, 150, 243, 0.1); color: var(--info-color); }
+        .stat-icon.active { background: rgba(76, 175, 80, 0.1); color: var(--success-color); }
+        .stat-icon.pending { background: rgba(255, 152, 0, 0.1); color: var(--warning-color); }
+        .stat-icon.blocked { background: rgba(244, 67, 54, 0.1); color: var(--danger-color); }
+        .stat-icon.expired { background: rgba(96, 125, 139, 0.1); color: #607d8b; }
+        .stat-icon.revenue { background: rgba(156, 39, 176, 0.1); color: #9c27b0; }
         
         .stat-number {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #212121;
+            color: var(--text-primary);
         }
         
-        /* Tabs - Mobile Optimized */
-        .tabs {
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        /* Tab Navigation - Native */
+        .tab-navigation {
             display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
-            background-color: #ffffff;
-            padding: 5px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e0e0e0;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+            padding: 0 16px;
         }
         
-        .tab {
-            padding: 10px 12px;
+        .tab-btn {
+            flex: 1;
+            padding: 14px 0;
             background: none;
             border: none;
-            color: #757575;
-            font-weight: 600;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            flex-shrink: 0;
+            position: relative;
+            transition: all 0.2s ease;
         }
         
-        .tab.active {
-            background-color: #212121;
-            color: #ffffff;
+        .tab-btn.active {
+            color: var(--primary-color);
         }
         
-        /* Tab Content */
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px 3px 0 0;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
         .tab-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px;
             display: none;
-            animation: fadeIn 0.3s ease;
+            background: var(--light-bg);
         }
         
         .tab-content.active {
             display: block;
         }
         
-        /* Users Table - Mobile Optimized */
-        .users-table-container {
-            background-color: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e0e0e0;
-            margin-bottom: 20px;
+        /* Search Bar - Native */
+        .search-bar {
+            margin-bottom: 16px;
         }
         
-        .table-header {
-            padding: 15px;
-            border-bottom: 1px solid #e0e0e0;
+        .search-container {
+            background: white;
+            border-radius: 10px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
         }
         
-        .table-header h2 {
-            font-size: 1.1rem;
-            color: #212121;
-            margin-bottom: 10px;
-        }
-        
-        .search-box {
-            position: relative;
-            width: 100%;
-        }
-        
-        .search-box input {
-            width: 100%;
-            padding: 10px 15px 10px 40px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
+        .search-container i {
+            color: var(--text-secondary);
             font-size: 0.9rem;
-            background-color: #fafafa;
         }
         
-        .search-box i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #757575;
+        .search-container input {
+            flex: 1;
+            padding: 12px 0;
+            border: none;
+            outline: none;
+            font-size: 0.9rem;
+            background: transparent;
         }
         
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+        /* List Items - Native */
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        .users-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 700px;
+        .list-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
         }
         
-        .users-table th {
-            padding: 12px;
-            text-align: left;
-            background-color: #fafafa;
-            color: #212121;
+        .list-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .item-title {
             font-weight: 600;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 0.8rem;
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
         }
         
-        .users-table td {
-            padding: 12px;
-            border-bottom: 1px solid #f5f5f5;
-            color: #424242;
-            font-size: 0.8rem;
+        .item-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
         }
         
-        .users-table tr:hover {
-            background-color: #fafafa;
+        .item-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
         }
         
-        .users-table tr:last-child td {
-            border-bottom: none;
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
         
-        /* Status Badge */
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* Status Badges */
         .status-badge {
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 600;
             display: inline-block;
+            text-align: center;
         }
         
-        .status-active {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: #4caf50;
+        .status-active { background: rgba(76, 175, 80, 0.1); color: var(--success-color); }
+        .status-pending { background: rgba(255, 152, 0, 0.1); color: var(--warning-color); }
+        .status-blocked { background: rgba(244, 67, 54, 0.1); color: var(--danger-color); }
+        .status-expired { background: rgba(96, 125, 139, 0.1); color: #607d8b; }
+        .status-approved { background: rgba(76, 175, 80, 0.1); color: var(--success-color); }
+        .status-rejected { background: rgba(244, 67, 54, 0.1); color: var(--danger-color); }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
         }
         
-        .status-pending {
-            background-color: rgba(255, 152, 0, 0.1);
-            color: #ff9800;
-        }
-        
-        .status-blocked {
-            background-color: rgba(244, 67, 54, 0.1);
-            color: #f44336;
-        }
-        
-        .status-expired {
-            background-color: rgba(96, 125, 139, 0.1);
-            color: #607d8b;
-        }
-        
-        /* User Actions - Compact for Mobile */
-        .user-actions {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-        
-        /* Buttons - Mobile Optimized */
-        .btn {
-            padding: 10px 12px;
+        .action-btn {
+            padding: 10px;
             border-radius: 8px;
             border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             font-size: 0.8rem;
             display: flex;
             align-items: center;
@@ -338,472 +387,229 @@
             gap: 6px;
         }
         
-        .btn-sm {
-            padding: 6px 8px;
-            font-size: 0.75rem;
-        }
+        .btn-view { background: rgba(33, 150, 243, 0.1); color: var(--info-color); }
+        .btn-activate { background: rgba(76, 175, 80, 0.1); color: var(--success-color); }
+        .btn-block { background: rgba(244, 67, 54, 0.1); color: var(--danger-color); }
+        .btn-approve { background: rgba(76, 175, 80, 0.1); color: var(--success-color); }
+        .btn-reject { background: rgba(244, 67, 54, 0.1); color: var(--danger-color); }
+        .btn-delete { background: rgba(33, 33, 33, 0.1); color: var(--primary-color); }
+        .btn-whatsapp { background: rgba(37, 211, 102, 0.1); color: #25D366; }
         
-        .btn-primary {
-            background-color: #212121;
-            color: #ffffff;
-        }
-        
-        .btn-primary:hover {
-            background-color: #000000;
-        }
-        
-        .btn-success {
-            background-color: #4caf50;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background-color: #3d8b40;
-        }
-        
-        .btn-warning {
-            background-color: #ff9800;
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background-color: #f57c00;
-        }
-        
-        .btn-danger {
-            background-color: #f44336;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background-color: #d32f2f;
-        }
-        
-        .btn-secondary {
-            background-color: #e0e0e0;
-            color: #212121;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #e0e0e0;
+        .action-btn:hover {
             opacity: 0.9;
+            transform: translateY(-1px);
         }
         
-        .btn-whatsapp {
-            background-color: #25D366;
-            color: white;
-        }
-        
-        .btn-whatsapp:hover {
-            background-color: #128C7E;
-        }
-        
-        /* Action Buttons */
-        .action-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.7rem;
-            transition: all 0.3s ease;
-        }
-        
-        .edit-btn {
-            background-color: rgba(33, 150, 243, 0.1);
-            color: #2196f3;
-        }
-        
-        .view-btn {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: #4caf50;
-        }
-        
-        .block-btn {
-            background-color: rgba(244, 67, 54, 0.1);
-            color: #f44336;
-        }
-        
-        .activate-btn {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: #4caf50;
-        }
-        
-        .payment-btn {
-            background-color: rgba(156, 39, 176, 0.1);
-            color: #9c27b0;
-        }
-        
-        /* Settings Card */
-        .settings-card {
-            background-color: #ffffff;
+        /* Settings Form */
+        .settings-section {
+            background: white;
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e0e0e0;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
         }
         
-        .settings-card h2 {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            color: #212121;
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
             padding-bottom: 8px;
-            border-bottom: 2px solid #212121;
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--text-primary);
         }
         
-        /* Form Styles - Mobile Optimized */
         .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
         }
         
         .form-label {
             display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: #212121;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
             font-size: 0.85rem;
         }
         
         .form-input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #e0e0e0;
+            padding: 12px;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            font-size: 0.85rem;
-            transition: border-color 0.3s ease;
-            background-color: #ffffff;
-            color: #212121;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            background: white;
+            color: var(--text-primary);
         }
         
         .form-input:focus {
             outline: none;
-            border-color: #212121;
+            border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(33, 33, 33, 0.1);
         }
         
         .form-textarea {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        /* Payment Card - Mobile Optimized */
-        .payment-card {
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e0e0e0;
-        }
-        
-        .payment-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
-        .payment-user {
-            font-weight: 600;
-            color: #212121;
-            font-size: 0.9rem;
-        }
-        
-        .payment-date {
-            color: #757575;
-            font-size: 0.75rem;
-        }
-        
-        .payment-info {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-        
-        .payment-detail {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        
-        .payment-detail-label {
-            font-size: 0.75rem;
-            color: #757575;
-        }
-        
-        .payment-detail-value {
-            font-weight: 600;
-            color: #212121;
-            font-size: 0.85rem;
-        }
-        
-        .payment-actions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-        
-        /* Receipt Preview */
-        .receipt-preview {
-            margin-top: 12px;
             padding: 12px;
-            background-color: #fafafa;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            border: 1px dashed #e0e0e0;
-        }
-        
-        .receipt-image {
-            max-width: 100%;
-            max-height: 150px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 8px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .pdf-preview {
-            padding: 15px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            border: 2px dashed #e0e0e0;
-        }
-        
-        .pdf-preview i {
-            font-size: 2rem;
-            color: #f44336;
-            margin-bottom: 8px;
-        }
-        
-        /* User Activity Card */
-        .activity-card {
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e0e0e0;
-        }
-        
-        .activity-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .activity-user {
-            font-weight: 600;
-            color: #212121;
             font-size: 0.9rem;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
         }
         
-        .activity-time {
-            color: #757575;
+        .form-hint {
             font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            display: block;
         }
         
-        .activity-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             gap: 8px;
         }
         
-        .activity-detail {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        
-        .activity-detail-label {
-            font-size: 0.75rem;
-            color: #757575;
-        }
-        
-        .activity-detail-value {
-            font-weight: 600;
-            color: #212121;
-            font-size: 0.85rem;
-        }
-        
-        .activity-status {
-            margin-top: 8px;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        .status-active {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: #4caf50;
-        }
-        
-        .status-inactive {
-            background-color: rgba(244, 67, 54, 0.1);
-            color: #f44336;
+        .submit-btn:hover {
+            background: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 40px 15px;
-            color: #757575;
+            padding: 60px 20px;
+            color: var(--text-secondary);
         }
         
         .empty-icon {
-            font-size: 2.5rem;
-            margin-bottom: 12px;
+            font-size: 3rem;
+            margin-bottom: 16px;
             color: #e0e0e0;
         }
         
-        /* Modal - Mobile Optimized */
+        .empty-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        
+        .empty-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: none;
+        }
+
+        .fab:hover,
+        .fab:active,
+        .fab:focus {
+            box-shadow: none;
+            transform: scale(1.05);
+            background: #000;
+            outline: none;
+        }
+        
+        /* Modals - Native Style */
         .modal {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: none;
             align-items: center;
             justify-content: center;
-            padding: 15px;
+            padding: 16px;
+            animation: fadeIn 0.3s ease;
         }
         
         .modal-content {
-            background-color: #ffffff;
-            border-radius: 15px;
-            padding: 20px;
-            max-width: 100%;
+            background: white;
+            border-radius: 16px;
             width: 100%;
+            max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            animation: modalFadeIn 0.3s ease;
             -webkit-overflow-scrolling: touch;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
         }
         
         .modal-header {
+            padding: 20px 20px 12px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            justify-content: space-between;
         }
         
         .modal-title {
             font-size: 1.2rem;
-            color: #212121;
             font-weight: 600;
+            color: var(--text-primary);
         }
         
-        .close-modal {
+        .modal-close {
             background: none;
             border: none;
             font-size: 1.5rem;
-            color: #757575;
+            color: var(--text-secondary);
             cursor: pointer;
-            padding: 5px;
+            padding: 4px;
+            line-height: 1;
         }
         
-        /* Image Zoom Modal */
-        .image-zoom-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
+        .modal-body {
+            padding: 20px;
         }
         
-        .image-zoom-content {
-            max-width: 100%;
-            max-height: 100%;
-            position: relative;
-        }
-        
-        .image-zoom-content img {
-            width: 100%;
-            height: auto;
-            max-height: 80vh;
-            object-fit: contain;
-        }
-        
-        .close-zoom {
-            position: absolute;
-            top: -40px;
-            right: 0;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.8rem;
-            cursor: pointer;
-        }
-        
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 12px 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            z-index: 10000;
-            animation: fadeIn 0.3s ease;
-            font-weight: 600;
-            color: white;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            background-color: rgba(0, 0, 0, 0.85);
-            max-width: 280px;
-            width: 90%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+        /* Confirmation Modal */
+        .confirmation-text {
+            padding: 12px;
+            border: 2px solid var(--danger-color);
+            border-radius: 8px;
+            background: rgba(244, 67, 54, 0.05);
+            margin-bottom: 20px;
             font-size: 0.9rem;
-        }
-        
-        .notification.success {
-            background-color: rgba(76, 175, 80, 0.95);
-        }
-        
-        .notification.error {
-            background-color: rgba(244, 67, 54, 0.95);
-        }
-        
-        .notification.info {
-            background-color: rgba(33, 150, 243, 0.95);
         }
         
         /* Loading Overlay */
@@ -813,44 +619,62 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 3000;
             display: none;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
         }
         
         .loading-spinner {
             width: 40px;
             height: 40px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #212121;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
         
         .loading-text {
             color: white;
-            font-weight: 600;
+            font-weight: 500;
             font-size: 0.9rem;
         }
         
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            text-align: center;
+            z-index: 4000;
+            animation: fadeIn 0.3s ease;
+            max-width: 280px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .notification.success { background: var(--success-color); }
+        .notification.error { background: var(--danger-color); }
+        .notification.info { background: var(--info-color); }
+        
         /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-        }
-        
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         @keyframes spin {
@@ -858,214 +682,109 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Desktop Optimization */
-        @media (min-width: 768px) {
-            .admin-container {
-                max-width: 1200px;
-                padding: 20px;
-            }
-            
-            .header-controls {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
+        /* Utilities */
+        .mt-1 { margin-top: 8px; }
+        .mt-2 { margin-top: 16px; }
+        .mb-1 { margin-bottom: 8px; }
+        .mb-2 { margin-bottom: 16px; }
+        .text-center { text-align: center; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 8px; }
+        
+        @media (max-width: 360px) {
             .stats-grid {
-                grid-template-columns: repeat(3, 2fr);
-                gap: 15px;
+                grid-template-columns: 1fr;
             }
             
-            .form-row {
+            .action-buttons {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
-            .payment-info {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            
-            .payment-actions {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            .modal-content {
-                max-width: 500px;
-            }
         }
-        
-        @media (min-width: 1024px) {
-            .stats-grid {
-                grid-template-columns: repeat(6, 1fr);
-            }
-        }
-        
-        /* Utilities */
-        .d-none { display: none !important; }
-        .d-flex { display: flex !important; }
-        .d-block { display: block !important; }
-        .flex-1 { flex: 1; }
-        .justify-between { justify-content: space-between; }
-        .align-center { align-items: center; }
-        .gap-1 { gap: 6px; }
-        .gap-2 { gap: 10px; }
-        .mb-1 { margin-bottom: 6px; }
-        .mb-2 { margin-bottom: 10px; }
-        .mb-3 { margin-bottom: 15px; }
-        .mt-1 { margin-top: 6px; }
-        .mt-2 { margin-top: 10px; }
-        .mt-3 { margin-top: 15px; }
-        .text-center { text-align: center; }
     </style>
 </head>
 <body>
+    <!-- Status Bar -->
+    <div class="status-bar"></div>
+    
     <!-- Admin Container -->
     <div class="admin-container">
-        <!-- Admin Header -->
+        <!-- Header -->
         <header class="admin-header">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-user-shield"></i>
+            <div class="header-top">
+                <div class="header-title">
+                    <div class="header-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="header-text">
+                        <h1>Admin Venda+</h1>
+                        <p>Painel de Controle</p>
+                    </div>
                 </div>
-                <div class="logo-text">
-                    <h1>Venda+ Admin</h1>
-                    <p>Gerenciamento de Usuários e Pagamentos</p>
+                <div class="header-actions">
+                    <button class="icon-btn" id="refreshBtn" title="Atualizar">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="icon-btn" id="logoutBtn" title="Sair">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
                 </div>
-            </div>
-            
-            <div class="header-controls">
-                <button class="btn btn-primary" id="refreshBtn">
-                    <i class="fas fa-sync-alt"></i> Atualizar
-                </button>
-                <button class="btn btn-success" id="newUserBtn">
-                    <i class="fas fa-user-plus"></i> Novo Usuário
-                </button>
-                <button class="btn btn-secondary" id="backToLoginBtn">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button>
             </div>
         </header>
         
-        <!-- Stats Cards - Mobile Grid 2x2 -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon total">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>Total Usuários</h3>
-                    <div class="stat-number" id="totalUsers">0</div>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon active">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>Ativos</h3>
-                    <div class="stat-number" id="activeUsers">0</div>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon pending">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>Pendentes</h3>
-                    <div class="stat-number" id="pendingUsers">0</div>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon blocked">
-                    <i class="fas fa-ban"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>Bloqueados</h3>
-                    <div class="stat-number" id="blockedUsers">0</div>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon expired">
-                    <i class="fas fa-calendar-times"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>Expirados</h3>
-                    <div class="stat-number" id="expiredUsers">0</div>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon revenue">
-                    <i class="fas fa-money-bill-wave"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>Receita Mensal</h3>
-                    <div class="stat-number" id="monthlyRevenue">R$ 0</div>
-                </div>
-            </div>
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="statsGrid">
+            <!-- Stats will be loaded here -->
         </div>
         
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab active" data-tab="users">Usuários</button>
-            <button class="tab" data-tab="payments">Pagamentos</button>
-            <button class="tab" data-tab="activities">Atividades</button>
-            <button class="tab" data-tab="settings">Configurações</button>
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="users">
+                <i class="fas fa-users"></i> Usuários
+            </button>
+            <button class="tab-btn" data-tab="payments">
+                <i class="fas fa-money-bill"></i> Pagamentos
+            </button>
+            <button class="tab-btn" data-tab="settings">
+                <i class="fas fa-cog"></i> Configurações
+            </button>
         </div>
         
-        <!-- Tab Contents -->
-        
-        <!-- Users Tab -->
-        <div id="usersTab" class="tab-content active">
-            <div class="users-table-container">
-                <div class="table-header">
-                    <h2>Lista de Usuários</h2>
-                    <div class="search-box">
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content active">
+                <div class="search-bar">
+                    <div class="search-container">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchUsers" placeholder="Buscar usuário...">
+                        <input type="text" id="searchUsers" placeholder="Buscar usuários...">
                     </div>
                 </div>
                 
-                <div class="table-wrapper">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Loja</th>
-                                <th>E-mail</th>
-                                <th>Status</th>
-                                <th>Expira em</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <!-- Users will be loaded here -->
-                        </tbody>
-                    </table>
+                <div class="list-container" id="usersList">
+                    <!-- Users will be loaded here -->
                 </div>
                 
                 <div class="empty-state" id="usersEmpty" style="display: none;">
                     <div class="empty-icon">
                         <i class="fas fa-users-slash"></i>
                     </div>
-                    <h3>Nenhum usuário encontrado</h3>
-                    <p>Os usuários cadastrados aparecerão aqui.</p>
+                    <div class="empty-title">Nenhum usuário encontrado</div>
+                    <div class="empty-text">Os usuários cadastrados aparecerão aqui</div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Payments Tab -->
-        <div id="paymentsTab" class="tab-content">
-            <div class="users-table-container">
-                <div class="table-header">
-                    <h2>Pagamentos Pendentes</h2>
-                    <div class="search-box">
+            
+            <!-- Payments Tab -->
+            <div id="paymentsTab" class="tab-content">
+                <div class="search-bar">
+                    <div class="search-container">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchPayments" placeholder="Buscar pagamento...">
+                        <input type="text" id="searchPayments" placeholder="Buscar pagamentos...">
                     </div>
                 </div>
                 
-                <div id="paymentsList">
+                <div class="list-container" id="paymentsList">
                     <!-- Payments will be loaded here -->
                 </div>
                 
@@ -1073,69 +792,43 @@
                     <div class="empty-icon">
                         <i class="fas fa-file-invoice-dollar"></i>
                     </div>
-                    <h3>Nenhum pagamento pendente</h3>
-                    <p>Os pagamentos aguardando confirmação aparecerão aqui.</p>
+                    <div class="empty-title">Nenhum pagamento encontrado</div>
+                    <div class="empty-text">Os pagamentos aparecerão aqui</div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Activities Tab -->
-        <div id="activitiesTab" class="tab-content">
-            <div class="users-table-container">
-                <div class="table-header">
-                    <h2>Atividades dos Usuários</h2>
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="searchActivities" placeholder="Buscar atividade...">
-                    </div>
-                </div>
-                
-                <div id="activitiesList">
-                    <!-- Activities will be loaded here -->
-                </div>
-                
-                <div class="empty-state" id="activitiesEmpty" style="display: none;">
-                    <div class="empty-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3>Nenhuma atividade registrada</h3>
-                    <p>As atividades dos usuários aparecerão aqui.</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Settings Tab -->
-        <div id="settingsTab" class="tab-content">
-            <div class="settings-card">
-                <h2>Configurações de Pagamento</h2>
-                
-                <form id="paymentSettingsForm">
-                    <div class="form-group">
-                        <label class="form-label">Chave PIX Padrão *</label>
-                        <input type="text" id="pixKey" class="form-input" placeholder="Chave PIX para recebimentos" required>
-                        <small>Esta chave PIX será exibida para todos os usuários durante o cadastro.</small>
-                    </div>
+            
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content">
+                <div class="settings-section">
+                    <h2 class="section-title">Configurações de Pagamento</h2>
                     
-                    <div class="form-group">
-                        <label class="form-label">WhatsApp para Notificações *</label>
-                        <input type="text" id="adminWhatsApp" class="form-input" placeholder="(11) 99999-9999" required>
-                        <small>Número que receberá notificações de novos pagamentos.</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Valor do Plano Mensal (R$) *</label>
-                        <input type="number" id="monthlyPlanPrice" class="form-input" step="0.01" min="0" value="99.00" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Dias para Notificação de Vencimento *</label>
-                        <input type="number" id="expirationWarningDays" class="form-input" min="1" max="30" value="7" required>
-                        <small>Número de dias antes do vencimento para notificar o usuário.</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Mensagem de Notificação WhatsApp</label>
-                        <textarea id="whatsappMessage" class="form-textarea" rows="5">
+                    <form id="paymentSettingsForm">
+                        <div class="form-group">
+                            <label class="form-label">Chave PIX Padrão</label>
+                            <input type="text" id="pixKey" class="form-input" placeholder="Chave PIX para recebimentos" required>
+                            <span class="form-hint">Esta chave PIX será exibida para todos os usuários</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">WhatsApp para Notificações</label>
+                            <input type="text" id="adminWhatsApp" class="form-input" placeholder="(11) 99999-9999" required>
+                            <span class="form-hint">Número que receberá notificações de novos pagamentos</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Valor do Plano Mensal (R$)</label>
+                            <input type="number" id="monthlyPlanPrice" class="form-input" step="0.01" min="0" value="99.00" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Dias para Notificação de Vencimento</label>
+                            <input type="number" id="expirationWarningDays" class="form-input" min="1" max="30" value="7" required>
+                            <span class="form-hint">Dias antes do vencimento para notificar o usuário</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Mensagem de Notificação WhatsApp</label>
+                            <textarea id="whatsappMessage" class="form-textarea" rows="5">
 📱 *NOVO PAGAMENTO PENDENTE* 📱
 
 👤 *Cliente:* {nome}
@@ -1149,37 +842,94 @@
 ⚠️ *Status:* Aguardando confirmação
 
 Por favor, acesse o painel administrativo para verificar o comprovante e liberar o acesso.
-                        </textarea>
-                        <small>Use {nome}, {loja}, {email}, {telefone}, {valor}, {data} como variáveis.</small>
+                            </textarea>
+                            <span class="form-hint">Use {nome}, {loja}, {email}, {telefone}, {valor}, {data} como variáveis</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Mensagem de Pagamento Aprovado (para cliente)</label>
+                            <textarea id="paymentApprovedMessage" class="form-textarea" rows="5">
+✅ *PAGAMENTO APROVADO!* ✅
+
+Olá {nome}! 👋
+
+Seu pagamento foi *APROVADO* com sucesso! 🎉
+
+🏪 *Loja:* {loja}
+💵 *Plano:* {plano}
+📅 *Válido até:* {validade}
+💰 *Valor:* R$ {valor}
+
+Agora você já pode acessar sua conta e começar a usar todas as funcionalidades do Venda+!
+
+🔗 *Acesse:* https://seusite.com/login
+
+Em caso de dúvidas, estamos à disposição!
+
+Atenciosamente,
+Equipe Venda+ 📱
+                            </textarea>
+                            <span class="form-hint">Mensagem enviada ao cliente quando pagamento for aprovado</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Mensagem de Pagamento Rejeitado (para cliente)</label>
+                            <textarea id="paymentRejectedMessage" class="form-textarea" rows="5">
+❌ *PAGAMENTO REJEITADO* ❌
+
+Olá {nome},
+
+Lamentamos informar que seu pagamento foi *REJEITADO*.
+
+🏪 *Loja:* {loja}
+💵 *Plano:* {plano}
+💰 *Valor:* R$ {valor}
+📅 *Data:* {data}
+
+📋 *Motivo:* Comprovante não identificado ou informações inconsistentes.
+
+🔍 *O que fazer:*
+1. Verifique se o comprovante está legível
+2. Confirme se os dados estão corretos
+3. Envie novamente o comprovante
+
+Para mais informações, entre em contato conosco.
+
+Atenciosamente,
+Equipe Venda+ 📱
+                            </textarea>
+                            <span class="form-hint">Mensagem enviada ao cliente quando pagamento for rejeitado</span>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-save"></i> Salvar Configurações
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="settings-section">
+                    <h2 class="section-title">Sistema</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Admin Logado</label>
+                            <div class="form-input" style="background: #f8f9fa;">
+                            <div id="adminInfo">
+                                <!-- Admin info will be loaded here -->
+                            </div>
+                        </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Salvar Configurações
-                    </button>
-                </form>
-            </div>
-            
-            <div class="settings-card">
-                <h2>Configurações do Sistema</h2>
-                
-                <div class="form-group">
-                    <label class="form-label">Admin Master</label>
-                    <div class="form-row">
-                        <div>
-                            <label class="form-label">E-mail do Admin *</label>
-                            <input type="email" id="adminEmail" class="form-input" placeholder="admin@email.com" required>
-                        </div>
-                        <div>
-                            <label class="form-label">Senha *</label>
-                            <input type="password" id="adminPassword" class="form-input" placeholder="••••••••" required>
-                        </div>
-                    </div>
-                    <button class="btn btn-secondary" id="updateAdminBtn">
-                        <i class="fas fa-key"></i> Atualizar Credenciais
+                    <button class="submit-btn" id="clearCacheBtn">
+                        <i class="fas fa-trash"></i> Limpar Cache
                     </button>
                 </div>
             </div>
         </div>
+        
+        <!-- Floating Action Button -->
+        <button class="fab" id="newUserBtn" title="Novo Usuário">
+            <i class="fas fa-user-plus"></i>
+        </button>
     </div>
     
     <!-- User Details Modal -->
@@ -1187,7 +937,7 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Detalhes do Usuário</h2>
-                <button class="close-modal" id="closeUserModal">&times;</button>
+                <button class="modal-close" id="closeUserModal">&times;</button>
             </div>
             <div class="modal-body">
                 <div id="userDetailsContent">
@@ -1202,7 +952,7 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Detalhes do Pagamento</h2>
-                <button class="close-modal" id="closePaymentModal">&times;</button>
+                <button class="modal-close" id="closePaymentModal">&times;</button>
             </div>
             <div class="modal-body">
                 <div id="paymentDetailsContent">
@@ -1216,8 +966,8 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
     <div class="modal" id="newUserModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Novo Usuário Manual</h2>
-                <button class="close-modal" id="closeNewUserModal">&times;</button>
+                <h2 class="modal-title">Novo Usuário</h2>
+                <button class="modal-close" id="closeNewUserModal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="newUserForm">
@@ -1234,7 +984,7 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                     <div class="form-group">
                         <label class="form-label">Senha *</label>
                         <input type="password" id="newUserPassword" class="form-input" required minlength="6">
-                        <small>Mínimo 6 caracteres</small>
+                        <span class="form-hint">Mínimo 6 caracteres</span>
                     </div>
                     
                     <div class="form-group">
@@ -1245,8 +995,15 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                     <div class="form-group">
                         <label class="form-label">Plano</label>
                         <select id="newUserPlan" class="form-input">
-                            <option value="monthly">Mensal (R$ 99,00)</option>
+                            <option value="monthly">Mensal (30 dias)</option>
+                            <option value="custom">Personalizado</option>
                         </select>
+                    </div>
+                    
+                    <div class="form-group" id="customDaysGroup" style="display: none;">
+                        <label class="form-label">Dias de Plano Personalizado *</label>
+                        <input type="number" id="customPlanDays" class="form-input" min="1" max="365" value="30" placeholder="Digite o número de dias">
+                        <span class="form-hint">Digite a quantidade de dias que o plano terá (1-365)</span>
                     </div>
                     
                     <div class="form-group">
@@ -1258,17 +1015,11 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                         </select>
                     </div>
                     
-                    <div class="form-group">
-                        <label class="form-label">Data de Expiração</label>
-                        <input type="date" id="newUserExpiry" class="form-input">
-                        <small>Deixe em branco para 30 dias a partir de hoje</small>
-                    </div>
-                    
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-secondary flex-1" id="cancelNewUserBtn">
+                    <div class="flex gap-2 mt-2">
+                        <button type="button" class="submit-btn" style="background: #757575;" id="cancelNewUserBtn">
                             Cancelar
                         </button>
-                        <button type="submit" class="btn btn-primary flex-1">
+                        <button type="submit" class="submit-btn">
                             <i class="fas fa-user-plus"></i> Criar Usuário
                         </button>
                     </div>
@@ -1277,11 +1028,28 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
         </div>
     </div>
     
-    <!-- Image Zoom Modal -->
-    <div class="image-zoom-modal" id="imageZoomModal">
-        <div class="image-zoom-content">
-            <button class="close-zoom" id="closeZoom">&times;</button>
-            <img id="zoomedImage" src="" alt="Imagem ampliada">
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteConfirmationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirmar Exclusão</h2>
+                <button class="modal-close" id="closeDeleteModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir este pagamento?</p>
+                <div class="confirmation-text">
+                    <strong>Digite "CONFIRMAR" para excluir:</strong>
+                    <input type="text" id="confirmationInput" class="form-input mt-1" placeholder="Digite CONFIRMAR">
+                </div>
+                <div class="flex gap-2 mt-2">
+                    <button type="button" class="submit-btn" style="background: #757575;" id="cancelDeleteBtn">
+                        Cancelar
+                    </button>
+                    <button type="button" class="submit-btn" style="background: var(--danger-color);" id="confirmDeleteBtn" disabled>
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -1311,36 +1079,24 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
         let adminUser = null;
         let users = [];
         let payments = [];
-        let activities = [];
         let systemConfig = {};
-        let selectedUser = null;
-        let selectedPayment = null;
-        let currentTab = 'users';
-        let phoneMask = null;
+        let currentPaymentToDelete = null;
 
         // DOM Elements
         const refreshBtn = document.getElementById('refreshBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
         const newUserBtn = document.getElementById('newUserBtn');
-        const backToLoginBtn = document.getElementById('backToLoginBtn');
-        const tabs = document.querySelectorAll('.tab');
+        const tabBtns = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
-        const usersTableBody = document.getElementById('usersTableBody');
+        const statsGrid = document.getElementById('statsGrid');
+        const usersList = document.getElementById('usersList');
         const usersEmpty = document.getElementById('usersEmpty');
         const paymentsList = document.getElementById('paymentsList');
         const paymentsEmpty = document.getElementById('paymentsEmpty');
-        const activitiesList = document.getElementById('activitiesList');
-        const activitiesEmpty = document.getElementById('activitiesEmpty');
         const searchUsers = document.getElementById('searchUsers');
         const searchPayments = document.getElementById('searchPayments');
-        const searchActivities = document.getElementById('searchActivities');
-        
-        // Stats elements
-        const totalUsersElement = document.getElementById('totalUsers');
-        const activeUsersElement = document.getElementById('activeUsers');
-        const pendingUsersElement = document.getElementById('pendingUsers');
-        const blockedUsersElement = document.getElementById('blockedUsers');
-        const expiredUsersElement = document.getElementById('expiredUsers');
-        const monthlyRevenueElement = document.getElementById('monthlyRevenue');
+        const adminInfo = document.getElementById('adminInfo');
+        const clearCacheBtn = document.getElementById('clearCacheBtn');
         
         // Settings elements
         const paymentSettingsForm = document.getElementById('paymentSettingsForm');
@@ -1349,12 +1105,14 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
         const monthlyPlanPriceInput = document.getElementById('monthlyPlanPrice');
         const expirationWarningDaysInput = document.getElementById('expirationWarningDays');
         const whatsappMessageInput = document.getElementById('whatsappMessage');
-        const adminEmailInput = document.getElementById('adminEmail');
-        const adminPasswordInput = document.getElementById('adminPassword');
-        const updateAdminBtn = document.getElementById('updateAdminBtn');
+        const paymentApprovedMessageInput = document.getElementById('paymentApprovedMessage');
+        const paymentRejectedMessageInput = document.getElementById('paymentRejectedMessage');
         
         // New user form elements
-        const newUserPhone = document.getElementById('newUserPhone');
+        const newUserForm = document.getElementById('newUserForm');
+        const newUserPlanSelect = document.getElementById('newUserPlan');
+        const customDaysGroup = document.getElementById('customDaysGroup');
+        const customPlanDaysInput = document.getElementById('customPlanDays');
         
         // Modals
         const userDetailsModal = document.getElementById('userDetailsModal');
@@ -1363,13 +1121,12 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
         const closePaymentModal = document.getElementById('closePaymentModal');
         const newUserModal = document.getElementById('newUserModal');
         const closeNewUserModal = document.getElementById('closeNewUserModal');
-        const newUserForm = document.getElementById('newUserForm');
         const cancelNewUserBtn = document.getElementById('cancelNewUserBtn');
-        
-        // Image zoom modal
-        const imageZoomModal = document.getElementById('imageZoomModal');
-        const closeZoom = document.getElementById('closeZoom');
-        const zoomedImage = document.getElementById('zoomedImage');
+        const deleteConfirmationModal = document.getElementById('deleteConfirmationModal');
+        const closeDeleteModal = document.getElementById('closeDeleteModal');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const confirmationInput = document.getElementById('confirmationInput');
         
         // Loading overlay
         const loadingOverlay = document.getElementById('loadingOverlay');
@@ -1379,31 +1136,16 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
             await checkAdminAuth();
             await loadSystemConfig();
             await loadAllUsers();
-            await loadPendingPayments();
-            await loadRecentActivities();
+            await loadAllPayments();
             setupEventListeners();
             updateStats();
-            
-            // Set up phone masks
-            if (adminWhatsAppInput) {
-                phoneMask = new IMask(adminWhatsAppInput, {
-                    mask: '(00) 00000-0000',
-                    lazy: false
-                });
-            }
-            
-            if (newUserPhone) {
-                new IMask(newUserPhone, {
-                    mask: '(00) 00000-0000',
-                    lazy: false
-                });
-            }
+            updateAdminInfo();
         }
 
         // Check admin authentication
         async function checkAdminAuth() {
             try {
-                // Check for admin session
+                // Check for admin session in localStorage
                 const adminSession = localStorage.getItem('adminSession');
                 if (!adminSession) {
                     window.location.href = 'admin-login.html';
@@ -1413,19 +1155,37 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                 const sessionData = JSON.parse(adminSession);
                 adminUser = sessionData;
                 
-                // Verify admin credentials in Firestore
-                const adminDoc = await db.collection('admin').doc('credentials').get();
-                if (!adminDoc.exists) {
+                // Verify session age
+                const sessionAge = new Date() - new Date(sessionData.timestamp);
+                const maxAge = 8 * 60 * 60 * 1000; // 8 hours
+                
+                if (sessionAge > maxAge) {
+                    // Session expired
                     localStorage.removeItem('adminSession');
-                    window.location.href = 'admin-login.html';
+                    showNotification('Sessão expirada. Faça login novamente.', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'admin-login.html';
+                    }, 2000);
                     return;
                 }
                 
-                const adminData = adminDoc.data();
-                if (adminData.email !== adminUser.email) {
-                    localStorage.removeItem('adminSession');
-                    window.location.href = 'admin-login.html';
-                    return;
+                // Try to validate with Firebase Auth (optional)
+                try {
+                    const user = auth.currentUser;
+                    if (user && user.email !== adminUser.email) {
+                        // Different user, update session
+                        adminUser = {
+                            uid: user.uid,
+                            email: user.email,
+                            name: user.displayName,
+                            photoURL: user.photoURL,
+                            loggedIn: true,
+                            timestamp: new Date().toISOString()
+                        };
+                        localStorage.setItem('adminSession', JSON.stringify(adminUser));
+                    }
+                } catch (authError) {
+                    console.log('Auth check skipped:', authError);
                 }
                 
             } catch (error) {
@@ -1433,6 +1193,24 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                 localStorage.removeItem('adminSession');
                 window.location.href = 'admin-login.html';
             }
+        }
+
+        // Update admin info display
+        function updateAdminInfo() {
+            if (!adminUser) return;
+            
+            adminInfo.innerHTML = `
+                <div class="flex items-center gap-2">
+                    ${adminUser.photoURL ? 
+                        `<img src="${adminUser.photoURL}" alt="${adminUser.name}" style="width: 24px; height: 24px; border-radius: 50%;">` : 
+                        `<i class="fas fa-user" style="color: #757575;"></i>`
+                    }
+                    <div>
+                        <div style="font-weight: 600;">${adminUser.name || 'Administrador'}</div>
+                        <div style="font-size: 0.8rem; color: #757575;">${adminUser.email}</div>
+                    </div>
+                </div>
+            `;
         }
 
         // Load system configuration
@@ -1449,31 +1227,29 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                         adminWhatsApp: '(11) 99999-9999',
                         monthlyPlanPrice: 99.00,
                         expirationWarningDays: 7,
-                        whatsappMessage: `📱 *NOVO PAGAMENTO PENDENTE* 📱\n\n👤 *Cliente:* {nome}\n🏪 *Loja:* {loja}\n📧 *E-mail:* {email}\n📱 *Telefone:* {telefone}\n💵 *Plano:* Mensal\n💰 *Valor:* R$ {valor}\n📅 *Data:* {data}\n\n⚠️ *Status:* Aguardando confirmação\n\nPor favor, acesse o painel administrativo para verificar o comprovante e liberar o acesso.`
+                        whatsappMessage: `📱 *NOVO PAGAMENTO PENDENTE* 📱\n\n👤 *Cliente:* {nome}\n🏪 *Loja:* {loja}\n📧 *E-mail:* {email}\n📱 *Telefone:* {telefone}\n💵 *Plano:* Mensal\n💰 *Valor:* R$ {valor}\n📅 *Data:* {data}\n\n⚠️ *Status:* Aguardando confirmação\n\nPor favor, acesse o painel administrativo para verificar o comprovante e liberar o acesso.`,
+                        paymentApprovedMessage: `✅ *PAGAMENTO APROVADO!* ✅\n\nOlá {nome}! 👋\n\nSeu pagamento foi *APROVADO* com sucesso! 🎉\n\n🏪 *Loja:* {loja}\n💵 *Plano:* {plano}\n📅 *Válido até:* {validade}\n💰 *Valor:* R$ {valor}\n\nAgora você já pode acessar sua conta e começar a usar todas as funcionalidades do Venda+!\n\n🔗 *Acesse:* https://seusite.com/login\n\nEm caso de dúvidas, estamos à disposição!\n\nAtenciosamente,\nEquipe Venda+ 📱`,
+                        paymentRejectedMessage: `❌ *PAGAMENTO REJEITADO* ❌\n\nOlá {nome},\n\nLamentamos informar que seu pagamento foi *REJEITADO*.\n\n🏪 *Loja:* {loja}\n💵 *Plano:* {plano}\n💰 *Valor:* R$ {valor}\n📅 *Data:* {data}\n\n📋 *Motivo:* Comprovante não identificado ou informações inconsistentes.\n\n🔍 *O que fazer:*\n1. Verifique se o comprovante está legível\n2. Confirme se os dados estão corretos\n3. Envie novamente o comprovante\n\nPara mais informações, entre em contato conosco.\n\nAtenciosamente,\nEquipe Venda+ 📱`,
+                        updatedAt: new Date().toISOString()
                     };
                     await db.collection('systemConfig').doc('paymentSettings').set(systemConfig);
                     updateSettingsForm();
                 }
-                
-                // Load admin credentials
-                const adminDoc = await db.collection('admin').doc('credentials').get();
-                if (adminDoc.exists) {
-                    const adminData = adminDoc.data();
-                    adminEmailInput.value = adminData.email || 'admin@email.com';
-                }
             } catch (error) {
                 console.error('Error loading system config:', error);
-                showNotification('Erro ao carregar configurações.', 'error');
+                showNotification('Configurações carregadas com padrões.', 'info');
             }
         }
 
         // Update settings form
         function updateSettingsForm() {
-            pixKeyInput.value = systemConfig.pixKey || '';
-            adminWhatsAppInput.value = systemConfig.adminWhatsApp || '';
-            monthlyPlanPriceInput.value = systemConfig.monthlyPlanPrice || 99.00;
-            expirationWarningDaysInput.value = systemConfig.expirationWarningDays || 7;
-            whatsappMessageInput.value = systemConfig.whatsappMessage || '';
+            if (pixKeyInput) pixKeyInput.value = systemConfig.pixKey || '';
+            if (adminWhatsAppInput) adminWhatsAppInput.value = systemConfig.adminWhatsApp || '';
+            if (monthlyPlanPriceInput) monthlyPlanPriceInput.value = systemConfig.monthlyPlanPrice || 99.00;
+            if (expirationWarningDaysInput) expirationWarningDaysInput.value = systemConfig.expirationWarningDays || 7;
+            if (whatsappMessageInput) whatsappMessageInput.value = systemConfig.whatsappMessage || '';
+            if (paymentApprovedMessageInput) paymentApprovedMessageInput.value = systemConfig.paymentApprovedMessage || '';
+            if (paymentRejectedMessageInput) paymentRejectedMessageInput.value = systemConfig.paymentRejectedMessage || '';
         }
 
         // Load all users
@@ -1496,7 +1272,7 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                     return new Date(b.createdAt || b.timestamp) - new Date(a.createdAt || a.timestamp);
                 });
                 
-                updateUsersTable();
+                updateUsersList();
                 updateStats();
                 hideLoading();
             } catch (error) {
@@ -1506,10 +1282,10 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
             }
         }
 
-        // Load pending payments
-        async function loadPendingPayments() {
+        // Load all payments
+        async function loadAllPayments() {
             try {
-                const snapshot = await db.collection('payments').where('status', '==', 'pending').get();
+                const snapshot = await db.collection('payments').orderBy('createdAt', 'desc').get();
                 
                 payments = [];
                 snapshot.forEach(doc => {
@@ -1520,11 +1296,6 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                     });
                 });
                 
-                // Sort by creation date (newest first)
-                payments.sort((a, b) => {
-                    return new Date(b.createdAt || b.timestamp) - new Date(a.createdAt || a.timestamp);
-                });
-                
                 updatePaymentsList();
             } catch (error) {
                 console.error('Error loading payments:', error);
@@ -1532,33 +1303,44 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
             }
         }
 
-        // Load recent activities
-        async function loadRecentActivities() {
-            try {
-                const snapshot = await db.collection('userActivities')
-                    .orderBy('timestamp', 'desc')
-                    .limit(50)
-                    .get();
-                
-                activities = [];
-                snapshot.forEach(doc => {
-                    const activityData = doc.data();
-                    activities.push({
-                        id: doc.id,
-                        ...activityData
-                    });
-                });
-                
-                updateActivitiesList();
-            } catch (error) {
-                console.error('Error loading activities:', error);
-                showNotification('Erro ao carregar atividades.', 'error');
-            }
+        // Update stats
+        function updateStats() {
+            const totalUsers = users.length;
+            const activeUsers = users.filter(user => user.status === 'active').length;
+            const pendingUsers = users.filter(user => user.status === 'pending').length;
+            const blockedUsers = users.filter(user => user.status === 'blocked').length;
+            const expiredUsers = users.filter(user => user.status === 'expired').length;
+            const monthlyRevenue = activeUsers * (systemConfig.monthlyPlanPrice || 99);
+            
+            const stats = [
+                { icon: 'users', label: 'Total', value: totalUsers, color: 'total' },
+                { icon: 'check-circle', label: 'Ativos', value: activeUsers, color: 'active' },
+                { icon: 'clock', label: 'Pendentes', value: pendingUsers, color: 'pending' },
+                { icon: 'ban', label: 'Bloqueados', value: blockedUsers, color: 'blocked' },
+                { icon: 'calendar-times', label: 'Expirados', value: expiredUsers, color: 'expired' },
+                { icon: 'money-bill-wave', label: 'Receita', value: `R$ ${monthlyRevenue}`, color: 'revenue' }
+            ];
+            
+            statsGrid.innerHTML = '';
+            stats.forEach(stat => {
+                const statCard = document.createElement('div');
+                statCard.className = 'stat-card';
+                statCard.innerHTML = `
+                    <div class="stat-row">
+                        <div class="stat-icon ${stat.color}">
+                            <i class="fas fa-${stat.icon}"></i>
+                        </div>
+                        <div class="stat-number">${stat.value}</div>
+                    </div>
+                    <div class="stat-label">${stat.label}</div>
+                `;
+                statsGrid.appendChild(statCard);
+            });
         }
 
-        // Update users table
-        function updateUsersTable() {
-            usersTableBody.innerHTML = '';
+        // Update users list - COM CLIQUE NO CARD INTEIRO
+        function updateUsersList() {
+            usersList.innerHTML = '';
             
             if (users.length === 0) {
                 usersEmpty.style.display = 'block';
@@ -1570,7 +1352,6 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
             const searchTerm = searchUsers.value.toLowerCase();
             
             users.forEach(user => {
-                // Apply search filter
                 if (searchTerm && 
                     !user.storeName?.toLowerCase().includes(searchTerm) &&
                     !user.email?.toLowerCase().includes(searchTerm)) {
@@ -1579,64 +1360,100 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                 
                 const status = user.status || 'pending';
                 const expiryDate = user.expiryDate || 'Não definida';
+                const phone = user.phone || 'Não informado';
                 
                 const statusText = getStatusText(status);
                 const statusClass = getStatusClass(status);
                 
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>
-                        <strong>${user.storeName || 'Sem nome'}</strong>
-                        ${user.isActive === false ? '<br><small class="text-red">Inativo</small>' : ''}
-                    </td>
-                    <td>${user.email}</td>
-                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    <td>${expiryDate}</td>
-                    <td>
-                        <div class="user-actions">
-                            <button class="action-btn view-btn" data-id="${user.id}" title="Ver detalhes">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            ${status === 'active' ? `
-                                <button class="action-btn block-btn" data-id="${user.id}" title="Bloquear">
-                                    <i class="fas fa-ban"></i>
-                                </button>
-                            ` : `
-                                <button class="action-btn activate-btn" data-id="${user.id}" title="Ativar">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            `}
+                const userItem = document.createElement('div');
+                userItem.className = 'list-item';
+                userItem.setAttribute('data-user-id', user.id);
+                userItem.style.cursor = 'pointer';
+                userItem.innerHTML = `
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${user.storeName || 'Sem nome'}</div>
+                            <div class="item-subtitle">${user.email}</div>
+                            <div class="item-subtitle">${phone}</div>
                         </div>
-                    </td>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                    
+                    <div class="item-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value">${statusText}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Expira em</span>
+                            <span class="detail-value">${expiryDate}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Plano</span>
+                            <span class="detail-value">${user.plan === 'monthly' ? 'Mensal' : user.plan === 'custom' ? 'Personalizado' : user.plan}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cadastro</span>
+                            <span class="detail-value">${formatDate(user.createdAt)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-btn btn-view" data-id="${user.id}" data-action="view">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        ${status === 'active' ? `
+                            <button class="action-btn btn-block" data-id="${user.id}" data-action="block">
+                                <i class="fas fa-ban"></i> Bloquear
+                            </button>
+                        ` : `
+                            <button class="action-btn btn-activate" data-id="${user.id}" data-action="activate">
+                                <i class="fas fa-check"></i> Ativar
+                            </button>
+                        `}
+                    </div>
                 `;
                 
-                usersTableBody.appendChild(row);
+                usersList.appendChild(userItem);
+                
+                // Add click event to the entire card
+                userItem.addEventListener('click', (e) => {
+                    // Prevent triggering when clicking on buttons
+                    if (e.target.closest('.action-btn')) {
+                        return;
+                    }
+                    const userId = e.currentTarget.getAttribute('data-user-id');
+                    viewUserDetails(userId);
+                });
             });
             
-            // Add event listeners to action buttons
-            usersTableBody.querySelectorAll('.view-btn').forEach(btn => {
+            // Add event listeners to buttons
+            usersList.querySelectorAll('[data-action="view"]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card click
                     const userId = e.currentTarget.getAttribute('data-id');
                     viewUserDetails(userId);
                 });
             });
             
-            usersTableBody.querySelectorAll('.block-btn').forEach(btn => {
+            usersList.querySelectorAll('[data-action="block"]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card click
                     const userId = e.currentTarget.getAttribute('data-id');
                     toggleUserStatus(userId, 'blocked');
                 });
             });
             
-            usersTableBody.querySelectorAll('.activate-btn').forEach(btn => {
+            usersList.querySelectorAll('[data-action="activate"]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card click
                     const userId = e.currentTarget.getAttribute('data-id');
                     toggleUserStatus(userId, 'active');
                 });
             });
         }
 
-        // Update payments list
+        // Update payments list - COM BOTÃO WHATSAPP
         function updatePaymentsList() {
             paymentsList.innerHTML = '';
             
@@ -1650,7 +1467,6 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
             const searchTerm = searchPayments.value.toLowerCase();
             
             payments.forEach(payment => {
-                // Apply search filter
                 if (searchTerm && 
                     !payment.userName?.toLowerCase().includes(searchTerm) &&
                     !payment.storeName?.toLowerCase().includes(searchTerm) &&
@@ -1658,52 +1474,82 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                     return;
                 }
                 
-                const paymentCard = document.createElement('div');
-                paymentCard.className = 'payment-card';
-                paymentCard.innerHTML = `
-                    <div class="payment-header">
-                        <div class="payment-user">${payment.userName || 'Nome não informado'}</div>
-                        <div class="payment-date">${formatDate(payment.createdAt)}</div>
+                const status = payment.status || 'pending';
+                const statusText = getPaymentStatusText(status);
+                const statusClass = getPaymentStatusClass(status);
+                
+                const paymentItem = document.createElement('div');
+                paymentItem.className = 'list-item';
+                paymentItem.setAttribute('data-payment-id', payment.id);
+                paymentItem.style.cursor = 'pointer';
+                paymentItem.innerHTML = `
+                    <div class="item-header">
+                        <div>
+                            <div class="item-title">${payment.userName || 'Nome não informado'}</div>
+                            <div class="item-subtitle">${payment.storeName || 'Sem nome'}</div>
+                            <div class="item-subtitle">${payment.userEmail}</div>
+                        </div>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
                     </div>
                     
-                    <div class="payment-info">
-                        <div class="payment-detail">
-                            <span class="payment-detail-label">Loja</span>
-                            <span class="payment-detail-value">${payment.storeName || 'Sem nome'}</span>
+                    <div class="item-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Plano</span>
+                            <span class="detail-value">${payment.plan === 'monthly' ? 'Mensal' : 'Personalizado'}</span>
                         </div>
-                        <div class="payment-detail">
-                            <span class="payment-detail-label">E-mail</span>
-                            <span class="payment-detail-value">${payment.userEmail}</span>
+                        <div class="detail-item">
+                            <span class="detail-label">Valor</span>
+                            <span class="detail-value">R$ ${payment.amount?.toFixed(2).replace('.', ',') || '0,00'}</span>
                         </div>
-                        <div class="payment-detail">
-                            <span class="payment-detail-label">Plano</span>
-                            <span class="payment-detail-value">${payment.plan === 'monthly' ? 'Mensal' : payment.plan}</span>
+                        <div class="detail-item">
+                            <span class="detail-label">Data</span>
+                            <span class="detail-value">${formatDate(payment.createdAt)}</span>
                         </div>
-                        <div class="payment-detail">
-                            <span class="payment-detail-label">Valor</span>
-                            <span class="payment-detail-value">R$ ${payment.amount?.toFixed(2).replace('.', ',') || '0,00'}</span>
+                        <div class="detail-item">
+                            <span class="detail-label">Telefone</span>
+                            <span class="detail-value">${payment.userPhone || 'Não informado'}</span>
                         </div>
                     </div>
                     
-                    <div class="payment-actions">
-                        <button class="btn btn-success btn-sm" data-id="${payment.id}" data-action="approve">
-                            <i class="fas fa-check"></i> Aprovar
-                        </button>
-                        <button class="btn btn-danger btn-sm" data-id="${payment.id}" data-action="reject">
-                            <i class="fas fa-times"></i> Rejeitar
-                        </button>
-                        <button class="btn btn-primary btn-sm" data-id="${payment.id}" data-action="view">
+                    <div class="action-buttons">
+                        <button class="action-btn btn-view" data-id="${payment.id}" data-action="view">
                             <i class="fas fa-eye"></i> Ver
                         </button>
+                        ${status === 'pending' ? `
+                            <button class="action-btn btn-approve" data-id="${payment.id}" data-action="approve">
+                                <i class="fas fa-check"></i> Aprovar
+                            </button>
+                            <button class="action-btn btn-reject" data-id="${payment.id}" data-action="reject">
+                                <i class="fas fa-times"></i> Rejeitar
+                            </button>
+                        ` : `
+                            <button class="action-btn btn-whatsapp" data-id="${payment.id}" data-action="whatsapp">
+                                <i class="fas fa-whatsapp"></i> WhatsApp
+                            </button>
+                            <button class="action-btn btn-delete" data-id="${payment.id}" data-action="delete">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        `}
                     </div>
                 `;
                 
-                paymentsList.appendChild(paymentCard);
+                paymentsList.appendChild(paymentItem);
+                
+                // Add click event to the entire card
+                paymentItem.addEventListener('click', (e) => {
+                    // Prevent triggering when clicking on buttons
+                    if (e.target.closest('.action-btn')) {
+                        return;
+                    }
+                    const paymentId = e.currentTarget.getAttribute('data-payment-id');
+                    viewPaymentDetails(paymentId);
+                });
             });
             
-            // Add event listeners to payment buttons
+            // Add event listeners to buttons
             paymentsList.querySelectorAll('[data-action="view"]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card click
                     const paymentId = e.currentTarget.getAttribute('data-id');
                     viewPaymentDetails(paymentId);
                 });
@@ -1711,174 +1557,73 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
             
             paymentsList.querySelectorAll('[data-action="approve"]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card click
                     const paymentId = e.currentTarget.getAttribute('data-id');
-                    processPayment(paymentId, 'approved');
+                    approvePayment(paymentId);
                 });
             });
             
             paymentsList.querySelectorAll('[data-action="reject"]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card click
                     const paymentId = e.currentTarget.getAttribute('data-id');
-                    processPayment(paymentId, 'rejected');
+                    rejectPayment(paymentId);
                 });
             });
-        }
-
-        // Update activities list
-        function updateActivitiesList() {
-            activitiesList.innerHTML = '';
             
-            if (activities.length === 0) {
-                activitiesEmpty.style.display = 'block';
-                return;
-            }
-            
-            activitiesEmpty.style.display = 'none';
-            
-            const searchTerm = searchActivities.value.toLowerCase();
-            
-            activities.forEach(activity => {
-                // Apply search filter
-                if (searchTerm && 
-                    !activity.userEmail?.toLowerCase().includes(searchTerm) &&
-                    !activity.storeName?.toLowerCase().includes(searchTerm) &&
-                    !activity.action?.toLowerCase().includes(searchTerm)) {
-                    return;
-                }
-                
-                // Determine activity status
-                const isActive = activity.action !== 'logout' && 
-                                activity.action !== 'blocked' &&
-                                new Date(activity.timestamp) > new Date(Date.now() - 30 * 60 * 1000); // Last 30 minutes
-                
-                const activityCard = document.createElement('div');
-                activityCard.className = 'activity-card';
-                activityCard.innerHTML = `
-                    <div class="activity-header">
-                        <div class="activity-user">${activity.storeName || activity.userEmail}</div>
-                        <div class="activity-time">${formatDateTime(activity.timestamp)}</div>
-                    </div>
-                    
-                    <div class="activity-details">
-                        <div class="activity-detail">
-                            <span class="activity-detail-label">Ação</span>
-                            <span class="activity-detail-value">${getActivityText(activity.action)}</span>
-                        </div>
-                        <div class="activity-detail">
-                            <span class="activity-detail-label">Usuário</span>
-                            <span class="activity-detail-value">${activity.userEmail}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-2">
-                        <span class="activity-status ${isActive ? 'status-active' : 'status-inactive'}">
-                            ${isActive ? 'Ativo agora' : 'Inativo'}
-                        </span>
-                    </div>
-                `;
-                
-                activitiesList.appendChild(activityCard);
+            paymentsList.querySelectorAll('[data-action="delete"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card click
+                    const paymentId = e.currentTarget.getAttribute('data-id');
+                    showDeleteConfirmation(paymentId);
+                });
             });
-        }
-
-        // Get activity text
-        function getActivityText(action) {
-            const actions = {
-                'login': 'Login no sistema',
-                'logout': 'Logout do sistema',
-                'interaction': 'Interação com o sistema',
-                'view_dashboard': 'Visualizou dashboard',
-                'view_orders': 'Visualizou pedidos',
-                'view_products': 'Visualizou produtos',
-                'view_finance': 'Visualizou financeiro',
-                'view_config': 'Visualizou configurações',
-                'navigate_dashboard': 'Navegou para dashboard',
-                'navigate_orders': 'Navegou para pedidos',
-                'navigate_products': 'Navegou para produtos',
-                'navigate_finance': 'Navegou para financeiro',
-                'navigate_config': 'Navegou para configurações',
-                'blocked': 'Conta bloqueada',
-                'activated': 'Conta ativada',
-                'renewal_requested': 'Solicitou renovação'
-            };
             
-            return actions[action] || action;
-        }
-
-        // Update statistics
-        function updateStats() {
-            const totalUsers = users.length;
-            const activeUsers = users.filter(user => user.status === 'active').length;
-            const pendingUsers = users.filter(user => user.status === 'pending').length;
-            const blockedUsers = users.filter(user => user.status === 'blocked').length;
-            const expiredUsers = users.filter(user => user.status === 'expired').length;
-            
-            // Calculate monthly revenue (from approved payments this month)
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-            let monthlyRevenue = 0;
-            
-            // We would need to load approved payments to calculate revenue
-            // For now, we'll estimate based on active users
-            monthlyRevenue = activeUsers * (systemConfig.monthlyPlanPrice || 99);
-            
-            totalUsersElement.textContent = totalUsers;
-            activeUsersElement.textContent = activeUsers;
-            pendingUsersElement.textContent = pendingUsers;
-            blockedUsersElement.textContent = blockedUsers;
-            expiredUsersElement.textContent = expiredUsers;
-            monthlyRevenueElement.textContent = `R$ ${monthlyRevenue.toFixed(0)}`;
+            paymentsList.querySelectorAll('[data-action="whatsapp"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card click
+                    const paymentId = e.currentTarget.getAttribute('data-id');
+                    sendWhatsAppMessage(paymentId);
+                });
+            });
         }
 
         // Setup event listeners
         function setupEventListeners() {
-            // Refresh button
             refreshBtn.addEventListener('click', async () => {
                 await loadAllUsers();
-                await loadPendingPayments();
-                await loadRecentActivities();
+                await loadAllPayments();
                 showNotification('Dados atualizados!', 'success');
             });
             
-            // New user button
+            logoutBtn.addEventListener('click', logout);
+            
             newUserBtn.addEventListener('click', () => {
                 newUserModal.style.display = 'flex';
+                setTimeout(() => {
+                    document.getElementById('newStoreName')?.focus();
+                }, 300);
             });
             
-            // Back to login button
-            backToLoginBtn.addEventListener('click', () => {
-                localStorage.removeItem('adminSession');
-                window.location.href = 'admin-login.html';
-            });
-            
-            // Tabs
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabId = tab.getAttribute('data-tab');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.getAttribute('data-tab');
                     switchTab(tabId);
                 });
             });
             
-            // Search inputs
             searchUsers.addEventListener('input', () => {
-                updateUsersTable();
+                updateUsersList();
             });
             
             searchPayments.addEventListener('input', () => {
                 updatePaymentsList();
             });
             
-            searchActivities.addEventListener('input', () => {
-                updateActivitiesList();
-            });
-            
-            // Settings form
             paymentSettingsForm.addEventListener('submit', saveSystemConfig);
             
-            // Update admin credentials
-            updateAdminBtn.addEventListener('click', updateAdminCredentials);
+            clearCacheBtn.addEventListener('click', clearCache);
             
-            // Close modals
             closeUserModal.addEventListener('click', () => {
                 userDetailsModal.style.display = 'none';
             });
@@ -1890,47 +1635,76 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
             closeNewUserModal.addEventListener('click', () => {
                 newUserModal.style.display = 'none';
                 newUserForm.reset();
+                customDaysGroup.style.display = 'none';
             });
             
             cancelNewUserBtn.addEventListener('click', () => {
                 newUserModal.style.display = 'none';
                 newUserForm.reset();
+                customDaysGroup.style.display = 'none';
             });
             
-            // New user form
+            closeDeleteModal.addEventListener('click', () => {
+                deleteConfirmationModal.style.display = 'none';
+                resetDeleteConfirmation();
+            });
+            
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteConfirmationModal.style.display = 'none';
+                resetDeleteConfirmation();
+            });
+            
             newUserForm.addEventListener('submit', createNewUser);
             
-            // Image zoom modal
-            closeZoom.addEventListener('click', () => {
-                imageZoomModal.style.display = 'none';
+            newUserPlanSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customDaysGroup.style.display = 'block';
+                } else {
+                    customDaysGroup.style.display = 'none';
+                }
             });
             
-            // Close modals when clicking outside
             window.addEventListener('click', (e) => {
-                if (e.target === userDetailsModal) {
-                    userDetailsModal.style.display = 'none';
-                }
-                if (e.target === paymentDetailsModal) {
-                    paymentDetailsModal.style.display = 'none';
-                }
+                if (e.target === userDetailsModal) userDetailsModal.style.display = 'none';
+                if (e.target === paymentDetailsModal) paymentDetailsModal.style.display = 'none';
                 if (e.target === newUserModal) {
                     newUserModal.style.display = 'none';
                     newUserForm.reset();
+                    customDaysGroup.style.display = 'none';
                 }
-                if (e.target === imageZoomModal) {
-                    imageZoomModal.style.display = 'none';
+                if (e.target === deleteConfirmationModal) {
+                    deleteConfirmationModal.style.display = 'none';
+                    resetDeleteConfirmation();
                 }
             });
+            
+            confirmationInput.addEventListener('input', function() {
+                confirmDeleteBtn.disabled = this.value !== 'CONFIRMAR';
+            });
+            
+            confirmDeleteBtn.addEventListener('click', deletePayment);
+            
+            if (adminWhatsAppInput) {
+                new IMask(adminWhatsAppInput, {
+                    mask: '(00) 00000-0000',
+                    lazy: false
+                });
+            }
+        }
+
+        // Reset delete confirmation modal
+        function resetDeleteConfirmation() {
+            confirmationInput.value = '';
+            confirmDeleteBtn.disabled = true;
+            currentPaymentToDelete = null;
         }
 
         // Switch tab
         function switchTab(tabId) {
-            currentTab = tabId;
-            
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.getAttribute('data-tab') === tabId) {
-                    tab.classList.add('active');
+            tabBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-tab') === tabId) {
+                    btn.classList.add('active');
                 }
             });
             
@@ -1943,135 +1717,92 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
         }
 
         // View user details
-        function viewUserDetails(userId) {
-            selectedUser = users.find(user => user.id === userId);
+        async function viewUserDetails(userId) {
+            const user = users.find(user => user.id === userId);
+            if (!user) return;
             
-            if (!selectedUser) return;
-            
-            const status = selectedUser.status || 'pending';
-            const plan = selectedUser.plan || 'monthly';
-            const expiryDate = selectedUser.expiryDate || 'Não definida';
-            const createdAt = selectedUser.createdAt ? formatDateTime(selectedUser.createdAt) : 'Não informada';
-            const lastLogin = selectedUser.lastLogin ? formatDateTime(selectedUser.lastLogin) : 'Nunca logou';
-            const lastActivity = selectedUser.lastActivity ? formatDateTime(selectedUser.lastActivity) : 'Sem atividade';
-            const phone = selectedUser.phone || 'Não informado';
+            const status = user.status || 'pending';
+            const expiryDate = user.expiryDate || 'Não definida';
+            const createdAt = user.createdAt ? formatDateTime(user.createdAt) : 'Não informada';
+            const lastLogin = user.lastLogin ? formatDateTime(user.lastLogin) : 'Nunca logou';
+            const phone = user.phone || 'Não informado';
             
             const statusText = getStatusText(status);
             const statusClass = getStatusClass(status);
             
-            // Determine if user is active now (last activity within 30 minutes)
-            const isActiveNow = selectedUser.lastActivity && 
-                               new Date(selectedUser.lastActivity) > new Date(Date.now() - 30 * 60 * 1000);
-            
             const content = `
-                <div class="mb-3">
-                    <h3 class="mb-2">Informações da Loja</h3>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Nome da Loja:</strong>
-                        <span>${selectedUser.storeName || 'Sem nome'}</span>
+                <div class="settings-section" style="border: none; padding: 0; box-shadow: none;">
+                    <div class="form-group">
+                        <label class="form-label">Nome da Loja</label>
+                        <div class="form-input" style="background: #f8f9fa;">${user.storeName || 'Sem nome'}</div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>E-mail:</strong>
-                        <span>${selectedUser.email}</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">E-mail</label>
+                        <div class="form-input" style="background: #f8f9fa;">${user.email}</div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Telefone:</strong>
-                        <span>${phone}</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        <div class="form-input" style="background: #f8f9fa;">${phone}</div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Status:</strong>
-                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <div class="form-input" style="background: #f8f9fa;">
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Status Atual:</strong>
-                        <span class="status-badge ${isActiveNow ? 'status-active' : 'status-inactive'}">
-                            ${isActiveNow ? 'Ativo agora' : 'Inativo'}
-                        </span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Data de Cadastro</label>
+                        <div class="form-input" style="background: #f8f9fa;">${createdAt}</div>
                     </div>
-                </div>
-                
-                <div class="mb-3">
-                    <h3 class="mb-2">Datas</h3>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Data de Cadastro:</strong>
-                        <span>${createdAt}</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Último Login</label>
+                        <div class="form-input" style="background: #f8f9fa;">${lastLogin}</div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Último Login:</strong>
-                        <span>${lastLogin}</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Expira em</label>
+                        <div class="form-input" style="background: #f8f9fa;">${expiryDate}</div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Última Atividade:</strong>
-                        <span>${lastActivity}</span>
-                    </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Expira em:</strong>
-                        <span>${expiryDate}</span>
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <h3 class="mb-2">Configuração da Loja</h3>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Loja Configurada:</strong>
-                        <span>${selectedUser.configCompleted ? '✅ Sim' : '❌ Não'}</span>
-                    </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Ativo:</strong>
-                        <span>${selectedUser.isActive !== false ? '✅ Sim' : '❌ Não'}</span>
-                    </div>
-                </div>
-                
-                <div class="d-flex gap-2 mt-3">
-                    <button class="btn btn-primary flex-1" id="editUserBtn" data-id="${selectedUser.id}">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    ${status === 'active' ? `
-                        <button class="btn btn-danger flex-1" id="blockUserBtn" data-id="${selectedUser.id}">
-                            <i class="fas fa-ban"></i> Bloquear
+                    
+                    <div class="flex gap-2 mt-2">
+                        <button type="button" class="submit-btn" style="background: #757575;" id="closeDetailsBtn">
+                            Fechar
                         </button>
-                    ` : `
-                        <button class="btn btn-success flex-1" id="activateUserBtn" data-id="${selectedUser.id}">
-                            <i class="fas fa-check"></i> Ativar
-                        </button>
-                    `}
+                        ${status === 'active' ? `
+                            <button type="button" class="submit-btn" style="background: var(--danger-color);" id="blockUserBtn">
+                                <i class="fas fa-ban"></i> Bloquear
+                            </button>
+                        ` : `
+                            <button type="button" class="submit-btn" style="background: var(--success-color);" id="activateUserBtn">
+                                <i class="fas fa-check"></i> Ativar
+                            </button>
+                        `}
+                    </div>
                 </div>
             `;
             
             document.getElementById('userDetailsContent').innerHTML = content;
             
-            document.getElementById('editUserBtn')?.addEventListener('click', () => {
+            document.getElementById('closeDetailsBtn')?.addEventListener('click', () => {
                 userDetailsModal.style.display = 'none';
-                editUser(selectedUser.id);
             });
             
             document.getElementById('blockUserBtn')?.addEventListener('click', () => {
                 userDetailsModal.style.display = 'none';
-                toggleUserStatus(selectedUser.id, 'blocked');
+                toggleUserStatus(userId, 'blocked');
             });
             
             document.getElementById('activateUserBtn')?.addEventListener('click', () => {
                 userDetailsModal.style.display = 'none';
-                toggleUserStatus(selectedUser.id, 'active');
+                toggleUserStatus(userId, 'active');
             });
             
             userDetailsModal.style.display = 'flex';
-        }
-
-        // Edit user
-        function editUser(userId) {
-            selectedUser = users.find(user => user.id === userId);
-            
-            if (!selectedUser) return;
-            
-            // For now, we'll just show a confirmation dialog for status change
-            // In a more complete implementation, this would open an edit modal
-            const newStatus = selectedUser.status === 'active' ? 'blocked' : 'active';
-            const action = newStatus === 'active' ? 'ativar' : 'bloquear';
-            
-            if (confirm(`Deseja ${action} o usuário "${selectedUser.storeName}"?`)) {
-                toggleUserStatus(userId, newStatus);
-            }
         }
 
         // Toggle user status
@@ -2082,49 +1813,29 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                 
                 const statusText = getStatusText(newStatus);
                 
-                // Calculate new expiry date if activating
                 let updateData = { 
                     status: newStatus,
                     updatedAt: new Date().toISOString()
                 };
                 
                 if (newStatus === 'active') {
-                    // Set expiry date to 30 days from now
                     const expiryDate = new Date();
                     expiryDate.setDate(expiryDate.getDate() + 30);
                     updateData.expiryDate = expiryDate.toISOString().split('T')[0];
                     updateData.isActive = true;
                     
-                    // Send activation WhatsApp
-                    await sendStatusWhatsApp(user, 'activated');
-                    
                 } else if (newStatus === 'blocked') {
                     updateData.isActive = false;
-                    
-                    // Send block WhatsApp
-                    await sendStatusWhatsApp(user, 'blocked');
-                    
-                    // Record activity
-                    await db.collection('userActivities').add({
-                        userId: user.id,
-                        action: 'blocked',
-                        timestamp: new Date().toISOString(),
-                        userEmail: user.email,
-                        storeName: user.storeName,
-                        adminAction: true,
-                        adminEmail: adminUser.email
-                    });
                 }
                 
                 await db.collection('users').doc(userId).update(updateData);
                 
-                // Update local state
                 const userIndex = users.findIndex(u => u.id === userId);
                 if (userIndex !== -1) {
                     users[userIndex] = { ...users[userIndex], ...updateData };
                 }
                 
-                updateUsersTable();
+                updateUsersList();
                 updateStats();
                 showNotification(`Usuário ${statusText.toLowerCase()}!`, 'success');
                 
@@ -2134,292 +1845,355 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
             }
         }
 
-        // Send status WhatsApp to user
-        async function sendStatusWhatsApp(user, action) {
-            try {
-                if (!user.phone) return;
-                
-                const userPhone = user.phone.replace(/\D/g, '');
-                let message = '';
-                
-                if (action === 'activated') {
-                    message = `🎉 *CONTA ATIVADA* 🎉\n\n`;
-                    message += `Olá ${user.storeName}!\n\n`;
-                    message += `Sua conta no *Venda+* foi ativada com sucesso! ✅\n\n`;
-                    message += `Agora você já pode acessar o sistema e começar a usar todas as funcionalidades.\n\n`;
-                    message += `📧 *E-mail:* ${user.email}\n`;
-                    message += `🏪 *Loja:* ${user.storeName}\n`;
-                    message += `📅 *Data de ativação:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
-                    message += `Acesse o sistema através do link de login.\n\n`;
-                    message += `Seja bem-vindo(a)! 🚀`;
-                } else if (action === 'blocked') {
-                    message = `🚫 *CONTA BLOQUEADA* 🚫\n\n`;
-                    message += `Olá ${user.storeName},\n\n`;
-                    message += `Sua conta no *Venda+* foi bloqueada pelo administrador.\n\n`;
-                    message += `📧 *E-mail:* ${user.email}\n`;
-                    message += `🏪 *Loja:* ${user.storeName}\n`;
-                    message += `📅 *Data do bloqueio:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
-                    message += `Entre em contato com o suporte para mais informações.\n\n`;
-                    message += `Atenciosamente,\nEquipe Venda+`;
-                }
-                
-                if (message) {
-                    const encodedMessage = encodeURIComponent(message);
-                    const whatsappUrl = `https://wa.me/${userPhone}?text=${encodedMessage}`;
-                    
-                    // Open WhatsApp in new tab
-                    window.open(whatsappUrl, '_blank');
-                }
-                
-            } catch (error) {
-                console.error('Error sending status WhatsApp:', error);
-            }
-        }
-
-        // View payment details
+        // View payment details - COM BOTÃO WHATSAPP
         function viewPaymentDetails(paymentId) {
-            selectedPayment = payments.find(payment => payment.id === paymentId);
+            const payment = payments.find(p => p.id === paymentId);
+            if (!payment) return;
             
-            if (!selectedPayment) return;
-            
-            let receiptHTML = '';
-            if (selectedPayment.receiptBase64) {
-                if (selectedPayment.receiptType === 'pdf') {
-                    receiptHTML = `
-                        <div class="receipt-preview">
-                            <div class="pdf-preview" onclick="downloadReceipt('${paymentId}')">
-                                <i class="fas fa-file-pdf"></i>
-                                <div class="mt-1">${selectedPayment.receiptFileName || 'comprovante.pdf'}</div>
-                                <div class="text-center mt-1">
-                                    <small>Clique para baixar</small>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    receiptHTML = `
-                        <div class="receipt-preview">
-                            <img src="${selectedPayment.receiptBase64}" 
-                                 class="receipt-image" 
-                                 alt="Comprovante"
-                                 onclick="openImageZoom('${selectedPayment.receiptBase64}', 'Comprovante PIX')">
-                            <div class="text-center">
-                                <small>Clique para ampliar</small>
-                            </div>
-                        </div>
-                    `;
-                }
-            } else {
-                receiptHTML = '<p>Comprovante não disponível.</p>';
-            }
+            const statusText = getPaymentStatusText(payment.status);
+            const statusClass = getPaymentStatusClass(payment.status);
             
             const content = `
-                <div class="mb-3">
-                    <h3 class="mb-2">Informações do Pagamento</h3>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>ID do Pagamento:</strong>
-                        <span>#${selectedPayment.id.substring(0, 8)}</span>
+                <div class="settings-section" style="border: none; padding: 0; box-shadow: none;">
+                    <div class="form-group">
+                        <label class="form-label">Cliente</label>
+                        <div class="form-input" style="background: #f8f9fa;">${payment.userName || 'Nome não informado'}</div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Data:</strong>
-                        <span>${formatDateTime(selectedPayment.createdAt)}</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Loja</label>
+                        <div class="form-input" style="background: #f8f9fa;">${payment.storeName || 'Sem nome'}</div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Status:</strong>
-                        <span class="status-badge ${getStatusClass(selectedPayment.status)}">
-                            ${getStatusText(selectedPayment.status)}
-                        </span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">E-mail</label>
+                        <div class="form-input" style="background: #f8f9fa;">${payment.userEmail}</div>
                     </div>
-                </div>
-                
-                <div class="mb-3">
-                    <h3 class="mb-2">Informações do Cliente</h3>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Nome:</strong>
-                        <span>${selectedPayment.userName || 'Não informado'}</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        <div class="form-input" style="background: #f8f9fa;">${payment.userPhone || 'Não informado'}</div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Loja:</strong>
-                        <span>${selectedPayment.storeName || 'Sem nome'}</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <div class="form-input" style="background: #f8f9fa;">
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>E-mail:</strong>
-                        <span>${selectedPayment.userEmail}</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Plano</label>
+                        <div class="form-input" style="background: #f8f9fa;">${payment.plan === 'monthly' ? 'Mensal' : 'Personalizado'}</div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Telefone:</strong>
-                        <span>${selectedPayment.userPhone || 'Não informado'}</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Valor</label>
+                        <div class="form-input" style="background: #f8f9fa;">R$ ${payment.amount?.toFixed(2).replace('.', ',') || '0,00'}</div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Plano:</strong>
-                        <span>${selectedPayment.plan === 'monthly' ? 'Mensal' : selectedPayment.plan}</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Data</label>
+                        <div class="form-input" style="background: #f8f9fa;">${formatDateTime(payment.createdAt)}</div>
                     </div>
-                    <div class="d-flex justify-between mb-1">
-                        <strong>Valor:</strong>
-                        <span class="payment-detail-value">R$ ${selectedPayment.amount?.toFixed(2).replace('.', ',') || '0,00'}</span>
+                    
+                    ${payment.approvedAt ? `
+                        <div class="form-group">
+                            <label class="form-label">Aprovado em</label>
+                            <div class="form-input" style="background: #f8f9fa;">${formatDateTime(payment.approvedAt)}</div>
+                        </div>
+                    ` : ''}
+                    
+                    ${payment.rejectedAt ? `
+                        <div class="form-group">
+                            <label class="form-label">Rejeitado em</label>
+                            <div class="form-input" style="background: #f8f9fa;">${formatDateTime(payment.rejectedAt)}</div>
+                        </div>
+                    ` : ''}
+                    
+                    ${payment.receiptBase64 ? `
+                        <div class="form-group">
+                            <label class="form-label">Comprovante</label>
+                            <div style="text-align: center; margin-top: 8px;">
+                                ${payment.receiptType === 'pdf' ? 
+                                    `<button class="action-btn btn-view" onclick="downloadReceipt('${payment.id}')" style="width: 100%;">
+                                        <i class="fas fa-file-pdf"></i> Baixar Comprovante PDF
+                                    </button>` :
+                                    `<img src="${payment.receiptBase64}" alt="Comprovante" style="max-width: 100%; max-height: 200px; border-radius: 8px; cursor: pointer;" onclick="openImageZoom('${payment.receiptBase64}')">`
+                                }
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="flex gap-2 mt-2">
+                        <button type="button" class="submit-btn" style="background: #757575;" id="closePaymentBtn">
+                            Fechar
+                        </button>
+                        ${payment.status === 'pending' ? `
+                            <button type="button" class="submit-btn" style="background: var(--success-color);" id="approvePaymentBtn">
+                                <i class="fas fa-check"></i> Aprovar
+                            </button>
+                            <button type="button" class="submit-btn" style="background: var(--danger-color);" id="rejectPaymentBtn">
+                                <i class="fas fa-times"></i> Rejeitar
+                            </button>
+                        ` : `
+                            <button type="button" class="submit-btn" style="background: #25D366;" id="sendWhatsAppBtn">
+                                <i class="fas fa-whatsapp"></i> Enviar WhatsApp
+                            </button>
+                            <button type="button" class="submit-btn" style="background: var(--danger-color);" id="deletePaymentBtn">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        `}
                     </div>
-                </div>
-                
-                <div class="mb-3">
-                    <h3 class="mb-2">Comprovante</h3>
-                    ${receiptHTML}
-                </div>
-                
-                <div class="d-flex gap-2 mt-3">
-                    <button class="btn btn-success flex-1" id="approvePaymentBtn" data-id="${selectedPayment.id}">
-                        <i class="fas fa-check"></i> Aprovar
-                    </button>
-                    <button class="btn btn-danger flex-1" id="rejectPaymentBtn" data-id="${selectedPayment.id}">
-                        <i class="fas fa-times"></i> Rejeitar
-                    </button>
                 </div>
             `;
             
             document.getElementById('paymentDetailsContent').innerHTML = content;
             
-            document.getElementById('approvePaymentBtn').addEventListener('click', () => {
+            document.getElementById('closePaymentBtn')?.addEventListener('click', () => {
                 paymentDetailsModal.style.display = 'none';
-                processPayment(selectedPayment.id, 'approved');
             });
             
-            document.getElementById('rejectPaymentBtn').addEventListener('click', () => {
+            document.getElementById('approvePaymentBtn')?.addEventListener('click', async () => {
                 paymentDetailsModal.style.display = 'none';
-                processPayment(selectedPayment.id, 'rejected');
+                await approvePayment(paymentId);
             });
             
-            // Make downloadReceipt function available
-            window.downloadReceipt = function(paymentId) {
-                const payment = payments.find(p => p.id === paymentId);
-                if (payment && payment.receiptBase64) {
+            document.getElementById('rejectPaymentBtn')?.addEventListener('click', async () => {
+                paymentDetailsModal.style.display = 'none';
+                await rejectPayment(paymentId);
+            });
+            
+            document.getElementById('sendWhatsAppBtn')?.addEventListener('click', async () => {
+                paymentDetailsModal.style.display = 'none';
+                await sendWhatsAppMessage(paymentId);
+            });
+            
+            document.getElementById('deletePaymentBtn')?.addEventListener('click', async () => {
+                paymentDetailsModal.style.display = 'none';
+                showDeleteConfirmation(paymentId);
+            });
+            
+            window.downloadReceipt = function(id) {
+                const p = payments.find(p => p.id === id);
+                if (p && p.receiptBase64) {
                     const link = document.createElement('a');
-                    link.href = payment.receiptBase64;
-                    link.download = payment.receiptFileName || 'comprovante.pdf';
+                    link.href = p.receiptBase64;
+                    link.download = p.receiptFileName || 'comprovante.pdf';
                     link.click();
                 }
+            };
+            
+            window.openImageZoom = function(imageSrc) {
+                window.open(imageSrc, '_blank');
             };
             
             paymentDetailsModal.style.display = 'flex';
         }
 
-        // Process payment (approve or reject)
-        async function processPayment(paymentId, action) {
+        // Approve payment
+        async function approvePayment(paymentId) {
             try {
                 const payment = payments.find(p => p.id === paymentId);
                 if (!payment) return;
                 
                 const userId = payment.userId;
-                const user = users.find(u => u.id === userId);
                 
-                if (action === 'approved') {
-                    // Update payment status
-                    await db.collection('payments').doc(paymentId).update({
-                        status: 'approved',
-                        approvedAt: new Date().toISOString(),
-                        approvedBy: adminUser.email
-                    });
-                    
-                    // Update user status and set expiry date
-                    const expiryDate = new Date();
-                    expiryDate.setDate(expiryDate.getDate() + 30);
-                    
-                    await db.collection('users').doc(userId).update({
-                        status: 'active',
-                        isActive: true,
-                        expiryDate: expiryDate.toISOString().split('T')[0],
-                        plan: payment.plan || 'monthly',
-                        paymentConfirmed: true,
-                        lastPaymentDate: new Date().toISOString()
-                    });
-                    
-                    // Create or update user's store configuration
-                    await db.collection('stores').doc(userId).set({
-                        businessName: user?.storeName || 'Minha Loja',
-                        logoBase64: '',
-                        whatsappNumber: '',
-                        pixKey: systemConfig.pixKey || '',
-                        contactPhone: '',
-                        productsTitle: 'Nossos Produtos',
-                        ownerId: userId,
-                        createdAt: new Date().toISOString(),
-                        theme: 'black'
-                    }, { merge: true });
-                    
-                    // Send approval WhatsApp to user
-                    await sendPaymentConfirmationWhatsApp(user, payment, 'approved');
-                    
-                    showNotification('Pagamento aprovado! Usuário ativado.', 'success');
-                    
-                } else if (action === 'rejected') {
-                    // Update payment status
-                    await db.collection('payments').doc(paymentId).update({
-                        status: 'rejected',
-                        rejectedAt: new Date().toISOString(),
-                        rejectedBy: adminUser.email
-                    });
-                    
-                    // Update user status
-                    await db.collection('users').doc(userId).update({
-                        status: 'pending',
-                        paymentConfirmed: false
-                    });
-                    
-                    // Send rejection WhatsApp to user
-                    await sendPaymentConfirmationWhatsApp(user, payment, 'rejected');
-                    
-                    showNotification('Pagamento rejeitado!', 'warning');
+                // Update payment status
+                await db.collection('payments').doc(paymentId).update({
+                    status: 'approved',
+                    approvedAt: new Date().toISOString(),
+                    approvedBy: adminUser.email
+                });
+                
+                // Calculate expiry date based on plan
+                const expiryDate = new Date();
+                let planDays = 30;
+                
+                if (payment.plan === 'custom' && payment.planDays) {
+                    planDays = parseInt(payment.planDays) || 30;
                 }
+                
+                expiryDate.setDate(expiryDate.getDate() + planDays);
+                const expiryDateStr = expiryDate.toISOString().split('T')[0];
+                
+                // Update user status and set expiry date
+                await db.collection('users').doc(userId).update({
+                    status: 'active',
+                    isActive: true,
+                    expiryDate: expiryDateStr,
+                    plan: payment.plan || 'monthly',
+                    planDays: payment.planDays || 30,
+                    paymentConfirmed: true,
+                    lastPaymentDate: new Date().toISOString()
+                });
+                
+                showNotification('Pagamento aprovado! Usuário ativado.', 'success');
                 
                 // Reload data
                 await loadAllUsers();
-                await loadPendingPayments();
+                await loadAllPayments();
                 
             } catch (error) {
-                console.error('Error processing payment:', error);
-                showNotification('Erro ao processar pagamento.', 'error');
+                console.error('Error approving payment:', error);
+                showNotification('Erro ao aprovar pagamento.', 'error');
             }
         }
 
-        // Send payment confirmation WhatsApp to user
-        async function sendPaymentConfirmationWhatsApp(user, payment, status) {
+        // Reject payment
+        async function rejectPayment(paymentId) {
             try {
-                if (!user?.phone) return;
+                await db.collection('payments').doc(paymentId).update({
+                    status: 'rejected',
+                    rejectedAt: new Date().toISOString(),
+                    rejectedBy: adminUser.email
+                });
                 
-                const userPhone = user.phone.replace(/\D/g, '');
-                let message = '';
+                showNotification('Pagamento rejeitado!', 'warning');
                 
-                if (status === 'approved') {
-                    message = `✅ *PAGAMENTO APROVADO* ✅\n\n`;
-                    message += `Olá ${user.storeName}!\n\n`;
-                    message += `Seu pagamento foi aprovado e sua conta está ativa! 🎉\n\n`;
-                    message += `📧 *E-mail:* ${user.email}\n`;
-                    message += `🏪 *Loja:* ${user.storeName}\n`;
-                    message += `💰 *Valor:* R$ ${payment.amount?.toFixed(2) || '0,00'}\n`;
-                    message += `📅 *Data de ativação:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
-                    message += `Agora você já pode acessar o sistema e começar a usar todas as funcionalidades.\n\n`;
-                    message += `Acesse através do link de login.\n\n`;
-                    message += `Seja bem-vindo(a) ao Venda+! 🚀`;
-                } else if (status === 'rejected') {
-                    message = `❌ *PAGAMENTO REJEITADO* ❌\n\n`;
-                    message += `Olá ${user.storeName},\n\n`;
-                    message += `Seu pagamento foi rejeitado. 😔\n\n`;
-                    message += `📧 *E-mail:* ${user.email}\n`;
-                    message += `🏪 *Loja:* ${user.storeName}\n`;
-                    message += `💰 *Valor:* R$ ${payment.amount?.toFixed(2) || '0,00'}\n`;
-                    message += `📅 *Data:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
-                    message += `Por favor, entre em contato com o suporte para mais informações ou realize um novo pagamento.\n\n`;
-                    message += `Atenciosamente,\nEquipe Venda+`;
-                }
-                
-                if (message) {
-                    const encodedMessage = encodeURIComponent(message);
-                    const whatsappUrl = `https://wa.me/${userPhone}?text=${encodedMessage}`;
-                    
-                    // Open WhatsApp in new tab
-                    window.open(whatsappUrl, '_blank');
-                }
+                await loadAllPayments();
                 
             } catch (error) {
-                console.error('Error sending payment confirmation WhatsApp:', error);
+                console.error('Error rejecting payment:', error);
+                showNotification('Erro ao rejeitar pagamento.', 'error');
+            }
+        }
+
+        // Send WhatsApp message for approved/rejected payments
+        async function sendWhatsAppMessage(paymentId) {
+            try {
+                const payment = payments.find(p => p.id === paymentId);
+                if (!payment) return;
+                
+                const userPhone = payment.userPhone;
+                if (!userPhone) {
+                    showNotification('Telefone do cliente não informado.', 'error');
+                    return;
+                }
+                
+                // Clean phone number
+                const cleanPhone = userPhone.replace(/\D/g, '');
+                if (cleanPhone.length < 10) {
+                    showNotification('Número de telefone inválido.', 'error');
+                    return;
+                }
+                
+                // Get appropriate message based on status
+                let messageTemplate = '';
+                let messageType = '';
+                
+                if (payment.status === 'approved') {
+                    messageTemplate = systemConfig.paymentApprovedMessage || '';
+                    messageType = 'aprovado';
+                } else if (payment.status === 'rejected') {
+                    messageTemplate = systemConfig.paymentRejectedMessage || '';
+                    messageType = 'rejeitado';
+                } else {
+                    showNotification('Só é possível enviar WhatsApp para pagamentos aprovados ou rejeitados.', 'warning');
+                    return;
+                }
+                
+                if (!messageTemplate) {
+                    showNotification(`Mensagem de ${messageType} não configurada.`, 'error');
+                    return;
+                }
+                
+                // Get user info for message variables
+                const user = users.find(u => u.id === payment.userId);
+                
+                // Format date for message
+                const paymentDate = new Date(payment.createdAt);
+                const formattedDate = paymentDate.toLocaleDateString('pt-BR');
+                
+                // Get expiry date for approved payments
+                let expiryDate = '';
+                if (payment.status === 'approved' && user) {
+                    expiryDate = user.expiryDate || '';
+                    if (expiryDate) {
+                        const expiryDateObj = new Date(expiryDate);
+                        expiryDate = expiryDateObj.toLocaleDateString('pt-BR');
+                    }
+                }
+                
+                // Replace variables in message
+                let finalMessage = messageTemplate
+                    .replace(/{nome}/g, payment.userName || 'Cliente')
+                    .replace(/{loja}/g, payment.storeName || '')
+                    .replace(/{plano}/g, payment.plan === 'monthly' ? 'Mensal' : 'Personalizado')
+                    .replace(/{valor}/g, payment.amount?.toFixed(2).replace('.', ',') || '0,00')
+                    .replace(/{data}/g, formattedDate)
+                    .replace(/{validade}/g, expiryDate)
+                    .replace(/{email}/g, payment.userEmail || '')
+                    .replace(/{telefone}/g, payment.userPhone || '');
+                
+                // Encode message for URL
+                const encodedMessage = encodeURIComponent(finalMessage);
+                
+                // Create WhatsApp URL with direct link (no popup issues)
+                const whatsappUrl = `https://wa.me/55${cleanPhone}?text=${encodedMessage}`;
+                
+                // Create and trigger a direct link click
+                const link = document.createElement('a');
+                link.href = whatsappUrl;
+                link.target = '_blank'; // Open in new tab instead of popup
+                link.rel = 'noopener noreferrer';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                
+                // Use a user gesture to trigger the click
+                link.click();
+                
+                // Remove the link after click
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                }, 100);
+                
+                // Show success notification
+                showNotification(`WhatsApp enviado! Status: ${messageType}`, 'success');
+                
+                // Log the WhatsApp sending
+                await db.collection('payments').doc(paymentId).update({
+                    whatsappSent: true,
+                    whatsappSentAt: new Date().toISOString(),
+                    whatsappSentBy: adminUser.email
+                });
+                
+            } catch (error) {
+                console.error('Error sending WhatsApp:', error);
+                showNotification('Erro ao enviar WhatsApp.', 'error');
+            }
+        }
+
+        // Show delete confirmation modal
+        function showDeleteConfirmation(paymentId) {
+            currentPaymentToDelete = paymentId;
+            deleteConfirmationModal.style.display = 'flex';
+            setTimeout(() => {
+                confirmationInput.focus();
+            }, 300);
+        }
+
+        // Delete payment
+        async function deletePayment() {
+            if (!currentPaymentToDelete) return;
+            
+            try {
+                await db.collection('payments').doc(currentPaymentToDelete).delete();
+                
+                const paymentIndex = payments.findIndex(p => p.id === currentPaymentToDelete);
+                if (paymentIndex !== -1) {
+                    payments.splice(paymentIndex, 1);
+                }
+                
+                deleteConfirmationModal.style.display = 'none';
+                resetDeleteConfirmation();
+                
+                updatePaymentsList();
+                showNotification('Pagamento excluído com sucesso!', 'success');
+                
+            } catch (error) {
+                console.error('Error deleting payment:', error);
+                showNotification('Erro ao excluir pagamento.', 'error');
             }
         }
 
@@ -2431,33 +2205,33 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
             const email = document.getElementById('newUserEmail').value;
             const password = document.getElementById('newUserPassword').value;
             const phone = document.getElementById('newUserPhone').value;
-            const plan = document.getElementById('newUserPlan').value;
             const status = document.getElementById('newUserStatus').value;
-            const expiryDateInput = document.getElementById('newUserExpiry').value;
+            const plan = document.getElementById('newUserPlan').value;
+            const customDays = plan === 'custom' ? parseInt(document.getElementById('customPlanDays').value) || 30 : 30;
             
             if (!phone || phone.replace(/\D/g, '').length < 11) {
-                showNotification('Por favor, informe um número de WhatsApp válido.', 'error');
+                showNotification('Informe um número de WhatsApp válido.', 'error');
+                return;
+            }
+            
+            if (plan === 'custom' && (customDays < 1 || customDays > 365)) {
+                showNotification('Os dias do plano personalizado devem estar entre 1 e 365.', 'error');
                 return;
             }
             
             try {
                 showLoading();
                 
-                // Create user in Firebase Auth
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                // Set expiry date
-                let expiryDate;
-                if (expiryDateInput) {
-                    expiryDate = expiryDateInput;
-                } else {
+                let expiryDate = '';
+                if (status === 'active') {
                     const date = new Date();
-                    date.setDate(date.getDate() + 30);
+                    date.setDate(date.getDate() + customDays);
                     expiryDate = date.toISOString().split('T')[0];
                 }
                 
-                // Create user document
                 await db.collection('users').doc(user.uid).set({
                     uid: user.uid,
                     email: user.email,
@@ -2465,6 +2239,7 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                     phone: phone,
                     status: status,
                     plan: plan,
+                    planDays: customDays,
                     expiryDate: expiryDate,
                     isActive: status === 'active',
                     configCompleted: false,
@@ -2473,55 +2248,10 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                     lastActivity: new Date().toISOString()
                 });
                 
-                // If user is active, create store configuration
-                if (status === 'active') {
-                    await db.collection('stores').doc(user.uid).set({
-                        businessName: storeName,
-                        logoBase64: '',
-                        whatsappNumber: '',
-                        pixKey: systemConfig.pixKey || '',
-                        contactPhone: '',
-                        productsTitle: 'Nossos Produtos',
-                        ownerId: user.uid,
-                        createdAt: new Date().toISOString(),
-                        theme: 'black'
-                    });
-                    
-                    // Create default product
-                    await db.collection('stores').doc(user.uid).collection('products').add({
-                        name: 'Produto Exemplo',
-                        description: 'Este é um produto de exemplo. Você pode editá-lo ou excluí-lo.',
-                        price: 29.90,
-                        category: 'outro',
-                        active: true,
-                        imageBase64: '',
-                        createdAt: new Date().toISOString()
-                    });
-                    
-                    // Send activation WhatsApp
-                    await sendStatusWhatsApp({
-                        storeName: storeName,
-                        email: email,
-                        phone: phone
-                    }, 'activated');
-                }
-                
-                // Record admin activity
-                await db.collection('userActivities').add({
-                    userId: user.uid,
-                    action: 'created_by_admin',
-                    timestamp: new Date().toISOString(),
-                    userEmail: email,
-                    storeName: storeName,
-                    adminAction: true,
-                    adminEmail: adminUser.email
-                });
-                
-                // Close modal and reset form
                 newUserModal.style.display = 'none';
                 newUserForm.reset();
+                customDaysGroup.style.display = 'none';
                 
-                // Reload users
                 await loadAllUsers();
                 
                 showNotification('Usuário criado com sucesso!', 'success');
@@ -2554,6 +2284,8 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                 monthlyPlanPrice: parseFloat(monthlyPlanPriceInput.value) || 99.00,
                 expirationWarningDays: parseInt(expirationWarningDaysInput.value) || 7,
                 whatsappMessage: whatsappMessageInput.value,
+                paymentApprovedMessage: paymentApprovedMessageInput.value,
+                paymentRejectedMessage: paymentRejectedMessageInput.value,
                 updatedAt: new Date().toISOString(),
                 updatedBy: adminUser.email
             };
@@ -2568,44 +2300,39 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
             }
         }
 
-        // Update admin credentials
-        async function updateAdminCredentials() {
-            const email = adminEmailInput.value;
-            const password = adminPasswordInput.value;
-            
-            if (!email || !password) {
-                showNotification('Preencha e-mail e senha.', 'warning');
-                return;
-            }
-            
-            try {
-                await db.collection('admin').doc('credentials').set({
-                    email: email,
-                    updatedAt: new Date().toISOString()
-                }, { merge: true });
-                
-                // Update admin password in Firebase Auth
-                // Note: This requires admin privileges and appropriate Firebase setup
-                // For now, we'll just store the credentials in Firestore
-                
-                showNotification('Credenciais atualizadas!', 'success');
-                adminPasswordInput.value = '';
-                
-            } catch (error) {
-                console.error('Error updating admin credentials:', error);
-                showNotification('Erro ao atualizar credenciais.', 'error');
-            }
+        // Clear cache
+        function clearCache() {
+            localStorage.removeItem('adminSession');
+            showNotification('Cache limpo! A página será recarregada.', 'info');
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
         }
 
-        // Open image zoom modal
-        function openImageZoom(imageSrc, altText) {
-            zoomedImage.src = imageSrc;
-            zoomedImage.alt = altText;
-            imageZoomModal.style.display = 'flex';
+        // Logout
+        async function logout() {
+            try {
+                try {
+                    await auth.signOut();
+                } catch (authError) {
+                    console.log('Auth signout skipped:', authError);
+                }
+                
+                localStorage.removeItem('adminSession');
+                
+                showNotification('Logout realizado!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'admin-login.html';
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error logging out:', error);
+                showNotification('Erro ao fazer logout.', 'error');
+            }
         }
 
         // Show notification
-        function showNotification(message, type = 'info') {
+        function showNotification(message, type = 'info', duration = 3000) {
             const existingNotifications = document.querySelectorAll('.notification');
             existingNotifications.forEach(notification => {
                 notification.remove();
@@ -2617,13 +2344,14 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
             document.body.appendChild(notification);
             
             setTimeout(() => {
-                notification.style.animation = 'fadeOut 0.3s ease';
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s ease';
                 setTimeout(() => {
                     if (notification.parentNode) {
                         document.body.removeChild(notification);
                     }
                 }, 300);
-            }, 3000);
+            }, duration);
         }
 
         // Show loading overlay
@@ -2639,14 +2367,22 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
         // Helper functions
         function formatDate(dateString) {
             if (!dateString) return 'Data não informada';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('pt-BR');
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('pt-BR');
+            } catch (error) {
+                return 'Data inválida';
+            }
         }
         
         function formatDateTime(dateString) {
             if (!dateString) return 'Data/hora não informada';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            } catch (error) {
+                return 'Data inválida';
+            }
         }
         
         function getStatusText(status) {
@@ -2655,8 +2391,6 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                 case 'pending': return 'Pendente';
                 case 'blocked': return 'Bloqueado';
                 case 'expired': return 'Expirado';
-                case 'approved': return 'Aprovado';
-                case 'rejected': return 'Rejeitado';
                 default: return 'Desconhecido';
             }
         }
@@ -2667,17 +2401,30 @@ Por favor, acesse o painel administrativo para verificar o comprovante e liberar
                 case 'pending': return 'status-pending';
                 case 'blocked': return 'status-blocked';
                 case 'expired': return 'status-expired';
-                case 'approved': return 'status-active';
-                case 'rejected': return 'status-blocked';
+                default: return 'status-pending';
+            }
+        }
+        
+        function getPaymentStatusText(status) {
+            switch(status) {
+                case 'pending': return 'Pendente';
+                case 'approved': return 'Aprovado';
+                case 'rejected': return 'Rejeitado';
+                default: return 'Desconhecido';
+            }
+        }
+        
+        function getPaymentStatusClass(status) {
+            switch(status) {
+                case 'pending': return 'status-pending';
+                case 'approved': return 'status-approved';
+                case 'rejected': return 'status-rejected';
                 default: return 'status-pending';
             }
         }
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', init);
-        
-        // Make functions available globally
-        window.openImageZoom = openImageZoom;
     </script>
 </body>
 </html>

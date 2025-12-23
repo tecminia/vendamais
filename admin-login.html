@@ -21,7 +21,7 @@
         
         html, body {
             height: 100%;
-            overflow-x: hidden;
+            overflow: hidden;
             background: linear-gradient(135deg, #212121 0%, #424242 100%);
             color: #ffffff;
         }
@@ -65,40 +65,32 @@
         .logo-section p {
             color: rgba(255, 255, 255, 0.8);
             font-size: 1rem;
+            margin-bottom: 30px;
         }
         
-        .form-group {
-            margin-bottom: 25px;
+        .google-login-section {
+            text-align: center;
+            margin: 40px 0 20px 0;
         }
         
-        .form-label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #ffffff;
-            font-size: 1rem;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+        .admin-info {
             background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .admin-info h3 {
             color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
         }
         
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #ffffff;
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-            background-color: rgba(255, 255, 255, 0.15);
+        .admin-info p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.5;
         }
         
         .btn {
@@ -125,6 +117,18 @@
             background-color: #f5f5f5;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-google {
+            background-color: #ffffff;
+            color: #212121;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .btn-google:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
         .btn-secondary {
@@ -219,28 +223,23 @@
                 <i class="fas fa-user-shield"></i>
             </div>
             <h1>Venda+ Admin</h1>
-            <p>Acesso Restrito ao Gerenciador</p>
+            <p>Acesso ao Painel Administrativo</p>
+            
+            <div class="admin-info">
+                <h3>👑 Painel de Controle</h3>
+                <p>Acesse com sua conta Google para gerenciar usuários, pagamentos e configurações do sistema.</p>
+            </div>
         </div>
         
-        <form id="adminLoginForm">
-            <div class="form-group">
-                <label class="form-label">E-mail Administrativo</label>
-                <input type="email" id="adminEmail" class="form-input" placeholder="admin@vendaplus.com" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Senha</label>
-                <input type="password" id="adminPassword" class="form-input" placeholder="••••••••" required>
-            </div>
-            
-            <button type="submit" class="btn btn-primary" id="adminLoginBtn">
-                <i class="fas fa-sign-in-alt"></i> Acessar Gerenciador
+        <div class="google-login-section">
+            <button class="btn btn-google" id="googleLoginBtn">
+                <i class="fab fa-google"></i> Entrar com Google
             </button>
             
             <button type="button" class="btn btn-secondary" id="backToLoginBtn">
                 <i class="fas fa-arrow-left"></i> Voltar para Login Normal
             </button>
-        </form>
+        </div>
     </div>
 
     <script>
@@ -257,82 +256,131 @@
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
         // DOM Elements
-        const adminLoginForm = document.getElementById('adminLoginForm');
-        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
         const backToLoginBtn = document.getElementById('backToLoginBtn');
 
-        // Admin login - Versão simplificada sem autenticação Firebase
-        adminLoginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-            
-            try {
-                adminLoginBtn.innerHTML = '<div class="loading"></div>';
-                adminLoginBtn.disabled = true;
-                
-                // Tentar acessar as credenciais do admin
-                // IMPORTANTE: Esta é uma abordagem temporária
-                // Em produção, use autenticação Firebase com usuário admin real
-                
-                // Verificar credenciais padrão
-                if (email === 'admin@vendaplus.com' && password === 'admin123') {
-                    // Criar sessão admin
-                    const adminSession = {
-                        email: email,
-                        loggedIn: true,
-                        timestamp: new Date().toISOString()
-                    };
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', async () => {
+            const adminSession = localStorage.getItem('adminSession');
+            if (adminSession) {
+                try {
+                    const sessionData = JSON.parse(adminSession);
+                    const sessionAge = new Date() - new Date(sessionData.timestamp);
+                    const maxAge = 8 * 60 * 60 * 1000; // 8 hours
                     
-                    localStorage.setItem('adminSession', JSON.stringify(adminSession));
-                    
-                    showNotification('Acesso concedido!', 'success');
-                    setTimeout(() => {
+                    if (sessionAge < maxAge) {
+                        // Try to validate with Firebase Auth
+                        try {
+                            const user = auth.currentUser;
+                            if (user && user.email === sessionData.email) {
+                                window.location.href = 'gerenciador.html';
+                                return;
+                            }
+                        } catch (authError) {
+                            console.log('Auth check failed, proceeding with session');
+                        }
+                        
+                        // Proceed with session only
                         window.location.href = 'gerenciador.html';
-                    }, 1000);
+                    } else {
+                        localStorage.removeItem('adminSession');
+                    }
+                } catch (error) {
+                    localStorage.removeItem('adminSession');
+                }
+            }
+            
+            // Initialize authorized admin
+            await createDefaultAdmin();
+        });
+
+        // Google login handler
+        googleLoginBtn.addEventListener('click', async () => {
+            try {
+                googleLoginBtn.innerHTML = '<div class="loading"></div>';
+                googleLoginBtn.disabled = true;
+                
+                // Configure Google provider
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.addScope('email');
+                provider.addScope('profile');
+                
+                // Sign in with popup
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                
+                // Check if user is authorized admin
+                const adminDoc = await db.collection('admin').doc('authorizedUsers').get();
+                const authorizedAdmins = adminDoc.exists ? adminDoc.data().emails || [] : [];
+                
+                // Add default admin if no authorized users exist
+                if (authorizedAdmins.length === 0) {
+                    authorizedAdmins.push(user.email);
+                    await db.collection('admin').doc('authorizedUsers').set({
+                        emails: authorizedAdmins,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+                
+                if (!authorizedAdmins.includes(user.email)) {
+                    // User not authorized
+                    await auth.signOut();
+                    showNotification('Acesso não autorizado. Contate o administrador.', 'error');
+                    googleLoginBtn.innerHTML = '<i class="fab fa-google"></i> Entrar com Google';
+                    googleLoginBtn.disabled = false;
                     return;
                 }
                 
-                // Se não for credencial padrão, verificar no Firestore
-                // (mas isso requer permissões)
-                try {
-                    const adminDoc = await db.collection('admin').doc('credentials').get();
-                    
-                    if (adminDoc.exists) {
-                        const adminData = adminDoc.data();
-                        
-                        if (adminData.email === email && adminData.password === password) {
-                            // Criar sessão admin
-                            const adminSession = {
-                                email: email,
-                                loggedIn: true,
-                                timestamp: new Date().toISOString()
-                            };
-                            
-                            localStorage.setItem('adminSession', JSON.stringify(adminSession));
-                            
-                            showNotification('Acesso concedido!', 'success');
-                            setTimeout(() => {
-                                window.location.href = 'gerenciador.html';
-                            }, 1000);
-                            return;
-                        }
-                    }
-                } catch (firestoreError) {
-                    console.log('Firestore não acessível, usando credenciais padrão');
-                }
+                // Create admin session
+                const adminSession = {
+                    uid: user.uid,
+                    email: user.email,
+                    name: user.displayName,
+                    photoURL: user.photoURL,
+                    loggedIn: true,
+                    timestamp: new Date().toISOString()
+                };
                 
-                // Se chegou aqui, credenciais inválidas
-                showNotification('Credenciais inválidas.', 'error');
+                // Save to localStorage
+                localStorage.setItem('adminSession', JSON.stringify(adminSession));
+                
+                // Save admin info to Firestore
+                await db.collection('admin').doc('users').collection('admins').doc(user.uid).set({
+                    email: user.email,
+                    name: user.displayName,
+                    photoURL: user.photoURL,
+                    lastLogin: new Date().toISOString(),
+                    googleAuth: true,
+                    isActive: true
+                }, { merge: true });
+                
+                // Show success and redirect
+                showNotification('Login realizado com sucesso!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'gerenciador.html';
+                }, 1000);
                 
             } catch (error) {
-                console.error('Admin login error:', error);
-                showNotification('Erro ao acessar o sistema.', 'error');
-            } finally {
-                adminLoginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Acessar Gerenciador';
-                adminLoginBtn.disabled = false;
+                console.error('Google login error:', error);
+                
+                let errorMessage = 'Erro ao fazer login com Google.';
+                if (error.code === 'auth/popup-closed-by-user') {
+                    errorMessage = 'Login cancelado pelo usuário.';
+                } else if (error.code === 'auth/account-exists-with-different-credential') {
+                    errorMessage = 'Esta conta já está cadastrada com outro método.';
+                } else if (error.code === 'auth/popup-blocked') {
+                    errorMessage = 'Pop-up bloqueado. Por favor, permita pop-ups para este site.';
+                } else if (error.code === 'auth/network-request-failed') {
+                    errorMessage = 'Erro de conexão. Verifique sua internet.';
+                }
+                
+                showNotification(errorMessage, 'error');
+                googleLoginBtn.innerHTML = '<i class="fab fa-google"></i> Entrar com Google';
+                googleLoginBtn.disabled = false;
             }
         });
 
@@ -342,7 +390,7 @@
         });
 
         // Helper functions
-        function showNotification(message, type = 'info') {
+        function showNotification(message, type = 'info', duration = 3000) {
             const existingNotifications = document.querySelectorAll('.notification');
             existingNotifications.forEach(notification => {
                 notification.remove();
@@ -360,57 +408,35 @@
                         document.body.removeChild(notification);
                     }
                 }, 300);
-            }, 3000);
+            }, duration);
         }
 
-        // Check for existing admin session
-        document.addEventListener('DOMContentLoaded', () => {
-            const adminSession = localStorage.getItem('adminSession');
-            if (adminSession) {
-                try {
-                    const sessionData = JSON.parse(adminSession);
-                    const sessionAge = new Date() - new Date(sessionData.timestamp);
-                    const maxAge = 2 * 60 * 60 * 1000; // 2 hours
-                    
-                    if (sessionAge < maxAge) {
-                        window.location.href = 'gerenciador.html';
-                    } else {
-                        localStorage.removeItem('adminSession');
-                    }
-                } catch (error) {
-                    localStorage.removeItem('adminSession');
-                }
-            }
-            
-            // Tentar criar credenciais padrão se não existirem
-            createDefaultAdminCredentials();
-        });
-
-        // Função para criar credenciais padrão do admin
-        async function createDefaultAdminCredentials() {
+        // Create default authorized admin if not exists
+        async function createDefaultAdmin() {
             try {
-                // Tentar verificar se já existe
-                const adminDoc = await db.collection('admin').doc('credentials').get();
+                const adminDoc = await db.collection('admin').doc('authorizedUsers').get();
                 
                 if (!adminDoc.exists) {
-                    // Tentar criar (pode falhar por falta de permissões, mas não tem problema)
-                    try {
-                        await db.collection('admin').doc('credentials').set({
-                            email: 'admin@vendaplus.com',
-                            password: 'admin123',
-                            createdAt: new Date().toISOString()
-                        });
-                        console.log('Credenciais padrão do admin criadas');
-                    } catch (writeError) {
-                        console.log('Não foi possível criar credenciais automaticamente');
-                        console.log('Use estas credenciais: admin@vendaplus.com / admin123');
-                    }
+                    // Create empty list - first Google login will be added
+                    await db.collection('admin').doc('authorizedUsers').set({
+                        emails: [],
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    });
                 }
             } catch (error) {
-                console.log('Não foi possível verificar credenciais do admin');
-                console.log('Use estas credenciais: admin@vendaplus.com / admin123');
+                console.log('Não foi possível criar configurações de admin:', error);
             }
         }
+
+        // Handle auth state changes
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log('Usuário autenticado:', user.email);
+            } else {
+                console.log('Usuário não autenticado');
+            }
+        });
     </script>
 </body>
 </html>

@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecionando...</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
-        /* Tela de carregamento mínima e discreta */
         body {
             margin: 0;
             padding: 0;
@@ -43,138 +39,49 @@
 <body>
     <div class="loader">
         <div class="spinner"></div>
-        <p>Verificando acesso...</p>
+        <p>Redirecionando...</p>
     </div>
 
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB7U-JfKAlkPxSyL4AEf5u0BgcDzSXf41M",
-            authDomain: "appvendas-1eebf.firebaseapp.com",
-            projectId: "appvendas-1eebf",
-            storageBucket: "appvendas-1eebf.firebasestorage.app",
-            messagingSenderId: "229472373918",
-            appId: "1:229472373918:web:39cd4940b052b2375f3f8f"
-        };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // Função principal de redirecionamento
-        async function checkAndRedirect() {
-            try {
-                // Verifica autenticação
-                auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        // Usuário logado - verificar status
-                        try {
-                            const userDoc = await db.collection('users').doc(user.uid).get();
-                            
-                            if (!userDoc.exists) {
-                                // Usuário não encontrado - redireciona para login
-                                window.location.href = 'login.html';
-                                return;
-                            }
-                            
-                            const userData = userDoc.data();
-                            
-                            // Verificar status da conta
-                            if (userData.status === 'blocked' || 
-                                userData.status === 'expired' || 
-                                userData.status === 'pending' ||
-                                userData.isActive === false) {
-                                // Conta não ativa - redireciona para login
-                                window.location.href = 'login.html';
-                                return;
-                            }
-                            
-                            // Conta ativa - verificar data de expiração
-                            if (userData.expiryDate) {
-                                const expiryDate = new Date(userData.expiryDate);
-                                const today = new Date();
-                                today.setHours(0, 0, 0, 0);
-                                
-                                if (expiryDate < today) {
-                                    // Conta expirada - atualizar status e redirecionar
-                                    await db.collection('users').doc(user.uid).update({
-                                        status: 'expired',
-                                        isActive: false
-                                    });
-                                    window.location.href = 'login.html';
-                                    return;
-                                }
-                            }
-                            
-                            // Salvar dados no localStorage e redirecionar para admin
-                            localStorage.setItem('currentUser', JSON.stringify({
-                                uid: user.uid,
-                                email: user.email,
-                                storeName: userData.storeName,
-                                phone: userData.phone,
-                                isAdmin: true,
-                                expiryDate: userData.expiryDate
-                            }));
-                            
-                            // Atualizar último login
-                            await db.collection('users').doc(user.uid).update({
-                                lastLogin: new Date().toISOString()
-                            });
-                            
-                            // Redirecionar para painel admin
-                            window.location.href = 'admin.html';
-                            
-                        } catch (error) {
-                            console.error('Erro ao verificar dados:', error);
-                            window.location.href = 'login.html';
-                        }
-                    } else {
-                        // Usuário não logado - redireciona para login
-                        window.location.href = 'login.html';
+        // Função que decide para onde redirecionar
+        function decideRedirect() {
+            console.log('Index: Verificando localStorage...');
+            
+            // Verifica se existe usuário salvo no localStorage
+            const storedUser = localStorage.getItem('currentUser');
+            
+            if (storedUser) {
+                try {
+                    const user = JSON.parse(storedUser);
+                    
+                    // Verifica se tem dados mínimos de usuário
+                    if (user.uid && user.email) {
+                        console.log('Index: Usuário encontrado, redirecionando para admin');
+                        window.location.href = 'admin.html';
+                        return;
                     }
-                });
-                
-            } catch (error) {
-                console.error('Erro geral:', error);
-                // Em caso de erro, redireciona para login
-                window.location.href = 'login.html';
+                } catch (error) {
+                    console.log('Index: Erro ao parsear usuário:', error);
+                }
             }
+            
+            // Se não tem usuário válido, vai para login
+            console.log('Index: Nenhum usuário válido, redirecionando para login');
+            window.location.href = 'login.html';
         }
 
-        // Verificar parâmetros de loja na URL (para vitrine)
-        function checkStoreParameter() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const storeId = urlParams.get('store');
-            
-            if (storeId) {
-                // Se tem parâmetro de loja, redireciona direto para vitrine
-                window.location.href = `vitrine.html?store=${storeId}`;
-                return true;
-            }
-            return false;
-        }
+        // Executa imediatamente
+        decideRedirect();
 
-        // Iniciar verificação
-        document.addEventListener('DOMContentLoaded', () => {
-            // Primeiro verifica se é acesso à vitrine
-            const isStoreAccess = checkStoreParameter();
-            
-            // Se não for acesso à vitrine, verifica autenticação
-            if (!isStoreAccess) {
-                checkAndRedirect();
-            }
-        });
-
-        // Timeout de segurança (10 segundos)
+        // Fallback: se ainda estiver aqui após 1 segundo, força redirecionamento
         setTimeout(() => {
-            // Se ainda estiver nesta página após 10 segundos, redireciona para login
             if (window.location.pathname.includes('index.html') || 
                 window.location.pathname === '/' || 
                 window.location.pathname === '') {
+                console.log('Index: Timeout, forçando redirecionamento');
                 window.location.href = 'login.html';
             }
-        }, 10000);
+        }, 1000);
     </script>
 </body>
 </html>

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <style>
         /* Theme Variables */
@@ -1208,7 +1209,7 @@
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Enviando comprovante...</div>
+        <div class="loading-text">Carregando...</div>
     </div>
 
     <!-- App Container -->
@@ -1252,6 +1253,9 @@
             <div id="ordersScreen" class="screen" style="display: none;">
                 <div class="section-title">
                     <span>Meus Pedidos</span>
+                    <button class="btn btn-sm btn-secondary" id="showAccessCodeBtn">
+                        <i class="fas fa-key"></i> Meu Código
+                    </button>
                 </div>
                 
                 <div class="orders-list" id="ordersList">
@@ -1271,6 +1275,9 @@
             <div id="profileScreen" class="screen" style="display: none;">
                 <div class="section-title">
                     <span>Minha Conta</span>
+                    <button class="btn btn-sm btn-secondary" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
                 </div>
                 
                 <div class="profile-card" id="profileCard">
@@ -1298,6 +1305,39 @@
                 <span>Minha Conta</span>
             </button>
         </nav>
+    </div>
+
+    <!-- Access Code Modal -->
+    <div class="modal" id="accessCodeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Seu Código de Acesso</h2>
+                <button class="close-modal" id="closeCodeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="login-icon mb-3">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <p class="mb-3">Guarde este código para acessar seus dados e pedidos em qualquer dispositivo:</p>
+                    
+                    <div class="pix-key mb-3" id="accessCodeDisplay">
+                        Carregando...
+                    </div>
+                    
+                    <p class="text-center mb-3">Use este código na próxima vez que acessar a loja para recuperar seus dados automaticamente.</p>
+                    
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-secondary flex-1" id="copyCodeBtn">
+                            <i class="fas fa-copy"></i> Copiar Código
+                        </button>
+                        <button class="btn btn-primary flex-1" id="closeCodeBtn">
+                            <i class="fas fa-check"></i> Entendido
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Cart Modal -->
@@ -1484,6 +1524,7 @@
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
         // Application state
         let cart = [];
@@ -1500,13 +1541,14 @@
         let deliveryFee = 0;
         let lastTouchDistance = null;
         let zoomScale = 1;
+        let currentUser = null;
+        let userData = {};
+        let userPhone = '';
+        let accessCode = '';
+        let isAnonymous = false;
         
-        // Carrega dados do usuário do localStorage
-        const savedUserData = localStorage.getItem('userData');
-        let userData = savedUserData ? JSON.parse(savedUserData) : {};
-        let userPhone = userData.phone || '';
-
         // DOM Elements
+        const appContainer = document.querySelector('.app-container');
         const mainContent = document.getElementById('mainContent');
         const screens = document.querySelectorAll('.screen');
         const navBtns = document.querySelectorAll('.nav-btn');
@@ -1521,6 +1563,8 @@
         const profileCard = document.getElementById('profileCard');
         const profileStatusCard = document.getElementById('profileStatusCard');
         const loadingOverlay = document.getElementById('loadingOverlay');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const showAccessCodeBtn = document.getElementById('showAccessCodeBtn');
         
         // Store config elements
         const businessName = document.getElementById('businessName');
@@ -1568,6 +1612,13 @@
         const viewOrdersBtn = document.getElementById('viewOrdersBtn');
         const newOrderBtn = document.getElementById('newOrderBtn');
         
+        // Access code modal elements
+        const accessCodeModal = document.getElementById('accessCodeModal');
+        const closeCodeModal = document.getElementById('closeCodeModal');
+        const accessCodeDisplay = document.getElementById('accessCodeDisplay');
+        const copyCodeBtn = document.getElementById('copyCodeBtn');
+        const closeCodeBtn = document.getElementById('closeCodeBtn');
+        
         // Image zoom elements
         const imageZoomModal = document.getElementById('imageZoomModal');
         const closeZoom = document.getElementById('closeZoom');
@@ -1581,33 +1632,296 @@
             
             if (!currentStoreId) {
                 showNotification('Loja não encontrada. Verifique o link de acesso.', 'error');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
+                redirectToLogin();
                 return;
             }
+            
+            // Check if user is logged in
+            const storedUser = localStorage.getItem(`userData_${currentStoreId}`);
+            if (!storedUser) {
+                redirectToLogin();
+                return;
+            }
+            
+            try {
+                userData = JSON.parse(storedUser);
+                userPhone = userData.phone || '';
+                accessCode = userData.accessCode || '';
+                
+                // Load store config first
+                await loadStoreConfig();
+                
+                // Load app
+                await loadApp();
+                
+            } catch (e) {
+                console.error('Error loading user data:', e);
+                redirectToLogin();
+            }
+        }
+
+        // Redirect to login page
+        function redirectToLogin() {
+            window.location.href = `login-vitrine.html?store=${currentStoreId}`;
+        }
+
+        // Setup phone masks
+        function setupPhoneMasks() {
+            const phoneMaskOptions = {
+                mask: '(00) 00000-0000',
+                lazy: false
+            };
+            
+            if (phoneInput) {
+                phoneMask = new IMask(phoneInput, phoneMaskOptions);
+            }
+        }
+
+        // Load store configuration from Firebase
+        async function loadStoreConfig() {
+            try {
+                const configDoc = await db.collection('stores').doc(currentStoreId).get();
+                if (configDoc.exists) {
+                    storeConfig = configDoc.data();
+                    updateStoreUI();
+                    
+                    // Carregar taxa de entrega
+                    deliveryFee = storeConfig.deliveryFee || 0;
+                    
+                    // Definir favicon se existir logo
+                    if (storeConfig.logoBase64) {
+                        const favicon = document.createElement('link');
+                        favicon.rel = 'icon';
+                        favicon.href = storeConfig.logoBase64;
+                        favicon.type = 'image/x-icon';
+                        const existingFavicon = document.querySelector('link[rel="icon"]');
+                        if (existingFavicon) {
+                            document.head.removeChild(existingFavicon);
+                        }
+                        document.head.appendChild(favicon);
+                    }
+                } else {
+                    showNotification('Loja não encontrada.', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading store config:', error);
+                showNotification('Erro ao carregar configurações.', 'error');
+            }
+        }
+
+        // Update UI with store configuration
+        function updateStoreUI() {
+            // Atualizar título da página com nome do negócio
+            const title = storeConfig.businessName || 'Loja Virtual';
+            pageTitle.textContent = title;
+            
+            businessName.textContent = storeConfig.businessName || 'Loja Virtual';
+            productsTitle.textContent = storeConfig.productsTitle || 'Nossos Produtos';
+            pixKey.textContent = storeConfig.pixKey || 'Chave PIX não configurada';
+            
+            if (storeConfig.logoBase64) {
+                logoImage.src = storeConfig.logoBase64;
+            } else {
+                logoImage.style.display = 'none';
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Navigation
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const screen = btn.getAttribute('data-screen');
+                    showScreen(screen);
+                    
+                    navBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+            
+            // Cart icon
+            cartIconBtn.addEventListener('click', openCart);
+            closeCartModal.addEventListener('click', closeCart);
+            
+            // Add to cart buttons
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.add-to-cart')) {
+                    const btn = e.target.closest('.add-to-cart');
+                    const productId = btn.getAttribute('data-id');
+                    addToCart(productId);
+                }
+            });
+            
+            // Checkout button
+            checkoutBtn.addEventListener('click', () => {
+                if (cart.length === 0) {
+                    showNotification('Adicione produtos ao carrinho.', 'error');
+                    return;
+                }
+                showCartStep(2);
+            });
+            
+            // Back to cart button
+            backToCartBtn.addEventListener('click', () => {
+                showCartStep(1);
+            });
+            
+            // Delivery form
+            deliveryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (validateDeliveryForm()) {
+                    showCartStep(3);
+                }
+            });
+            
+            // Salvar dados do usuário quando o formulário mudar
+            deliveryForm.addEventListener('input', () => {
+                // Salva os dados automaticamente enquanto o usuário digita
+                if (fullNameInput.value && addressInput.value && phoneInput.value) {
+                    saveUserDataToFirestore();
+                }
+            });
+            
+            // Payment method buttons
+            paymentMethodBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectPaymentMethod(btn.getAttribute('data-method'));
+                });
+            });
+            
+            // Back to delivery button
+            backToDeliveryBtn.addEventListener('click', () => {
+                showCartStep(2);
+            });
+            
+            // Confirm order button
+            confirmOrderBtn.addEventListener('click', confirmOrderAndSendWhatsApp);
+            
+            // Receipt upload with loading indicator
+            receiptUploadArea.addEventListener('click', () => {
+                if (!receiptUploadArea.classList.contains('uploading')) {
+                    receiptUpload.click();
+                }
+            });
+            
+            receiptUpload.addEventListener('change', handleReceiptUpload);
+            
+            // Receipt preview click for zoom
+            receiptPreview.addEventListener('click', () => {
+                if (receiptPreview.src) {
+                    openImageZoom(receiptPreview.src, 'Comprovante PIX');
+                }
+            });
+            
+            // View orders button in success screen
+            viewOrdersBtn.addEventListener('click', () => {
+                closeCart();
+                showScreen('orders');
+                navBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-screen="orders"]').classList.add('active');
+            });
+            
+            // New order button
+            newOrderBtn.addEventListener('click', () => {
+                resetCart();
+                closeCart();
+                showScreen('home');
+            });
+            
+            // Close cart when clicking outside
+            cartModal.addEventListener('click', (e) => {
+                if (e.target === cartModal) {
+                    closeCart();
+                }
+            });
+            
+            // Show access code button
+            showAccessCodeBtn?.addEventListener('click', showAccessCodeModal);
+            
+            // Logout button
+            logoutBtn?.addEventListener('click', handleLogout);
+            
+            // Access code modal
+            closeCodeModal.addEventListener('click', () => {
+                accessCodeModal.style.display = 'none';
+            });
+            
+            copyCodeBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(accessCode)
+                    .then(() => {
+                        showNotification('Código copiado para a área de transferência!', 'success');
+                    })
+                    .catch(() => {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = accessCode;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        showNotification('Código copiado!', 'success');
+                    });
+            });
+            
+            closeCodeBtn.addEventListener('click', () => {
+                accessCodeModal.style.display = 'none';
+            });
+            
+            // Image zoom modal
+            closeZoom.addEventListener('click', () => {
+                imageZoomModal.style.display = 'none';
+                resetZoom();
+            });
+            
+            // Close image zoom when clicking outside
+            imageZoomModal.addEventListener('click', (e) => {
+                if (e.target === imageZoomModal) {
+                    imageZoomModal.style.display = 'none';
+                    resetZoom();
+                }
+            });
+            
+            // Setup pinch-to-zoom
+            setupPinchZoom();
+        }
+
+        // Load app after login
+        async function loadApp() {
+            // Apply theme
+            applyTheme();
+            
+            // Setup phone masks
+            setupPhoneMasks();
+            
+            // Setup event listeners
+            setupEventListeners();
             
             // Register store visit
             await registerStoreVisit();
             
-            await loadStoreConfig();
-            setupPhoneMask();
+            // Load products
             await loadProducts();
-            setupEventListeners();
+            
+            // Load user orders
+            await loadUserOrders();
+            
+            // Update profile screen
+            updateProfileScreen();
+            
+            // Update cart count
             updateCartCount();
             
-            // Load user data and pre-fill form
+            // Pre-fill delivery form with user data
             loadUserDataToForm();
-            
-            if (userPhone) {
-                await loadUserOrders(userPhone);
+        }
+
+        // Apply theme
+        function applyTheme() {
+            if (storeConfig.theme) {
+                // Remover todas as classes de tema
+                document.body.classList.remove('theme-red', 'theme-blue', 'theme-pink', 'theme-yellow', 'theme-black', 'theme-purple', 'theme-green', 'theme-orange');
+                // Adicionar a classe do tema atual
+                document.body.classList.add(`theme-${storeConfig.theme}`);
             }
-            
-            updateProfileScreen();
-            applyTheme();
-            
-            // Setup pinch-to-zoom
-            setupPinchZoom();
         }
 
         // Register store visit
@@ -1652,24 +1966,6 @@
             } catch (error) {
                 console.error('Error registering store visit:', error);
             }
-        }
-
-        // Apply theme
-        function applyTheme() {
-            if (storeConfig.theme) {
-                // Remover todas as classes de tema
-                document.body.classList.remove('theme-red', 'theme-blue', 'theme-pink', 'theme-yellow', 'theme-black', 'theme-purple', 'theme-green', 'theme-orange');
-                // Adicionar a classe do tema atual
-                document.body.classList.add(`theme-${storeConfig.theme}`);
-            }
-        }
-
-        // Setup phone mask
-        function setupPhoneMask() {
-            phoneMask = new IMask(phoneInput, {
-                mask: '(00) 00000-0000',
-                lazy: false
-            });
         }
 
         // Setup pinch-to-zoom for images
@@ -1731,85 +2027,6 @@
             lastTouchDistance = null;
         }
 
-        // Load store configuration from Firebase
-        async function loadStoreConfig() {
-            try {
-                const configDoc = await db.collection('stores').doc(currentStoreId).get();
-                if (configDoc.exists) {
-                    storeConfig = configDoc.data();
-                    updateStoreUI();
-                    
-                    // Carregar taxa de entrega
-                    deliveryFee = storeConfig.deliveryFee || 0;
-                    
-                    // Definir favicon se existir logo
-                    if (storeConfig.logoBase64) {
-                        const favicon = document.createElement('link');
-                        favicon.rel = 'icon';
-                        favicon.href = storeConfig.logoBase64;
-                        favicon.type = 'image/x-icon';
-                        const existingFavicon = document.querySelector('link[rel="icon"]');
-                        if (existingFavicon) {
-                            document.head.removeChild(existingFavicon);
-                        }
-                        document.head.appendChild(favicon);
-                    }
-                } else {
-                    showNotification('Loja não encontrada.', 'error');
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
-                }
-            } catch (error) {
-                console.error('Error loading store config:', error);
-                showNotification('Erro ao carregar configurações.', 'error');
-            }
-        }
-
-        // Update UI with store configuration
-        function updateStoreUI() {
-            // Atualizar título da página com nome do negócio
-            const title = storeConfig.businessName || 'Loja Virtual';
-            pageTitle.textContent = title;
-            
-            businessName.textContent = storeConfig.businessName || 'Loja Virtual';
-            productsTitle.textContent = storeConfig.productsTitle || 'Nossos Produtos';
-            pixKey.textContent = storeConfig.pixKey || 'Chave PIX não configurada';
-            
-            if (storeConfig.logoBase64) {
-                logoImage.src = storeConfig.logoBase64;
-            } else {
-                logoImage.style.display = 'none';
-            }
-        }
-
-        // Load user data and pre-fill form
-        function loadUserDataToForm() {
-            if (userData.name) fullNameInput.value = userData.name;
-            if (userData.address) addressInput.value = userData.address;
-            if (userData.phone) {
-                phoneInput.value = userData.phone;
-                if (phoneMask) {
-                    phoneMask.updateValue();
-                }
-            }
-        }
-
-        // Save user data from form
-        function saveUserDataFromForm() {
-            userData = {
-                name: fullNameInput.value.trim(),
-                address: addressInput.value.trim(),
-                phone: phoneInput.value.trim()
-            };
-            
-            localStorage.setItem('userData', JSON.stringify(userData));
-            userPhone = userData.phone;
-            
-            // Atualizar perfil imediatamente
-            updateProfileScreen();
-        }
-
         // Load products for current store
         async function loadProducts() {
             try {
@@ -1841,19 +2058,21 @@
         }
 
         // Load user orders by phone for current store
-        async function loadUserOrders(phone) {
+        async function loadUserOrders() {
             try {
-                const snapshot = await db.collection('orders').get();
+                if (!userPhone) return;
+                
+                const snapshot = await db.collection('orders')
+                    .where('storeId', '==', currentStoreId)
+                    .where('customerPhone', '==', userPhone)
+                    .get();
                 
                 userOrders = [];
                 snapshot.forEach(doc => {
-                    const orderData = doc.data();
-                    if (orderData.storeId === currentStoreId && orderData.customerPhone === phone) {
-                        userOrders.push({
-                            id: doc.id,
-                            ...orderData
-                        });
-                    }
+                    userOrders.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
                 });
                 
                 userOrders.sort((a, b) => {
@@ -1910,132 +2129,9 @@
             });
         }
 
-        // Setup event listeners
-        function setupEventListeners() {
-            // Navigation
-            navBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const screen = btn.getAttribute('data-screen');
-                    showScreen(screen);
-                    
-                    navBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                });
-            });
-            
-            // Cart icon
-            cartIconBtn.addEventListener('click', openCart);
-            closeCartModal.addEventListener('click', closeCart);
-            
-            // Add to cart buttons
-            document.addEventListener('click', (e) => {
-                if (e.target.closest('.add-to-cart')) {
-                    const btn = e.target.closest('.add-to-cart');
-                    const productId = btn.getAttribute('data-id');
-                    addToCart(productId);
-                }
-            });
-            
-            // Checkout button
-            checkoutBtn.addEventListener('click', () => {
-                if (cart.length === 0) {
-                    showNotification('Adicione produtos ao carrinho.', 'error');
-                    return;
-                }
-                showCartStep(2);
-            });
-            
-            // Back to cart button
-            backToCartBtn.addEventListener('click', () => {
-                showCartStep(1);
-            });
-            
-            // Delivery form
-            deliveryForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                if (validateDeliveryForm()) {
-                    showCartStep(3);
-                }
-            });
-            
-            // Salvar dados do usuário quando o formulário mudar
-            deliveryForm.addEventListener('input', () => {
-                // Salva os dados automaticamente enquanto o usuário digita
-                if (fullNameInput.value && addressInput.value && phoneInput.value) {
-                    saveUserDataFromForm();
-                }
-            });
-            
-            // Payment method buttons
-            paymentMethodBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    selectPaymentMethod(btn.getAttribute('data-method'));
-                });
-            });
-            
-            // Back to delivery button
-            backToDeliveryBtn.addEventListener('click', () => {
-                showCartStep(2);
-            });
-            
-            // Confirm order button
-            confirmOrderBtn.addEventListener('click', confirmOrderAndSendWhatsApp);
-            
-            // Receipt upload with loading indicator
-            receiptUploadArea.addEventListener('click', () => {
-                if (!receiptUploadArea.classList.contains('uploading')) {
-                    receiptUpload.click();
-                }
-            });
-            
-            receiptUpload.addEventListener('change', handleReceiptUpload);
-            
-            // Receipt preview click for zoom
-            receiptPreview.addEventListener('click', () => {
-                if (receiptPreview.src) {
-                    openImageZoom(receiptPreview.src, 'Comprovante PIX');
-                }
-            });
-            
-            // View orders button in success screen
-            viewOrdersBtn.addEventListener('click', () => {
-                closeCart();
-                showScreen('orders');
-                navBtns.forEach(b => b.classList.remove('active'));
-                document.querySelector('[data-screen="orders"]').classList.add('active');
-            });
-            
-            // New order button
-            newOrderBtn.addEventListener('click', () => {
-                resetCart();
-                closeCart();
-                showScreen('home');
-            });
-            
-            // Close cart when clicking outside
-            cartModal.addEventListener('click', (e) => {
-                if (e.target === cartModal) {
-                    closeCart();
-                }
-            });
-            
-            // Image zoom modal
-            closeZoom.addEventListener('click', () => {
-                imageZoomModal.style.display = 'none';
-                resetZoom();
-            });
-            
-            // Close image zoom when clicking outside
-            imageZoomModal.addEventListener('click', (e) => {
-                if (e.target === imageZoomModal) {
-                    imageZoomModal.style.display = 'none';
-                    resetZoom();
-                }
-            });
-        }
-
         // Show loading
-        function showLoading() {
+        function showLoading(message = 'Carregando...') {
+            loadingOverlay.querySelector('.loading-text').textContent = message;
             loadingOverlay.style.display = 'flex';
         }
 
@@ -2224,6 +2320,47 @@
             cartCount.textContent = totalItems;
         }
 
+        // Load user data and pre-fill form
+        function loadUserDataToForm() {
+            if (userData.name) fullNameInput.value = userData.name;
+            if (userData.address) addressInput.value = userData.address;
+            if (userData.phone) {
+                phoneInput.value = userData.phone;
+                if (phoneMask) {
+                    phoneMask.updateValue();
+                }
+            }
+        }
+
+        // Save user data to Firestore
+        async function saveUserDataToFirestore() {
+            if (!userData.id) return;
+            
+            try {
+                await db.collection('anonymousUsers').doc(userData.id).update({
+                    name: fullNameInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    address: addressInput.value.trim(),
+                    updatedAt: new Date().toISOString()
+                });
+                
+                // Update local user data
+                userData.name = fullNameInput.value.trim();
+                userData.phone = phoneInput.value.trim();
+                userData.address = addressInput.value.trim();
+                userPhone = userData.phone;
+                
+                // Save to localStorage with store ID
+                localStorage.setItem(`userData_${currentStoreId}`, JSON.stringify(userData));
+                
+                // Atualizar perfil imediatamente
+                updateProfileScreen();
+                
+            } catch (error) {
+                console.error('Error saving user data to Firestore:', error);
+            }
+        }
+
         // Validate delivery form
         function validateDeliveryForm() {
             const fullName = fullNameInput.value.trim();
@@ -2246,7 +2383,7 @@
             }
             
             // Save user data
-            saveUserDataFromForm();
+            saveUserDataToFirestore();
             
             const subtotal = calculateSubtotal();
             const total = subtotal + deliveryFee;
@@ -2270,7 +2407,9 @@
                 paymentMethod: null,
                 receiptBase64: null,
                 deliveryStatus: 'preparing',
-                storeId: currentStoreId
+                storeId: currentStoreId,
+                userId: userData.id,
+                userAccessCode: accessCode
             };
             
             return true;
@@ -2404,7 +2543,7 @@
                 receiptFileName: orderData.receiptFileName || null
             };
             
-            showLoading();
+            showLoading('Processando pedido...');
             
             try {
                 // 1. Primeiro salvar no Firebase
@@ -2426,8 +2565,7 @@
                 clearCartOnly();
                 
                 // 6. Atualizar dados do usuário
-                userPhone = orderData.customerPhone;
-                await loadUserOrders(userPhone);
+                await loadUserOrders();
                 
             } catch (error) {
                 hideLoading();
@@ -2814,6 +2952,10 @@
                         <span class="detail-label">Total de Pedidos:</span>
                         <span class="detail-value">${userOrders.length}</span>
                     </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Código de Acesso:</span>
+                        <span class="detail-value">${accessCode}</span>
+                    </div>
                 </div>
                 
                 <button class="btn btn-secondary btn-block mt-3" id="editProfileBtn">
@@ -2877,7 +3019,7 @@
                 existingModal.remove();
             }
             
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.body.insertAdjacentHTML('beforeend', formHTML);
             
             document.getElementById('profileFormModal').style.display = 'block';
             
@@ -2891,24 +3033,20 @@
             document.getElementById('profileForm').addEventListener('submit', (e) => {
                 e.preventDefault();
                 
-                userData = {
-                    name: document.getElementById('profileName').value,
-                    phone: document.getElementById('profilePhone').value,
-                    address: document.getElementById('profileAddress').value
-                };
+                userData.name = document.getElementById('profileName').value;
+                userData.phone = document.getElementById('profilePhone').value;
+                userData.address = document.getElementById('profileAddress').value;
                 
-                localStorage.setItem('userData', JSON.stringify(userData));
+                // Save to Firestore
+                saveUserDataToFirestore();
                 
+                // Update profile screen
                 updateProfileScreen();
                 
                 // Atualizar também os campos do formulário de entrega
                 loadUserDataToForm();
                 
                 document.getElementById('profileFormModal').style.display = 'none';
-                
-                userPhone = userData.phone;
-                
-                loadUserOrders(userPhone);
                 
                 showNotification('Dados salvos com sucesso!', 'success');
             });
@@ -2918,6 +3056,33 @@
                     document.getElementById('profileFormModal').style.display = 'none';
                 }
             });
+        }
+
+        // Show access code modal
+        function showAccessCodeModal() {
+            accessCodeDisplay.textContent = accessCode;
+            accessCodeModal.style.display = 'block';
+        }
+
+        // Handle logout
+        function handleLogout() {
+            if (confirm('Deseja sair da sua conta?')) {
+                // Clear data for this store only
+                localStorage.removeItem(`userData_${currentStoreId}`);
+                userData = {};
+                userPhone = '';
+                accessCode = '';
+                cart = [];
+                userOrders = [];
+                
+                // Sign out from Firebase auth
+                auth.signOut();
+                
+                // Redirect to login
+                redirectToLogin();
+                
+                showNotification('Você saiu da sua conta.', 'info');
+            }
         }
 
         // Update status card

@@ -23,7 +23,7 @@
         html, body {
             height: 100%;
             overflow-x: hidden;
-            background-color: #ffffff;
+            background-color: #f5f5f5;
             color: #212121;
         }
         
@@ -33,19 +33,111 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            background: #ffffff;
+            min-height: 100vh;
         }
         
-        .login-container {
-            max-width: 400px;
+        .container {
+            max-width: 500px;
             width: 100%;
             background-color: #ffffff;
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid #e0e0e0;
+            position: relative;
+            overflow: visible;
+            margin: 20px auto;
         }
         
+        /* Progress Steps */
+        .progress-steps {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+            padding: 0 20px;
+        }
+        
+        .progress-steps.visible {
+            display: flex;
+        }
+        
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50px;
+            right: 50px;
+            height: 2px;
+            background-color: #e0e0e0;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        
+        .step {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #757575;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-circle {
+            background-color: #212121;
+            border-color: #212121;
+            color: #ffffff;
+        }
+        
+        .step.completed .step-circle {
+            background-color: #4caf50;
+            border-color: #4caf50;
+            color: #ffffff;
+        }
+        
+        .step-label {
+            font-size: 0.8rem;
+            color: #757575;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-label {
+            color: #212121;
+            font-weight: 600;
+        }
+        
+        /* Form Sections */
+        .form-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .form-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Logo Section */
         .logo-section {
             text-align: center;
             margin-bottom: 30px;
@@ -68,6 +160,7 @@
             font-size: 0.9rem;
         }
         
+        /* Form Elements */
         .form-group {
             margin-bottom: 20px;
         }
@@ -97,6 +190,12 @@
             box-shadow: 0 0 0 3px rgba(33, 33, 33, 0.1);
         }
         
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* Buttons */
         .btn {
             padding: 14px 20px;
             border-radius: 10px;
@@ -105,20 +204,27 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 1rem;
-            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .btn-primary {
             background-color: #212121;
             color: #ffffff;
+            width: 100%;
         }
         
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background-color: #000000;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(33, 33, 33, 0.2);
@@ -127,102 +233,24 @@
         .btn-secondary {
             background-color: #e0e0e0;
             color: #212121;
+            width: 100%;
         }
         
-        .btn-secondary:hover {
-            background-color: #e0e0e0;
-            opacity: 0.9;
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #d0d0d0;
         }
         
-        .divider {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-            color: #757575;
-            font-size: 0.9rem;
-        }
-        
-        .divider::before,
-        .divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 45%;
-            height: 1px;
-            background-color: #e0e0e0;
-        }
-        
-        .divider::before {
-            left: 0;
-        }
-        
-        .divider::after {
-            right: 0;
-        }
-        
-        .register-link {
-            text-align: center;
+        .dual-button-container {
+            display: flex;
+            gap: 10px;
             margin-top: 20px;
-            color: #757575;
         }
         
-        .register-link a {
-            color: #212121;
-            text-decoration: none;
-            font-weight: 600;
+        .dual-button-container .btn {
+            flex: 1;
         }
         
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Payment Modal */
-        .payment-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .payment-content {
-            background-color: #ffffff;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .payment-icon {
-            font-size: 3.5rem;
-            color: #212121;
-            margin-bottom: 20px;
-        }
-        
-        .payment-title {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: #212121;
-        }
-        
-        .payment-message {
-            color: #757575;
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
-        
+        /* Plan Card */
         .plan-card {
             background-color: #f5f5f5;
             border-radius: 12px;
@@ -263,6 +291,7 @@
             text-align: center;
         }
         
+        /* PIX Info */
         .pix-info {
             background-color: #f0f9ff;
             border-radius: 12px;
@@ -287,8 +316,36 @@
             word-break: break-all;
             margin-bottom: 15px;
             border: 1px solid #e0e0e0;
+            user-select: all;
+            cursor: pointer;
+            position: relative;
         }
         
+        .pix-key:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .pix-key-copied {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #4caf50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .pix-key-copied.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Upload Area */
         .upload-area {
             border: 2px dashed #e0e0e0;
             border-radius: 10px;
@@ -296,7 +353,7 @@
             text-align: center;
             margin: 20px 0;
             cursor: pointer;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
             position: relative;
         }
         
@@ -305,7 +362,7 @@
             opacity: 0.7;
         }
         
-        .upload-area:active {
+        .upload-area:active:not(.uploading) {
             border-color: #212121;
         }
         
@@ -358,7 +415,7 @@
             background-color: #f5f5f5;
         }
         
-        /* PDF Preview Placeholder */
+        /* PDF Preview */
         .pdf-preview {
             display: none;
             width: 100%;
@@ -374,73 +431,125 @@
             cursor: pointer;
         }
         
-        /* Status Modal */
-        .status-modal {
-            display: none;
+        /* Waiting Section */
+        .waiting-section {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .waiting-icon {
+            font-size: 4rem;
+            color: #212121;
+            margin-bottom: 20px;
+        }
+        
+        .waiting-title {
+            font-size: 1.8rem;
+            color: #212121;
+            margin-bottom: 15px;
+        }
+        
+        .waiting-message {
+            color: #757575;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .whatsapp-note {
+            background-color: #25d366;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        /* Support Link */
+        .support-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #757575;
+            font-size: 0.9rem;
+        }
+        
+        .support-link a {
+            color: #212121;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .support-link a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Fullscreen Loader */
+        .fullscreen-loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 2000;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: none;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            z-index: 10000;
+            flex-direction: column;
+            gap: 20px;
         }
         
-        .status-content {
-            background-color: #ffffff;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
+        .fullscreen-loader.active {
+            display: flex;
+        }
+        
+        .loader-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #212121;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loader-text {
+            color: #212121;
+            font-size: 1.1rem;
+            font-weight: 600;
+            max-width: 300px;
             text-align: center;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
         }
         
-        .status-icon {
-            font-size: 3.5rem;
-            color: #212121;
-            margin-bottom: 20px;
-        }
-        
-        .status-title {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: #212121;
-        }
-        
-        .status-message {
-            color: #757575;
-            margin-bottom: 25px;
-            line-height: 1.5;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         /* Notification */
         .notification {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 20px;
+            right: 20px;
             padding: 15px 25px;
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
             z-index: 10000;
-            animation: fadeIn 0.3s ease;
+            animation: slideInRight 0.3s ease;
             font-weight: 600;
             color: white;
-            text-align: center;
             backdrop-filter: blur(10px);
             background-color: rgba(0, 0, 0, 0.85);
-            max-width: 300px;
-            width: 90%;
+            max-width: 350px;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 12px;
+            transform: translateX(0);
         }
         
         .notification.success {
@@ -455,44 +564,496 @@
             background-color: rgba(33, 150, 243, 0.95);
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .notification.warning {
+            background-color: rgba(255, 152, 0, 0.95);
         }
         
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Pending Status Modal */
+        .pending-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+        
+        .pending-modal.active {
+            display: flex;
+        }
+        
+        .pending-content {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .pending-icon {
+            font-size: 4rem;
+            color: #ff9800;
+            margin-bottom: 20px;
+        }
+        
+        .pending-title {
+            font-size: 1.8rem;
+            color: #212121;
+            margin-bottom: 15px;
+        }
+        
+        .pending-message {
+            color: #757575;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        /* Alert Modals */
+        .alert-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20000;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .alert-modal.active {
+            display: flex;
+        }
+        
+        .alert-content {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            animation: modalAppear 0.3s ease;
+        }
+        
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .alert-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .alert-icon.success {
+            color: #4caf50;
+        }
+        
+        .alert-icon.warning {
+            color: #ff9800;
+        }
+        
+        .alert-icon.info {
+            color: #2196f3;
+        }
+        
+        .alert-title {
+            font-size: 1.6rem;
+            color: #212121;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .alert-message {
+            color: #757575;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        .alert-message ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 15px 0;
+        }
+        
+        .alert-message li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .alert-message li:before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #2196f3;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+        
+        /* Status Box */
+        .status-box {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-icon {
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 0.8rem;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .status-icon.success {
+            background-color: #4caf50;
+            color: white;
         }
         
+        .status-icon.pending {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .status-icon.warning {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        /* WhatsApp button styles */
+        .btn-whatsapp {
+            background-color: #25d366;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+        }
+        
+        .btn-whatsapp:hover {
+            background-color: #1da851;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        }
+        
+        .btn-whatsapp:active {
+            transform: translateY(0);
+        }
+        
+        /* Alert buttons container */
+        .alert-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .alert-buttons .btn {
+            flex: 1;
+        }
+        
+        /* Responsive */
         @media (max-width: 480px) {
-            .login-container {
+            .container {
                 padding: 20px;
+                border-radius: 15px;
+                margin: 10px auto;
+            }
+            
+            body {
+                padding: 10px;
+                align-items: flex-start;
+                min-height: auto;
+                height: auto;
             }
             
             .logo-section h1 {
                 font-size: 1.5rem;
             }
+            
+            .progress-steps {
+                padding: 0 10px;
+                margin-bottom: 20px;
+            }
+            
+            .step-circle {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .step-label {
+                font-size: 0.7rem;
+            }
+            
+            .dual-button-container {
+                flex-direction: column;
+            }
+            
+            .support-link {
+                font-size: 0.8rem;
+            }
+            
+            .pending-content,
+            .alert-content {
+                padding: 25px 15px;
+            }
+            
+            .alert-buttons {
+                flex-direction: column;
+            }
+            
+            .alert-icon {
+                font-size: 2.8rem;
+            }
+            
+            .alert-title {
+                font-size: 1.4rem;
+            }
+        }
+        
+        /* Login specific */
+        .login-container {
+            display: block;
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #757575;
+        }
+        
+        .register-link a {
+            color: #212121;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .warning-box {
+            background-color: #fff3cd;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ff9800;
+            color: #856404;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #757575;
+            font-size: 0.9rem;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background-color: #e0e0e0;
+        }
+        
+        .divider::before {
+            left: 0;
+        }
+        
+        .divider::after {
+            right: 0;
+        }
+        
+        .small-text {
+            font-size: 0.85rem;
+            color: #757575;
+            margin-top: 5px;
+            display: block;
         }
     </style>
 </head>
 <body>
-    <!-- Login Container -->
-    <div class="login-container">
+    <!-- Fullscreen Loader -->
+    <div class="fullscreen-loader" id="fullscreenLoader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Processando...</div>
+    </div>
+
+    <!-- Alert Modal 1 - Enviar WhatsApp -->
+    <div class="alert-modal" id="alertModal1">
+        <div class="alert-content">
+            <div class="alert-icon warning">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <h2 class="alert-title">⚠️ ENVIE WHATSAPP AO SUPORTE</h2>
+            <div class="alert-message">
+                <p><strong>✅ Cadastro salvo com sucesso!</strong></p>
+                <p><strong>✅ Comprovante enviado!</strong></p>
+                
+                <div class="status-box">
+                    <div class="status-item">
+                        <div class="status-icon success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <span>Dados cadastrais salvos</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-icon success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <span>Informações de pagamento salvas</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-icon warning">
+                            <i class="fas fa-exclamation"></i>
+                        </div>
+                        <span><strong>Aguardando envio do WhatsApp</strong></span>
+                    </div>
+                </div>
+                
+                <p><strong>📱 ÚLTIMA ETAPA:</strong></p>
+                <p>Para liberar seu acesso, você precisa enviar uma mensagem ao suporte no WhatsApp.</p>
+                
+                <p><strong>📋 Informações que serão enviadas:</strong></p>
+                <ul>
+                    <li>Nome da sua loja</li>
+                    <li>Seu e-mail cadastrado</li>
+                    <li>Seu número de WhatsApp</li>
+                    <li>Valor do pagamento</li>
+                    <li>Data do cadastro</li>
+                </ul>
+                
+                <p><strong>⏱️ Prazo de liberação:</strong> Até 12 horas após confirmação.</p>
+            </div>
+            
+            <div class="alert-buttons">
+                <a href="#" class="btn btn-whatsapp" id="openWhatsAppBtn">
+                    <i class="fab fa-whatsapp"></i> Enviar WhatsApp
+                </a>
+                <button type="button" class="btn btn-secondary" id="backWhatsAppBtn">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Modal 2 - Aguardando Aprovação -->
+    <div class="alert-modal" id="alertModal2">
+        <div class="alert-content">
+            <div class="alert-icon info">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h2 class="alert-title">⏳ AGUARDANDO APROVAÇÃO</h2>
+            <div class="alert-message">
+                <div class="status-box">
+                    <div class="status-item">
+                        <div class="status-icon success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <span>Cadastro concluído</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-icon success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <span>Comprovante enviado</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-icon success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <span>WhatsApp enviado</span>
+                    </div>
+                </div>
+                
+                <p><strong>✅ Tudo certo! Seu processo foi concluído.</strong></p>
+                
+                <p><strong>📋 Status atual:</strong> Sua conta está em análise pelo suporte.</p>
+                
+                <p><strong>⏱️ Prazo máximo:</strong> 12 horas</p>
+                
+                <p><strong>📲 Notificação:</strong> Você será notificado no WhatsApp informado quando seu acesso for liberado.</p>
+                
+                <div class="whatsapp-note" style="margin: 20px 0;">
+                    <i class="fab fa-whatsapp"></i>
+                    Acompanhe pelo WhatsApp informado
+                </div>
+                
+                <p><strong>⚠️ Este aviso permanecerá até sua conta ser aprovada.</strong></p>
+            </div>
+            
+            <button type="button" class="btn btn-primary" id="backToLoginBtn">
+                <i class="fas fa-sign-in-alt"></i> Voltar para Login
+            </button>
+        </div>
+    </div>
+
+    <!-- Pending Status Modal -->
+    <div class="pending-modal" id="pendingModal">
+        <div class="pending-content">
+            <div class="pending-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h2 class="pending-title">Conta em Análise</h2>
+            <p class="pending-message">
+                Seu cadastro e pagamento estão em análise.<br><br>
+                <strong>O prazo máximo para liberação é de até 12 horas.</strong><br><br>
+                Você receberá uma confirmação no WhatsApp informado quando seu acesso for liberado.
+                Este aviso permanecerá enquanto sua conta estiver em análise.
+            </p>
+            <button type="button" class="btn btn-primary" id="closePendingBtn">
+                <i class="fas fa-check"></i> Fechar
+            </button>
+        </div>
+    </div>
+
+    <!-- Login Container (Initial State) -->
+    <div class="container login-container" id="loginContainer">
         <div class="logo-section">
             <div class="logo-icon">
                 <i class="fas fa-store"></i>
@@ -520,54 +1081,95 @@
         
         <div class="divider">ou</div>
         
-        <!-- Register Form -->
-        <form id="registerForm">
-            <div class="form-group">
-                <label class="form-label">Nome da Loja *</label>
-                <input type="text" id="storeName" class="form-input" placeholder="Nome do seu negócio" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">E-mail *</label>
-                <input type="email" id="regEmail" class="form-input" placeholder="seu@email.com" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Senha *</label>
-                <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres" required minlength="6">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Telefone (WhatsApp) *</label>
-                <input type="text" id="userPhone" class="form-input" placeholder="(11) 99999-9999" required>
-                <small class="text-gray">Este número será usado para confirmações de cadastro e notificações</small>
-            </div>
-            
-            <div class="mb-2" style="background-color: #fff3cd; padding: 12px; border-radius: 8px; border: 1px solid #ff9800; color: #856404; font-size: 0.85rem;">
-                <i class="fas fa-info-circle"></i> <strong>Atenção:</strong> O acesso ao sistema será liberado apenas após a confirmação do pagamento. Você receberá uma confirmação via WhatsApp.
-            </div>
-            
-            <button type="submit" class="btn btn-secondary" id="registerBtn">
-                <i class="fas fa-user-plus"></i> Criar Conta
-            </button>
-        </form>
+        <!-- Start Registration Button -->
+        <button class="btn btn-secondary" id="startRegisterBtn">
+            <i class="fas fa-user-plus"></i> Criar Nova Conta
+        </button>
         
-        <div class="register-link">
-            Já tem conta? <a href="#" id="showLogin">Faça login</a>
+        <!-- Support Link -->
+        <div class="support-link">
+            <a href="#" id="supportLink">
+                <i class="fas fa-question-circle"></i> Dúvidas? Entre em contato com suporte
+            </a>
         </div>
     </div>
 
-    <!-- Payment Modal -->
-    <div class="payment-modal" id="paymentModal">
-        <div class="payment-content">
-            <div class="payment-icon">
-                <i class="fas fa-credit-card"></i>
+    <!-- Registration Container (Hidden Initially) -->
+    <div class="container" id="registrationContainer" style="display: none;">
+        <!-- Progress Steps -->
+        <div class="progress-steps" id="progressSteps">
+            <div class="step" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Cadastro</div>
             </div>
-            <h2 class="payment-title">Escolha seu Plano</h2>
-            <p class="payment-message">
-                Para ativar sua loja virtual, escolha um plano de contrato e realize o pagamento.
-                <strong>O acesso será liberado após a confirmação do pagamento.</strong>
-            </p>
+            <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Pagamento</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Verificação</div>
+            </div>
+        </div>
+        
+        <!-- Step 1: Registration Form -->
+        <div class="form-section active" id="step1">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h2>Criar Nova Loja</h2>
+                <p>Preencha os dados da sua loja</p>
+            </div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label class="form-label">Nome da Loja *</label>
+                    <input type="text" id="storeName" class="form-input" placeholder="Nome do seu negócio" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">E-mail *</label>
+                    <input type="email" id="regEmail" class="form-input" placeholder="seu@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Senha *</label>
+                    <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Telefone (WhatsApp) *</label>
+                    <input type="text" id="userPhone" class="form-input" placeholder="(11) 99999-9999" required>
+                    <span class="small-text">Este número será usado para confirmações</span>
+                </div>
+                
+                <div class="warning-box">
+                    <i class="fas fa-info-circle"></i> <strong>Atenção:</strong> O acesso ao sistema será liberado apenas após a confirmação do pagamento.
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="registerBtn">
+                    <i class="fas fa-arrow-right"></i> Continuar para Pagamento
+                </button>
+            </form>
+            
+            <!-- Support Link -->
+            <div class="support-link">
+                <a href="#" id="supportLink2">
+                    <i class="fas fa-question-circle"></i> Dúvidas? Entre em contato com suporte
+                </a>
+            </div>
+        </div>
+        
+        <!-- Step 2: Payment -->
+        <div class="form-section" id="step2">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h2>Escolha seu Plano</h2>
+                <p>Ative sua loja virtual</p>
+            </div>
             
             <div class="plan-card">
                 <div class="plan-name">Plano Mensal</div>
@@ -581,72 +1183,89 @@
                 <div class="plan-price" id="planPrice">R$ 99,00/mês</div>
             </div>
             
-            <form id="paymentForm">
-                <input type="hidden" id="paymentUserId">
-                <input type="hidden" id="paymentPlan" value="monthly">
-                
-                <div class="pix-info">
-                    <div class="pix-title">Pagamento via PIX</div>
-                    <div class="pix-key" id="pixKeyDisplay">Carregando chave PIX...</div>
-                    <p>Copie a chave PIX acima e faça o pagamento no seu aplicativo bancário.</p>
+            <div class="pix-info">
+                <div class="pix-title">Pagamento via PIX</div>
+                <div class="pix-key" id="pixKeyDisplay">
+                    Carregando chave PIX...
+                    <div class="pix-key-copied" id="pixKeyCopied">Copiado!</div>
                 </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Envie o comprovante do pagamento</label>
-                    <div class="upload-area" id="receiptUploadArea">
-                        <div class="upload-icon">
-                            <i class="fas fa-file-upload"></i>
-                        </div>
-                        <div class="upload-text">Clique para fazer upload</div>
-                        <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
-                        <div class="file-types">
-                            <span class="file-type-badge">JPG</span>
-                            <span class="file-type-badge">PNG</span>
-                            <span class="file-type-badge">PDF</span>
-                        </div>
-                        <input type="file" id="receiptUpload" accept="image/*,.pdf" style="display: none;">
-                    </div>
-                    
-                    <img id="receiptImagePreview" class="image-preview" alt="Comprovante">
-                    
-                    <div class="pdf-preview" id="receiptPdfPreview">
-                        <i class="fas fa-file-pdf"></i>
-                        <div class="upload-text" id="pdfFileName">comprovante.pdf</div>
-                        <div class="upload-info">Clique para visualizar</div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Observações (opcional)</label>
-                    <textarea id="paymentNotes" class="form-input" rows="3" placeholder="Alguma observação sobre o pagamento..."></textarea>
-                </div>
-                
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-secondary flex-1" id="cancelPaymentBtn">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-primary flex-1" id="submitPaymentBtn">
-                        <i class="fas fa-paper-plane"></i> Enviar Comprovante
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Status Modal -->
-    <div class="status-modal" id="statusModal">
-        <div class="status-content">
-            <div class="status-icon">
-                <i class="fas fa-clock" id="statusIcon"></i>
+                <p style="color: #757575; font-size: 0.9rem;">Copie a chave PIX e faça o pagamento no seu aplicativo bancário.</p>
             </div>
-            <h2 class="status-title" id="statusTitle">Aguardando Análise</h2>
-            <p class="status-message" id="statusMessage">
-                Seu cadastro está em análise. Aguarde a confirmação do pagamento para acessar o sistema.
-                Você receberá uma notificação por WhatsApp quando seu acesso for liberado.
-            </p>
-            <button class="btn btn-primary" id="closeStatusBtn">
-                <i class="fas fa-check"></i> Entendido
+            
+            <div class="form-group">
+                <label class="form-label">Envie o comprovante do pagamento *</label>
+                <div class="upload-area" id="receiptUploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <div class="upload-text">Clique para fazer upload</div>
+                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                    <div class="file-types">
+                        <span class="file-type-badge">JPG</span>
+                        <span class="file-type-badge">PNG</span>
+                        <span class="file-type-badge">PDF</span>
+                    </div>
+                    <input type="file" id="receiptUpload" accept="image/*,.pdf" style="display: none;">
+                </div>
+                
+                <img id="receiptImagePreview" class="image-preview" alt="Comprovante">
+                
+                <div class="pdf-preview" id="receiptPdfPreview">
+                    <i class="fas fa-file-pdf"></i>
+                    <div class="upload-text" id="pdfFileName">comprovante.pdf</div>
+                    <div class="upload-info">Clique para visualizar</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Observações (opcional)</label>
+                <textarea id="paymentNotes" class="form-input" rows="3" placeholder="Alguma observação sobre o pagamento..."></textarea>
+            </div>
+            
+            <button type="button" class="btn btn-primary" id="submitPaymentBtn">
+                <i class="fas fa-check"></i> Concluir Cadastro
             </button>
+            
+            <!-- Support Link -->
+            <div class="support-link">
+                <a href="#" id="supportLink3">
+                    <i class="fas fa-question-circle"></i> Dúvidas? Entre em contato com suporte
+                </a>
+            </div>
+        </div>
+        
+        <!-- Step 3: Waiting Verification -->
+        <div class="form-section" id="step3">
+            <div class="waiting-section">
+                <div class="waiting-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h2 class="waiting-title">Aguardando Verificação</h2>
+                <p class="waiting-message">
+                    Seu cadastro e pagamento foram recebidos com sucesso! 🎉<br><br>
+                    Estamos analisando seu comprovante de pagamento.<br>
+                    <strong>O prazo máximo para liberação é de até 12 horas.</strong><br><br>
+                    Você receberá uma confirmação no WhatsApp informado quando seu acesso for liberado.
+                </p>
+                
+                <div class="whatsapp-note">
+                    <i class="fab fa-whatsapp"></i>
+                    Acompanhe pelo WhatsApp
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <button type="button" class="btn btn-primary" id="finishBtn">
+                        <i class="fas fa-check"></i> Entendido
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Support Link -->
+            <div class="support-link">
+                <a href="#" id="supportLink4">
+                    <i class="fas fa-question-circle"></i> Dúvidas? Entre em contato com suporte
+                </a>
+            </div>
         </div>
     </div>
 
@@ -667,69 +1286,177 @@
         const auth = firebase.auth();
 
         // DOM Elements
+        const loginContainer = document.getElementById('loginContainer');
+        const registrationContainer = document.getElementById('registrationContainer');
+        const progressSteps = document.getElementById('progressSteps');
+        const startRegisterBtn = document.getElementById('startRegisterBtn');
+        const pendingModal = document.getElementById('pendingModal');
+        const closePendingBtn = document.getElementById('closePendingBtn');
+        const supportLinks = document.querySelectorAll('[id^="supportLink"]');
+        
+        // Alert Modals
+        const alertModal1 = document.getElementById('alertModal1');
+        const alertModal2 = document.getElementById('alertModal2');
+        const openWhatsAppBtn = document.getElementById('openWhatsAppBtn');
+        const backWhatsAppBtn = document.getElementById('backWhatsAppBtn');
+        const backToLoginBtn = document.getElementById('backToLoginBtn');
+        
+        // Progress Steps
+        const steps = document.querySelectorAll('.step');
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        
+        // Forms
         const loginForm = document.getElementById('loginForm');
         const registerForm = document.getElementById('registerForm');
         const loginBtn = document.getElementById('loginBtn');
         const registerBtn = document.getElementById('registerBtn');
-        const showLogin = document.getElementById('showLogin');
-        const userPhone = document.getElementById('userPhone');
         
-        // Payment modal elements
-        const paymentModal = document.getElementById('paymentModal');
-        const paymentForm = document.getElementById('paymentForm');
-        const paymentUserId = document.getElementById('paymentUserId');
-        const pixKeyDisplay = document.getElementById('pixKeyDisplay');
+        // Payment Elements
+        const userPhone = document.getElementById('userPhone');
         const planPrice = document.getElementById('planPrice');
+        const pixKeyDisplay = document.getElementById('pixKeyDisplay');
+        const pixKeyCopied = document.getElementById('pixKeyCopied');
         const receiptUploadArea = document.getElementById('receiptUploadArea');
         const receiptUpload = document.getElementById('receiptUpload');
         const receiptImagePreview = document.getElementById('receiptImagePreview');
         const receiptPdfPreview = document.getElementById('receiptPdfPreview');
         const pdfFileName = document.getElementById('pdfFileName');
         const submitPaymentBtn = document.getElementById('submitPaymentBtn');
-        const cancelPaymentBtn = document.getElementById('cancelPaymentBtn');
+        const finishBtn = document.getElementById('finishBtn');
         
-        // Status modal elements
-        const statusModal = document.getElementById('statusModal');
-        const statusIcon = document.getElementById('statusIcon');
-        const statusTitle = document.getElementById('statusTitle');
-        const statusMessage = document.getElementById('statusMessage');
-        const closeStatusBtn = document.getElementById('closeStatusBtn');
-
-        // Application state
-        let currentUser = null;
+        // Loader
+        const fullscreenLoader = document.getElementById('fullscreenLoader');
+        const loaderText = document.getElementById('loaderText');
+        
+        // Application State
+        let currentStep = 1;
         let systemConfig = {};
+        let currentUser = null;
         let receiptBase64 = '';
         let receiptType = '';
         let receiptFileName = '';
         let phoneMask = null;
+        let registrationData = {};
+        let isProcessing = false;
+        let supportPhone = '';
+        let paymentRecordId = null;
+        let statusCheckInterval = null;
+        let whatsappMessage = '';
+        let whatsappUrl = '';
 
-        // Show login form by default
-        registerForm.style.display = 'none';
-
-        // Setup phone mask
-        function setupPhoneMask() {
-            if (userPhone) {
-                phoneMask = new IMask(userPhone, {
-                    mask: '(00) 00000-0000',
-                    lazy: false
-                });
-            }
-        }
-
-        // Toggle between login and register forms
-        showLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (registerForm.style.display === 'none') {
-                registerForm.style.display = 'block';
-                loginForm.style.display = 'none';
-                showLogin.textContent = 'Faça login';
-                setupPhoneMask();
-            } else {
-                registerForm.style.display = 'none';
-                loginForm.style.display = 'block';
-                showLogin.textContent = 'Criar conta';
-            }
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSystemConfig();
+            setupPhoneMask();
+            setupEventListeners();
+            restoreRegistrationProgress();
+            
+            // Check if user is already logged in
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        
+                        if (userData.status === 'active' && userData.isActive !== false) {
+                            localStorage.setItem('currentUser', JSON.stringify({
+                                uid: user.uid,
+                                email: user.email,
+                                storeName: userData.storeName,
+                                phone: userData.phone,
+                                isAdmin: true,
+                                expiryDate: userData.expiryDate
+                            }));
+                            window.location.href = 'index.html';
+                        } else if (userData.status === 'pending') {
+                            // Start monitoring status changes
+                            startStatusMonitoring(user.uid);
+                        }
+                    }
+                }
+            });
         });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Login/Register toggle
+            startRegisterBtn.addEventListener('click', startRegistration);
+            
+            // Support links
+            supportLinks.forEach(link => {
+                link.addEventListener('click', showSupport);
+            });
+            
+            // Forms
+            loginForm.addEventListener('submit', handleLogin);
+            registerForm.addEventListener('submit', handleRegister);
+            
+            // Alert Modal buttons
+            openWhatsAppBtn.addEventListener('click', sendWhatsAppMessage);
+            
+            backWhatsAppBtn.addEventListener('click', () => {
+                alertModal1.classList.remove('active');
+                showNotification('Você pode enviar o WhatsApp mais tarde.', 'info');
+            });
+            
+            backToLoginBtn.addEventListener('click', () => {
+                alertModal2.classList.remove('active');
+                // Go back to login
+                auth.signOut();
+                loginContainer.style.display = 'block';
+                registrationContainer.style.display = 'none';
+                progressSteps.classList.remove('visible');
+                resetRegistration();
+                showNotification('Aguarde a aprovação. Você será notificado no WhatsApp.', 'info');
+            });
+            
+            // Payment buttons with debounce
+            submitPaymentBtn.addEventListener('click', debounce(submitPayment, 1000));
+            finishBtn.addEventListener('click', finishRegistration);
+            
+            // PIX key copy
+            pixKeyDisplay.addEventListener('click', copyPixKey);
+            
+            // Receipt upload
+            receiptUploadArea.addEventListener('click', () => {
+                if (!receiptUploadArea.classList.contains('uploading')) {
+                    receiptUpload.click();
+                }
+            });
+            receiptUpload.addEventListener('change', handleReceiptUpload);
+            
+            // Pending modal close
+            closePendingBtn.addEventListener('click', () => {
+                pendingModal.classList.remove('active');
+            });
+            
+            // Prevent form submission on Enter key in textareas
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && e.target.tagName === 'TEXTAREA') {
+                    e.stopPropagation();
+                }
+            });
+            
+            // Check registration status when page loads
+            window.addEventListener('load', () => {
+                const registrationStatus = localStorage.getItem('registrationStatus');
+                
+                if (registrationStatus === 'whatsapp_sent') {
+                    // User already sent WhatsApp, show second modal
+                    setTimeout(() => {
+                        alertModal2.classList.add('active');
+                        localStorage.setItem('registrationStatus', 'waiting_approval');
+                    }, 500);
+                } else if (registrationStatus === 'waiting_approval') {
+                    // User is waiting approval
+                    setTimeout(() => {
+                        alertModal2.classList.add('active');
+                    }, 500);
+                }
+            });
+        }
 
         // Load system configuration
         async function loadSystemConfig() {
@@ -747,21 +1474,119 @@
                         const price = systemConfig.monthlyPlanPrice || 99.00;
                         planPrice.textContent = `R$ ${price.toFixed(2).replace('.', ',')}/mês`;
                     }
+                    
+                    // Get support phone from admin WhatsApp
+                    supportPhone = systemConfig.adminWhatsApp || '5511999999999';
+                } else {
+                    // Default values if no config exists
+                    systemConfig = {
+                        pixKey: 'chave-pix@empresa.com',
+                        monthlyPlanPrice: 99.00,
+                        adminWhatsApp: '5511999999999'
+                    };
+                    pixKeyDisplay.textContent = systemConfig.pixKey;
+                    planPrice.textContent = `R$ ${systemConfig.monthlyPlanPrice.toFixed(2).replace('.', ',')}/mês`;
+                    supportPhone = systemConfig.adminWhatsApp;
                 }
             } catch (error) {
                 console.error('Error loading system config:', error);
+                // Set defaults on error
+                systemConfig = {
+                    pixKey: 'chave-pix@empresa.com',
+                    monthlyPlanPrice: 99.00,
+                    adminWhatsApp: '5511999999999'
+                };
+                pixKeyDisplay.textContent = systemConfig.pixKey;
+                planPrice.textContent = `R$ ${systemConfig.monthlyPlanPrice.toFixed(2).replace('.', ',')}/mês`;
+                supportPhone = systemConfig.adminWhatsApp;
             }
         }
 
-        // Login function
-        loginForm.addEventListener('submit', async (e) => {
+        // Setup phone mask
+        function setupPhoneMask() {
+            if (userPhone) {
+                phoneMask = new IMask(userPhone, {
+                    mask: '(00) 00000-0000',
+                    lazy: false
+                });
+            }
+        }
+
+        // Start registration process
+        function startRegistration() {
+            loginContainer.style.display = 'none';
+            registrationContainer.style.display = 'block';
+            progressSteps.classList.add('visible');
+            currentStep = 1;
+            updateProgressSteps();
+            
+            // Save state
+            saveRegistrationProgress();
+        }
+
+        // Show support contact
+        function showSupport(e) {
             e.preventDefault();
+            
+            if (!supportPhone) {
+                showNotification('Número de suporte não configurado.', 'error');
+                return;
+            }
+            
+            const message = encodeURIComponent('Olá! Gostaria de tirar uma dúvida sobre o sistema Venda+.');
+            const whatsappUrl = `https://wa.me/${supportPhone}?text=${message}`;
+            
+            // Método seguro para evitar bloqueio de pop-ups
+            const link = document.createElement('a');
+            link.href = whatsappUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Update progress steps
+        function updateProgressSteps() {
+            steps.forEach(step => {
+                const stepNumber = parseInt(step.dataset.step);
+                
+                step.classList.remove('active', 'completed');
+                
+                if (stepNumber === currentStep) {
+                    step.classList.add('active');
+                } else if (stepNumber < currentStep) {
+                    step.classList.add('completed');
+                }
+            });
+        }
+
+        // Show current step
+        function showCurrentStep() {
+            // Hide all steps
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show current step
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            
+            // Scroll to top of container
+            registrationContainer.scrollTop = 0;
+        }
+
+        // Handle login
+        async function handleLogin(e) {
+            e.preventDefault();
+            if (isProcessing) return;
+            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
             try {
-                loginBtn.innerHTML = '<div class="loading"></div>';
-                loginBtn.disabled = true;
+                showLoader('Realizando login...');
+                isProcessing = true;
+                disableButton(loginBtn);
                 
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
@@ -773,24 +1598,28 @@
                     
                     // Check user status
                     if (userData.status === 'blocked') {
-                        showNotification('Sua conta está bloqueada. Entre em contato com o suporte.', 'error');
-                        await auth.signOut();
-                        return;
+                        throw new Error('Sua conta está bloqueada. Entre em contato com o suporte.');
                     }
                     
                     if (userData.status === 'expired') {
-                        showNotification('Seu plano expirou. Renove seu plano para continuar.', 'error');
-                        await auth.signOut();
-                        return;
+                        throw new Error('Seu plano expirou. Renove seu plano para continuar.');
                     }
                     
                     if (userData.status === 'pending') {
+                        // Show pending modal
                         showNotification('Seu pagamento está em análise. Aguarde a confirmação.', 'info');
-                        await auth.signOut();
+                        
+                        // Start monitoring status
+                        startStatusMonitoring(user.uid);
+                        
+                        // Show modal after a short delay
+                        setTimeout(() => {
+                            pendingModal.classList.add('active');
+                        }, 500);
+                        
                         return;
                     }
                     
-                    // Check if user has active status
                     if (userData.status === 'active' && userData.isActive !== false) {
                         // Check expiry date
                         if (userData.expiryDate) {
@@ -799,26 +1628,15 @@
                             today.setHours(0, 0, 0, 0);
                             
                             if (expiryDate < today) {
-                                // Account expired
                                 await db.collection('users').doc(user.uid).update({
                                     status: 'expired',
                                     isActive: false
                                 });
-                                showNotification('Seu plano expirou. Renove seu plano para continuar.', 'error');
-                                await auth.signOut();
-                                return;
-                            }
-                            
-                            // Check if expiry is near (show warning)
-                            const warningDays = systemConfig.expirationWarningDays || 7;
-                            const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-                            
-                            if (daysUntilExpiry <= warningDays && daysUntilExpiry > 0) {
-                                showNotification(`Seu plano expira em ${daysUntilExpiry} dia(s). Renove para continuar.`, 'warning');
+                                throw new Error('Seu plano expirou. Renove seu plano para continuar.');
                             }
                         }
                         
-                        // Store user data in localStorage
+                        // Store user data
                         localStorage.setItem('currentUser', JSON.stringify({
                             uid: user.uid,
                             email: user.email,
@@ -833,39 +1651,80 @@
                             lastLogin: new Date().toISOString()
                         });
                         
-                        // Record user activity
-                        await db.collection('userActivities').add({
-                            userId: user.uid,
-                            action: 'login',
-                            timestamp: new Date().toISOString(),
-                            userEmail: user.email,
-                            storeName: userData.storeName
-                        });
-                        
                         showNotification('Login realizado com sucesso!', 'success');
                         setTimeout(() => {
                             window.location.href = 'index.html';
                         }, 1000);
-                    } else {
-                        showNotification('Sua conta não está ativa. Entre em contato com o suporte.', 'error');
-                        await auth.signOut();
                     }
-                } else {
-                    showNotification('Erro: dados do usuário não encontrados.', 'error');
-                    await auth.signOut();
                 }
+                
             } catch (error) {
                 console.error('Login error:', error);
                 showNotification(getErrorMessage(error), 'error');
             } finally {
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
-                loginBtn.disabled = false;
+                hideLoader();
+                isProcessing = false;
+                enableButton(loginBtn);
             }
-        });
+        }
 
-        // Register function
-        registerForm.addEventListener('submit', async (e) => {
+        // Start monitoring user status changes
+        function startStatusMonitoring(userId) {
+            // Clear any existing interval
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+            }
+            
+            // Check status every 30 seconds
+            statusCheckInterval = setInterval(async () => {
+                try {
+                    const userDoc = await db.collection('users').doc(userId).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        
+                        if (userData.status === 'active') {
+                            // Status changed to active!
+                            clearInterval(statusCheckInterval);
+                            statusCheckInterval = null;
+                            
+                            // Hide modal
+                            pendingModal.classList.remove('active');
+                            
+                            // Show success notification
+                            showNotification('Seu acesso foi liberado! Redirecionando...', 'success');
+                            
+                            // Store user data
+                            localStorage.setItem('currentUser', JSON.stringify({
+                                uid: userId,
+                                email: userData.email,
+                                storeName: userData.storeName,
+                                phone: userData.phone,
+                                isAdmin: true,
+                                expiryDate: userData.expiryDate
+                            }));
+                            
+                            // Update last login
+                            await db.collection('users').doc(userId).update({
+                                lastLogin: new Date().toISOString()
+                            });
+                            
+                            // Redirect after 2 seconds
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 2000);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking status:', error);
+                }
+            }, 30000); // Check every 30 seconds
+        }
+
+        // Handle registration
+        async function handleRegister(e) {
             e.preventDefault();
+            if (isProcessing) return;
+            
             const storeName = document.getElementById('storeName').value;
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPassword').value;
@@ -877,15 +1736,22 @@
             }
             
             try {
-                registerBtn.innerHTML = '<div class="loading"></div>';
-                registerBtn.disabled = true;
-                
-                // Load system config first
-                await loadSystemConfig();
+                showLoader('Criando sua conta...');
+                isProcessing = true;
+                disableButton(registerBtn);
                 
                 // Create user in Firebase Auth
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
+                
+                // Store registration data
+                registrationData = {
+                    uid: user.uid,
+                    email: user.email,
+                    storeName: storeName,
+                    phone: phone,
+                    timestamp: new Date().toISOString()
+                };
                 
                 // Create user document with pending status
                 await db.collection('users').doc(user.uid).set({
@@ -902,84 +1768,22 @@
                     lastActivity: new Date().toISOString()
                 });
                 
-                // Store temporary user data for payment
-                currentUser = {
-                    uid: user.uid,
-                    email: user.email,
-                    storeName: storeName,
-                    phone: phone
-                };
+                // Go to payment step
+                currentStep = 2;
+                updateProgressSteps();
+                showCurrentStep();
+                saveRegistrationProgress();
                 
-                // Show payment modal
-                paymentUserId.value = user.uid;
-                showPaymentModal();
+                showNotification('Conta criada com sucesso! Continue com o pagamento.', 'success');
                 
             } catch (error) {
                 console.error('Registration error:', error);
                 showNotification(getErrorMessage(error), 'error');
             } finally {
-                registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Criar Conta';
-                registerBtn.disabled = false;
+                hideLoader();
+                isProcessing = false;
+                enableButton(registerBtn);
             }
-        });
-
-        // Show payment modal
-        function showPaymentModal() {
-            paymentModal.style.display = 'flex';
-            
-            // Reset receipt upload
-            receiptBase64 = '';
-            receiptType = '';
-            receiptFileName = '';
-            receiptImagePreview.style.display = 'none';
-            receiptPdfPreview.style.display = 'none';
-            
-            // Setup receipt upload
-            setupReceiptUpload();
-        }
-
-        // Setup receipt upload
-        function setupReceiptUpload() {
-            receiptUploadArea.addEventListener('click', () => {
-                if (!receiptUploadArea.classList.contains('uploading')) {
-                    receiptUpload.click();
-                }
-            });
-            
-            receiptUpload.addEventListener('change', handleReceiptUpload);
-            
-            // PDF preview click
-            receiptPdfPreview.addEventListener('click', () => {
-                if (receiptBase64) {
-                    const link = document.createElement('a');
-                    link.href = receiptBase64;
-                    link.download = receiptFileName || 'comprovante.pdf';
-                    link.target = '_blank';
-                    link.click();
-                }
-            });
-            
-            // Image preview click
-            receiptImagePreview.addEventListener('click', () => {
-                if (receiptBase64) {
-                    const newWindow = window.open();
-                    newWindow.document.write(`<img src="${receiptBase64}" style="max-width: 100%; max-height: 100%;">`);
-                }
-            });
-            
-            // Cancel button
-            cancelPaymentBtn.addEventListener('click', () => {
-                paymentModal.style.display = 'none';
-                // Sign out the user since they cancelled payment
-                auth.signOut();
-                // Show login form
-                registerForm.style.display = 'none';
-                loginForm.style.display = 'block';
-                showLogin.textContent = 'Criar conta';
-            });
-            
-            // Payment form submission
-            paymentForm.addEventListener('submit', submitPayment);
         }
 
         // Handle receipt upload
@@ -1034,14 +1838,13 @@
                     <div class="upload-icon">
                         <i class="fas fa-file-upload"></i>
                     </div>
-                    <div class="upload-text">Clique para fazer upload</div>
-                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
-                    <div class="file-types">
-                        <span class="file-type-badge">JPG</span>
-                        <span class="file-type-badge">PNG</span>
-                        <span class="file-type-badge">PDF</span>
-                    </div>
+                    <div class="upload-text">Arquivo enviado com sucesso!</div>
+                    <div class="upload-info">Clique novamente para alterar</div>
                 `;
+                
+                // Save to localStorage
+                saveRegistrationProgress();
+                showNotification('Comprovante carregado! Agora conclua o cadastro.', 'success');
             };
             
             reader.onerror = function() {
@@ -1064,31 +1867,102 @@
             reader.readAsDataURL(file);
         }
 
-        // Submit payment
-        async function submitPayment(e) {
-            e.preventDefault();
-            
-            if (!receiptBase64) {
-                showNotification('Por favor, envie o comprovante do pagamento.', 'error');
-                return;
+        // Generate and send WhatsApp message
+        function sendWhatsAppMessage(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
             }
             
+            const amount = systemConfig.monthlyPlanPrice || 99.00;
+            
+            // Format WhatsApp message
+            whatsappMessage = `✅ *NOVO CADASTRO VENDA+ - SOLICITAÇÃO DE LIBERAÇÃO* ✅\n\n`;
+            whatsappMessage += `🏪 *LOJA:* ${registrationData.storeName}\n`;
+            whatsappMessage += `📧 *E-MAIL:* ${registrationData.email}\n`;
+            whatsappMessage += `📱 *WHATSAPP:* ${registrationData.phone}\n`;
+            whatsappMessage += `💰 *VALOR PAGO:* R$ ${amount.toFixed(2).replace('.', ',')}\n`;
+            whatsappMessage += `📅 *DATA DO CADASTRO:* ${new Date().toLocaleDateString('pt-BR')}\n`;
+            whatsappMessage += `⏰ *HORA:* ${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}\n\n`;
+            whatsappMessage += `📋 *STATUS:* Comprovante enviado - Aguardando liberação\n`;
+            whatsappMessage += `🆔 *ID DO PAGAMENTO:* ${paymentRecordId}\n\n`;
+            whatsappMessage += `⚠️ *POR FAVOR, LIBERAR O ACESSO DESTA CONTA* ⚠️\n\n`;
+            whatsappMessage += `_Mensagem enviada automaticamente pelo sistema Venda+_`;
+            
+            // Encode message for URL
+            const encodedMessage = encodeURIComponent(whatsappMessage);
+            whatsappUrl = `https://wa.me/${supportPhone}?text=${encodedMessage}`;
+            
+            // Método seguro que evita bloqueio de pop-ups
+            // Usando elemento <a> em vez de window.open()
+            const link = document.createElement('a');
+            link.href = whatsappUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.style.display = 'none';
+            
+            document.body.appendChild(link);
+            link.click();
+            
+            // Remove o link após o uso
+            setTimeout(() => {
+                if (link.parentNode) {
+                    document.body.removeChild(link);
+                }
+            }, 100);
+            
+            // Update payment record to mark WhatsApp as sent
+            updateWhatsAppStatus();
+            
+            // Show second modal after a delay
+            setTimeout(() => {
+                alertModal1.classList.remove('active');
+                alertModal2.classList.add('active');
+                
+                // Update registration status
+                localStorage.setItem('registrationStatus', 'whatsapp_sent');
+            }, 500);
+            
+            return false;
+        }
+
+        // Update WhatsApp sent status in Firestore
+        async function updateWhatsAppStatus() {
             try {
-                submitPaymentBtn.innerHTML = '<div class="loading"></div>';
-                submitPaymentBtn.disabled = true;
+                if (paymentRecordId) {
+                    await db.collection('payments').doc(paymentRecordId).update({
+                        whatsappSent: true,
+                        whatsappSentAt: new Date().toISOString()
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating WhatsApp status:', error);
+            }
+        }
+
+        // Submit payment and show WhatsApp alert
+        async function submitPayment() {
+            try {
+                showLoader('Salvando informações...');
+                isProcessing = true;
+                disableButton(submitPaymentBtn);
+                
+                // Validate receipt
+                if (!receiptBase64) {
+                    throw new Error('Por favor, envie o comprovante de pagamento.');
+                }
                 
                 const paymentNotes = document.getElementById('paymentNotes').value;
-                const plan = document.getElementById('paymentPlan').value;
                 const amount = systemConfig.monthlyPlanPrice || 99.00;
                 
                 // Create payment record
-                await db.collection('payments').add({
-                    userId: currentUser.uid,
-                    userEmail: currentUser.email,
-                    userName: currentUser.storeName,
-                    userPhone: currentUser.phone,
-                    storeName: currentUser.storeName,
-                    plan: plan,
+                const paymentRef = await db.collection('payments').add({
+                    userId: registrationData.uid,
+                    userEmail: registrationData.email,
+                    userName: registrationData.storeName,
+                    userPhone: registrationData.phone,
+                    storeName: registrationData.storeName,
+                    plan: 'monthly',
                     amount: amount,
                     status: 'pending',
                     receiptBase64: receiptBase64,
@@ -1096,136 +1970,258 @@
                     receiptFileName: receiptFileName,
                     notes: paymentNotes,
                     createdAt: new Date().toISOString(),
-                    type: 'initial'
+                    type: 'initial',
+                    whatsappSent: false
                 });
                 
-                // Send WhatsApp notification to admin
-                await sendWhatsAppNotification(amount);
+                paymentRecordId = paymentRef.id;
                 
-                // Send confirmation WhatsApp to user
-                await sendUserConfirmationWhatsApp();
+                // Update user document with payment info
+                await db.collection('users').doc(registrationData.uid).update({
+                    paymentId: paymentRecordId,
+                    paymentStatus: 'pending',
+                    lastActivity: new Date().toISOString()
+                });
                 
-                // Show status modal
-                showStatusModal();
+                // Show WhatsApp alert modal
+                setTimeout(() => {
+                    alertModal1.classList.add('active');
+                    // Save status
+                    localStorage.setItem('registrationStatus', 'whatsapp_pending');
+                    saveRegistrationProgress();
+                }, 300);
                 
-                // Close payment modal
-                paymentModal.style.display = 'none';
+                showNotification('Cadastro salvo! Agora envie a mensagem no WhatsApp.', 'success');
                 
             } catch (error) {
                 console.error('Error submitting payment:', error);
-                showNotification('Erro ao enviar comprovante.', 'error');
+                showNotification(getErrorMessage(error), 'error');
             } finally {
-                submitPaymentBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Comprovante';
-                submitPaymentBtn.disabled = false;
+                hideLoader();
+                isProcessing = false;
+                enableButton(submitPaymentBtn);
             }
         }
 
-        // Send WhatsApp notification to admin
-        async function sendWhatsAppNotification(amount) {
-            try {
-                const adminWhatsApp = systemConfig.adminWhatsApp || '(11) 99999-9999';
-                const whatsappMessage = systemConfig.whatsappMessage || '';
-                
-                // Format message with user data
-                let message = whatsappMessage
-                    .replace('{nome}', currentUser.storeName)
-                    .replace('{loja}', currentUser.storeName)
-                    .replace('{email}', currentUser.email)
-                    .replace('{telefone}', currentUser.phone)
-                    .replace('{valor}', (amount || 99.00).toFixed(2))
-                    .replace('{data}', new Date().toLocaleDateString('pt-BR'));
-                
-                // Encode message for WhatsApp URL
-                const encodedMessage = encodeURIComponent(message);
-                
-                // Create WhatsApp URL
-                const whatsappUrl = `https://wa.me/${adminWhatsApp.replace(/\D/g, '')}?text=${encodedMessage}`;
-                
-                // Open WhatsApp in new tab
-                window.open(whatsappUrl, '_blank');
-                
-            } catch (error) {
-                console.error('Error sending WhatsApp notification:', error);
-            }
-        }
-
-        // Send confirmation WhatsApp to user
-        async function sendUserConfirmationWhatsApp() {
-            try {
-                const userPhone = currentUser.phone.replace(/\D/g, '');
-                
-                let message = `📋 *CONFIRMAÇÃO DE CADASTRO* 📋\n\n`;
-                message += `Olá ${currentUser.storeName}!\n\n`;
-                message += `Seu cadastro no *Venda+* foi recebido com sucesso! 🎉\n\n`;
-                message += `📧 *E-mail:* ${currentUser.email}\n`;
-                message += `🏪 *Loja:* ${currentUser.storeName}\n`;
-                message += `📅 *Data do cadastro:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
-                message += `⏳ *Status:* Seu pagamento está em análise\n\n`;
-                message += `Aguardamos a confirmação do pagamento para liberar seu acesso ao sistema.\n`;
-                message += `Você receberá uma mensagem neste WhatsApp quando seu acesso for liberado.\n\n`;
-                message += `Agradecemos pela preferência! 🙏`;
-                
-                const encodedMessage = encodeURIComponent(message);
-                const whatsappUrl = `https://wa.me/${userPhone}?text=${encodedMessage}`;
-                
-                // Open WhatsApp in new tab
-                window.open(whatsappUrl, '_blank');
-                
-            } catch (error) {
-                console.error('Error sending user confirmation WhatsApp:', error);
-            }
-        }
-
-        // Show status modal
-        function showStatusModal() {
-            statusIcon.className = 'fas fa-clock';
-            statusIcon.style.color = '#ff9800';
-            statusTitle.textContent = 'Aguardando Análise';
-            statusMessage.textContent = 'Seu cadastro está em análise. Aguarde a confirmação do pagamento para acessar o sistema. Você receberá uma notificação por WhatsApp quando seu acesso for liberado.';
+        // Finish registration
+        function finishRegistration() {
+            // Sign out the user
+            auth.signOut();
             
-            statusModal.style.display = 'flex';
+            // Show login
+            loginContainer.style.display = 'block';
+            registrationContainer.style.display = 'none';
+            progressSteps.classList.remove('visible');
             
-            // Close status modal button
-            closeStatusBtn.onclick = () => {
-                statusModal.style.display = 'none';
-                // Sign out the user
-                auth.signOut();
-                // Show login form
-                registerForm.style.display = 'none';
-                loginForm.style.display = 'block';
-                showLogin.textContent = 'Criar conta';
+            // Reset everything
+            resetRegistration();
+            
+            showNotification('Processo concluído! Aguarde a liberação do acesso.', 'success');
+        }
+
+        // Copy PIX key to clipboard
+        function copyPixKey() {
+            const pixKey = pixKeyDisplay.textContent;
+            
+            navigator.clipboard.writeText(pixKey).then(() => {
+                pixKeyCopied.classList.add('show');
+                setTimeout(() => {
+                    pixKeyCopied.classList.remove('show');
+                }, 2000);
+                showNotification('Chave PIX copiada!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                showNotification('Erro ao copiar chave PIX.', 'error');
+            });
+        }
+
+        // Save registration progress to localStorage
+        function saveRegistrationProgress() {
+            const progress = {
+                currentStep: currentStep,
+                registrationData: registrationData,
+                receiptBase64: receiptBase64,
+                receiptType: receiptType,
+                receiptFileName: receiptFileName,
+                paymentNotes: document.getElementById('paymentNotes')?.value || '',
+                timestamp: new Date().toISOString()
             };
+            
+            localStorage.setItem('vendaPlusRegistration', JSON.stringify(progress));
         }
 
-        // Check if user is already logged in
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
+        // Restore registration progress from localStorage
+        function restoreRegistrationProgress() {
+            const saved = localStorage.getItem('vendaPlusRegistration');
+            const registrationStatus = localStorage.getItem('registrationStatus');
+            
+            if (saved) {
+                try {
+                    const progress = JSON.parse(saved);
                     
-                    // Check user status
-                    if (userData.status === 'active' && userData.isActive !== false) {
-                        localStorage.setItem('currentUser', JSON.stringify({
-                            uid: user.uid,
-                            email: user.email,
-                            storeName: userData.storeName,
-                            phone: userData.phone,
-                            isAdmin: true,
-                            expiryDate: userData.expiryDate
-                        }));
-                        window.location.href = 'index.html';
-                    } else if (userData.status === 'pending') {
-                        // Show status modal for pending users
-                        showStatusModal();
+                    // Check if saved progress is recent (last 24 hours)
+                    const savedTime = new Date(progress.timestamp);
+                    const now = new Date();
+                    const hoursDiff = (now - savedTime) / (1000 * 60 * 60);
+                    
+                    if (hoursDiff < 24) {
+                        // Restore progress
+                        currentStep = progress.currentStep;
+                        registrationData = progress.registrationData || {};
+                        
+                        if (progress.receiptBase64) {
+                            receiptBase64 = progress.receiptBase64;
+                            receiptType = progress.receiptType;
+                            receiptFileName = progress.receiptFileName;
+                            
+                            // Restore receipt preview
+                            if (receiptType === 'pdf') {
+                                receiptPdfPreview.style.display = 'flex';
+                                pdfFileName.textContent = receiptFileName;
+                            } else {
+                                receiptImagePreview.src = receiptBase64;
+                                receiptImagePreview.style.display = 'block';
+                            }
+                        }
+                        
+                        if (progress.paymentNotes && document.getElementById('paymentNotes')) {
+                            document.getElementById('paymentNotes').value = progress.paymentNotes;
+                        }
+                        
+                        // Show registration container if not on login
+                        if (currentStep > 1) {
+                            loginContainer.style.display = 'none';
+                            registrationContainer.style.display = 'block';
+                            progressSteps.classList.add('visible');
+                            updateProgressSteps();
+                            showCurrentStep();
+                            
+                            // Check status and show appropriate modal
+                            if (registrationStatus === 'whatsapp_pending') {
+                                // User needs to send WhatsApp
+                                setTimeout(() => {
+                                    alertModal1.classList.add('active');
+                                }, 500);
+                            } else if (registrationStatus === 'whatsapp_sent' || registrationStatus === 'waiting_approval') {
+                                // User already sent WhatsApp, show waiting modal
+                                setTimeout(() => {
+                                    alertModal2.classList.add('active');
+                                }, 500);
+                            }
+                        }
+                    } else {
+                        // Progress is too old, clear it
+                        clearRegistrationProgress();
                     }
+                } catch (error) {
+                    console.error('Error restoring progress:', error);
+                    clearRegistrationProgress();
                 }
             }
-        });
+        }
 
-        // Helper functions
+        // Clear registration progress
+        function clearRegistrationProgress() {
+            localStorage.removeItem('vendaPlusRegistration');
+            localStorage.removeItem('registrationStatus');
+        }
+
+        // Reset registration
+        function resetRegistration() {
+            currentStep = 1;
+            registrationData = {};
+            receiptBase64 = '';
+            receiptType = '';
+            receiptFileName = '';
+            paymentRecordId = null;
+            whatsappMessage = '';
+            whatsappUrl = '';
+            
+            // Clear status monitoring
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+            
+            // Clear all modals
+            alertModal1.classList.remove('active');
+            alertModal2.classList.remove('active');
+            pendingModal.classList.remove('active');
+            
+            // Reset forms
+            if (document.getElementById('storeName')) document.getElementById('storeName').value = '';
+            if (document.getElementById('regEmail')) document.getElementById('regEmail').value = '';
+            if (document.getElementById('regPassword')) document.getElementById('regPassword').value = '';
+            if (document.getElementById('userPhone')) document.getElementById('userPhone').value = '';
+            if (document.getElementById('paymentNotes')) document.getElementById('paymentNotes').value = '';
+            
+            // Reset previews
+            receiptImagePreview.style.display = 'none';
+            receiptPdfPreview.style.display = 'none';
+            
+            // Reset upload area
+            receiptUploadArea.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <div class="upload-text">Clique para fazer upload</div>
+                <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                <div class="file-types">
+                    <span class="file-type-badge">JPG</span>
+                        <span class="file-type-badge">PNG</span>
+                        <span class="file-type-badge">PDF</span>
+                </div>
+            `;
+            
+            clearRegistrationProgress();
+        }
+
+        // Helper Functions
+        function showLoader(text = 'Processando...') {
+            loaderText.textContent = text;
+            fullscreenLoader.classList.add('active');
+            document.body.style.pointerEvents = 'none';
+        }
+
+        function hideLoader() {
+            fullscreenLoader.classList.remove('active');
+            document.body.style.pointerEvents = 'auto';
+        }
+
+        function disableButton(button) {
+            button.disabled = true;
+            button.style.opacity = '0.7';
+        }
+
+        function enableButton(button) {
+            button.disabled = false;
+            button.style.opacity = '1';
+        }
+
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            document.querySelectorAll('.notification').forEach(n => n.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+        }
+
         function getErrorMessage(error) {
-            switch (error.code) {
+            switch (error.code || error.message) {
                 case 'auth/email-already-in-use':
                     return 'Este e-mail já está em uso.';
                 case 'auth/invalid-email':
@@ -1238,43 +2234,27 @@
                     return 'Senha incorreta.';
                 case 'auth/too-many-requests':
                     return 'Muitas tentativas. Tente novamente mais tarde.';
+                case 'Sua conta está bloqueada. Entre em contato com o suporte.':
+                case 'Seu plano expirou. Renove seu plano para continuar.':
+                case 'Seu pagamento está em análise. Aguarde a confirmação.':
+                    return error.message;
                 default:
-                    return 'Erro: ' + error.message;
+                    return error.message || 'Ocorreu um erro. Tente novamente.';
             }
         }
 
-        function showNotification(message, type = 'info') {
-            const existingNotifications = document.querySelectorAll('.notification');
-            existingNotifications.forEach(notification => {
-                notification.remove();
-            });
-            
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'fadeOut 0.3s ease';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        document.body.removeChild(notification);
-                    }
-                }, 300);
-            }, 3000);
+        // Debounce function to prevent multiple clicks
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
         }
-
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            loadSystemConfig();
-            setupPhoneMask();
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            const storeId = urlParams.get('store');
-            if (storeId) {
-                window.location.href = `vitrine.html?store=${storeId}`;
-            }
-        });
     </script>
 </body>
 </html>
