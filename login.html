@@ -1346,6 +1346,14 @@
         let whatsappMessage = '';
         let whatsappUrl = '';
 
+        // Constantes para otimização
+        const TAMANHO_MAXIMO_KB = 600; // 600 KB
+        const TAMANHO_MAXIMO_BYTES = TAMANHO_MAXIMO_KB * 1024; // 600 KB em bytes
+        const QUALIDADE_INICIAL = 0.8; // 80% de qualidade inicial
+        const LARGURA_MAXIMA = 1200; // Largura máxima em pixels
+        const ALTURA_MAXIMA = 1200; // Altura máxima em pixels
+        const MAX_TENTATIVAS = 5; // Máximo de tentativas de otimização
+
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
             loadSystemConfig();
@@ -1808,19 +1816,16 @@
             }
         }
 
-        // Função para processar imagem - otimizar se for maior que 1MB
+        // Função para processar imagem - otimizar se for maior que 600KB
         function processarImagem(file, callback) {
-            // Tamanho máximo em bytes (1 MB = 1048576 bytes)
-            const TAMANHO_MAXIMO = 1048576;
-            
-            // Se for PDF ou imagem muito pequena, converte direto
-            if (file.type === 'application/pdf' || file.size <= TAMANHO_MAXIMO) {
+            // Se for PDF ou imagem muito pequena (menos de 600KB), converte direto
+            if (file.type === 'application/pdf' || file.size <= TAMANHO_MAXIMO_BYTES) {
                 converterParaBase64(file, callback);
                 return;
             }
             
             // Mostrar mensagem de otimização
-            showNotification('Otimizando imagem para reduzir tamanho...', 'info');
+            showNotification(`Imagem grande detectada (${(file.size/1024/1024).toFixed(2)} MB). Otimizando para ${TAMANHO_MAXIMO_KB}KB...`, 'info');
             
             const img = new Image();
             const reader = new FileReader();
@@ -1833,22 +1838,31 @@
                     const ctx = canvas.getContext('2d');
                     
                     // Reduzir qualidade e tamanho gradualmente
-                    let qualidade = 0.8; // Começa com 80% de qualidade
+                    let qualidade = QUALIDADE_INICIAL; // Começa com qualidade inicial
                     let largura = img.width;
                     let altura = img.height;
                     let base64Otimizada = '';
                     let tentativas = 0;
-                    const MAX_TENTATIVAS = 5;
                     
                     function tentarOtimizar() {
                         tentativas++;
                         
                         // Reduzir dimensões se necessário (apenas após primeira tentativa)
-                        if (tentativas > 1 && largura > 800) {
-                            const fatorReducao = 0.8; // Reduz 20%
+                        if (tentativas > 1) {
+                            // Reduz dimensões em 20%
+                            const fatorReducao = 0.8;
                             largura = Math.floor(largura * fatorReducao);
                             altura = Math.floor(altura * fatorReducao);
-                            qualidade = Math.max(0.5, qualidade - 0.1); // Reduz qualidade
+                            
+                            // Reduz qualidade gradualmente
+                            qualidade = Math.max(0.4, qualidade - 0.1); // Mínimo de 40% de qualidade
+                        }
+                        
+                        // Garantir que não exceda dimensões máximas
+                        if (largura > LARGURA_MAXIMA || altura > ALTURA_MAXIMA) {
+                            const ratio = Math.min(LARGURA_MAXIMA / largura, ALTURA_MAXIMA / altura);
+                            largura = Math.floor(largura * ratio);
+                            altura = Math.floor(altura * ratio);
                         }
                         
                         // Configurar canvas
@@ -1863,12 +1877,18 @@
                         const tamanhoAtual = calcularTamanhoBase64(base64Otimizada);
                         
                         // Verificar se está abaixo do limite ou atingiu máximo de tentativas
-                        if (tamanhoAtual <= TAMANHO_MAXIMO || tentativas >= MAX_TENTATIVAS) {
+                        if (tamanhoAtual <= TAMANHO_MAXIMO_BYTES || tentativas >= MAX_TENTATIVAS) {
                             const tamanhoOriginalMB = (file.size / 1048576).toFixed(2);
-                            const tamanhoOtimizadoMB = (tamanhoAtual / 1048576).toFixed(2);
+                            const tamanhoOriginalKB = (file.size / 1024).toFixed(0);
+                            const tamanhoOtimizadoKB = (tamanhoAtual / 1024).toFixed(0);
                             
-                            console.log(`Imagem otimizada: ${tamanhoOriginalMB}MB -> ${tamanhoOtimizadoMB}MB`);
-                            showNotification(`Imagem otimizada: ${tamanhoOriginalMB}MB → ${tamanhoOtimizadoMB}MB`, 'success');
+                            console.log(`Imagem otimizada: ${tamanhoOriginalKB}KB -> ${tamanhoOtimizadoKB}KB (${tamanhoAtual <= TAMANHO_MAXIMO_BYTES ? '✓ dentro do limite' : '⚠️ mínimo possível'})`);
+                            
+                            if (tamanhoAtual <= TAMANHO_MAXIMO_BYTES) {
+                                showNotification(`Imagem otimizada: ${tamanhoOriginalKB}KB → ${tamanhoOtimizadoKB}KB (abaixo de ${TAMANHO_MAXIMO_KB}KB)`, 'success');
+                            } else {
+                                showNotification(`Imagem otimizada ao máximo: ${tamanhoOriginalKB}KB → ${tamanhoOtimizadoKB}KB (melhor redução possível)`, 'warning');
+                            }
                             
                             callback(base64Otimizada);
                         } else {
@@ -1966,33 +1986,59 @@
             receiptFileName = file.name;
             
             // Mostrar tamanho otimizado
-            const tamanhoMB = (calcularTamanhoBase64(base64Data) / 1048576).toFixed(2);
+            const tamanhoKB = (calcularTamanhoBase64(base64Data) / 1024).toFixed(0);
+            const tamanhoOriginalKB = (file.size / 1024).toFixed(0);
             
             // Show preview
             if (receiptType === 'pdf') {
                 receiptPdfPreview.style.display = 'flex';
-                pdfFileName.textContent = `${file.name} (${tamanhoMB} MB)`;
+                pdfFileName.textContent = `${file.name} (${tamanhoKB} KB)`;
                 receiptImagePreview.style.display = 'none';
             } else {
                 receiptImagePreview.src = receiptBase64;
                 receiptImagePreview.style.display = 'block';
                 receiptPdfPreview.style.display = 'none';
                 
-                // Adicionar informação de tamanho na imagem (opcional)
-                const imgTitle = `${file.name} - ${tamanhoMB} MB`;
+                // Adicionar informação de tamanho na imagem
+                const imgTitle = `${file.name}\nOriginal: ${tamanhoOriginalKB}KB | Otimizado: ${tamanhoKB}KB`;
                 receiptImagePreview.title = imgTitle;
+                receiptImagePreview.alt = imgTitle;
             }
             
             // Reset upload area
             receiptUploadArea.classList.remove('uploading');
-            receiptUploadArea.innerHTML = `
-                <div class="upload-icon">
-                    <i class="fas fa-check-circle" style="color: #4caf50;"></i>
-                </div>
-                <div class="upload-text">Arquivo processado!</div>
-                <div class="upload-info">Tamanho: ${tamanhoMB} MB</div>
-                <div class="upload-info">Clique novamente para alterar</div>
-            `;
+            
+            // Mostrar mensagem apropriada baseada no tamanho
+            if (receiptType === 'pdf') {
+                receiptUploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-file-pdf" style="color: #f44336;"></i>
+                    </div>
+                    <div class="upload-text">PDF carregado</div>
+                    <div class="upload-info">Tamanho: ${tamanhoKB} KB</div>
+                    <div class="upload-info">Clique para alterar</div>
+                `;
+            } else if (file.size > TAMANHO_MAXIMO_BYTES) {
+                // Imagem foi otimizada
+                receiptUploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-compress-alt" style="color: #ff9800;"></i>
+                    </div>
+                    <div class="upload-text">Imagem otimizada!</div>
+                    <div class="upload-info">${tamanhoOriginalKB}KB → ${tamanhoKB}KB</div>
+                    <div class="upload-info">Clique para alterar</div>
+                `;
+            } else {
+                // Imagem já estava pequena
+                receiptUploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-check-circle" style="color: #4caf50;"></i>
+                    </div>
+                    <div class="upload-text">Imagem carregada</div>
+                    <div class="upload-info">Tamanho: ${tamanhoKB} KB (abaixo de ${TAMANHO_MAXIMO_KB}KB)</div>
+                    <div class="upload-info">Clique para alterar</div>
+                `;
+            }
             
             // Save to localStorage
             saveRegistrationProgress();
