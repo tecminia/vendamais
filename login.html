@@ -1786,14 +1786,140 @@
             }
         }
 
+        // Função para calcular tamanho de string base64 em bytes
+        function calcularTamanhoBase64(base64String) {
+            if (!base64String) return 0;
+            
+            try {
+                // Remove o prefixo "data:image/..." se existir
+                const stringBase64 = base64String.split(',')[1] || base64String;
+                
+                // Calcula o tamanho em bytes
+                const tamanhoString = stringBase64.length;
+                const tamanhoBytes = (tamanhoString * 3) / 4;
+                
+                // Subtrai os caracteres de preenchimento (=) se existirem
+                const padding = (stringBase64.match(/=/g) || []).length;
+                
+                return tamanhoBytes - padding;
+            } catch (error) {
+                console.error('Erro ao calcular tamanho base64:', error);
+                return 0;
+            }
+        }
+
+        // Função para processar imagem - otimizar se for maior que 1MB
+        function processarImagem(file, callback) {
+            // Tamanho máximo em bytes (1 MB = 1048576 bytes)
+            const TAMANHO_MAXIMO = 1048576;
+            
+            // Se for PDF ou imagem muito pequena, converte direto
+            if (file.type === 'application/pdf' || file.size <= TAMANHO_MAXIMO) {
+                converterParaBase64(file, callback);
+                return;
+            }
+            
+            // Mostrar mensagem de otimização
+            showNotification('Otimizando imagem para reduzir tamanho...', 'info');
+            
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                img.src = e.target.result;
+                
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Reduzir qualidade e tamanho gradualmente
+                    let qualidade = 0.8; // Começa com 80% de qualidade
+                    let largura = img.width;
+                    let altura = img.height;
+                    let base64Otimizada = '';
+                    let tentativas = 0;
+                    const MAX_TENTATIVAS = 5;
+                    
+                    function tentarOtimizar() {
+                        tentativas++;
+                        
+                        // Reduzir dimensões se necessário (apenas após primeira tentativa)
+                        if (tentativas > 1 && largura > 800) {
+                            const fatorReducao = 0.8; // Reduz 20%
+                            largura = Math.floor(largura * fatorReducao);
+                            altura = Math.floor(altura * fatorReducao);
+                            qualidade = Math.max(0.5, qualidade - 0.1); // Reduz qualidade
+                        }
+                        
+                        // Configurar canvas
+                        canvas.width = largura;
+                        canvas.height = altura;
+                        
+                        // Desenhar imagem redimensionada
+                        ctx.drawImage(img, 0, 0, largura, altura);
+                        
+                        // Converter para base64 com qualidade específica
+                        base64Otimizada = canvas.toDataURL('image/jpeg', qualidade);
+                        const tamanhoAtual = calcularTamanhoBase64(base64Otimizada);
+                        
+                        // Verificar se está abaixo do limite ou atingiu máximo de tentativas
+                        if (tamanhoAtual <= TAMANHO_MAXIMO || tentativas >= MAX_TENTATIVAS) {
+                            const tamanhoOriginalMB = (file.size / 1048576).toFixed(2);
+                            const tamanhoOtimizadoMB = (tamanhoAtual / 1048576).toFixed(2);
+                            
+                            console.log(`Imagem otimizada: ${tamanhoOriginalMB}MB -> ${tamanhoOtimizadoMB}MB`);
+                            showNotification(`Imagem otimizada: ${tamanhoOriginalMB}MB → ${tamanhoOtimizadoMB}MB`, 'success');
+                            
+                            callback(base64Otimizada);
+                        } else {
+                            // Tentar novamente com qualidade menor
+                            setTimeout(tentarOtimizar, 100);
+                        }
+                    }
+                    
+                    // Iniciar otimização
+                    tentarOtimizar();
+                };
+                
+                img.onerror = function() {
+                    // Se der erro ao carregar imagem, tenta converter normalmente
+                    console.warn('Erro ao carregar imagem para otimização, convertendo normalmente');
+                    converterParaBase64(file, callback);
+                };
+            };
+            
+            reader.onerror = function() {
+                showNotification('Erro ao ler arquivo.', 'error');
+                callback(null);
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // Função para converter arquivo para base64
+        function converterParaBase64(file, callback) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                callback(e.target.result);
+            };
+            
+            reader.onerror = function() {
+                showNotification('Erro ao converter arquivo.', 'error');
+                callback(null);
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
         // Handle receipt upload
         function handleReceiptUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
             
-            // Check file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                showNotification('O arquivo deve ter no máximo 5MB.', 'error');
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showNotification('O arquivo deve ter no máximo 10MB.', 'error');
                 receiptUpload.value = '';
                 return;
             }
@@ -1815,56 +1941,62 @@
                 <div class="upload-text">Processando arquivo...</div>
             `;
             
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                receiptBase64 = event.target.result;
-                receiptType = file.type.includes('pdf') ? 'pdf' : 'image';
-                receiptFileName = file.name;
-                
-                // Show preview
-                if (receiptType === 'pdf') {
-                    receiptPdfPreview.style.display = 'flex';
-                    pdfFileName.textContent = file.name;
-                    receiptImagePreview.style.display = 'none';
-                } else {
-                    receiptImagePreview.src = receiptBase64;
-                    receiptImagePreview.style.display = 'block';
-                    receiptPdfPreview.style.display = 'none';
-                }
-                
-                // Reset upload area
-                receiptUploadArea.classList.remove('uploading');
-                receiptUploadArea.innerHTML = `
-                    <div class="upload-icon">
-                        <i class="fas fa-file-upload"></i>
-                    </div>
-                    <div class="upload-text">Arquivo enviado com sucesso!</div>
-                    <div class="upload-info">Clique novamente para alterar</div>
-                `;
-                
-                // Save to localStorage
-                saveRegistrationProgress();
-                showNotification('Comprovante carregado! Agora conclua o cadastro.', 'success');
-            };
+            // Processar arquivo com otimização se necessário
+            if (file.type === 'application/pdf') {
+                // Para PDF, converter normalmente
+                converterParaBase64(file, function(base64) {
+                    if (base64) {
+                        processarArquivoComprovante(file, base64);
+                    }
+                });
+            } else {
+                // Para imagens, usar a função de otimização
+                processarImagem(file, function(base64) {
+                    if (base64) {
+                        processarArquivoComprovante(file, base64);
+                    }
+                });
+            }
+        }
+
+        // Função auxiliar para processar o comprovante após conversão
+        function processarArquivoComprovante(file, base64Data) {
+            receiptBase64 = base64Data;
+            receiptType = file.type.includes('pdf') ? 'pdf' : 'image';
+            receiptFileName = file.name;
             
-            reader.onerror = function() {
-                showNotification('Erro ao carregar arquivo.', 'error');
-                receiptUploadArea.classList.remove('uploading');
-                receiptUploadArea.innerHTML = `
-                    <div class="upload-icon">
-                        <i class="fas fa-file-upload"></i>
-                    </div>
-                    <div class="upload-text">Clique para fazer upload</div>
-                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
-                    <div class="file-types">
-                        <span class="file-type-badge">JPG</span>
-                        <span class="file-type-badge">PNG</span>
-                        <span class="file-type-badge">PDF</span>
-                    </div>
-                `;
-            };
+            // Mostrar tamanho otimizado
+            const tamanhoMB = (calcularTamanhoBase64(base64Data) / 1048576).toFixed(2);
             
-            reader.readAsDataURL(file);
+            // Show preview
+            if (receiptType === 'pdf') {
+                receiptPdfPreview.style.display = 'flex';
+                pdfFileName.textContent = `${file.name} (${tamanhoMB} MB)`;
+                receiptImagePreview.style.display = 'none';
+            } else {
+                receiptImagePreview.src = receiptBase64;
+                receiptImagePreview.style.display = 'block';
+                receiptPdfPreview.style.display = 'none';
+                
+                // Adicionar informação de tamanho na imagem (opcional)
+                const imgTitle = `${file.name} - ${tamanhoMB} MB`;
+                receiptImagePreview.title = imgTitle;
+            }
+            
+            // Reset upload area
+            receiptUploadArea.classList.remove('uploading');
+            receiptUploadArea.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-check-circle" style="color: #4caf50;"></i>
+                </div>
+                <div class="upload-text">Arquivo processado!</div>
+                <div class="upload-info">Tamanho: ${tamanhoMB} MB</div>
+                <div class="upload-info">Clique novamente para alterar</div>
+            `;
+            
+            // Save to localStorage
+            saveRegistrationProgress();
+            showNotification('Comprovante carregado com sucesso!', 'success');
         }
 
         // Generate and send WhatsApp message
