@@ -1058,6 +1058,7 @@
                     <li>Seu número de WhatsApp</li>
                     <li>Valor do pagamento</li>
                     <li>Data do cadastro</li>
+                    <li>Observações (se houver)</li>
                 </ul>
                 
                 <p><strong>⏱️ Prazo de liberação:</strong> Até 12 horas após confirmação.</p>
@@ -2233,6 +2234,7 @@
             }
             
             const amount = systemConfig.monthlyPlanPrice || 99.00;
+            const paymentNotes = document.getElementById('paymentNotes')?.value || '';
             
             // Format WhatsApp message
             whatsappMessage = `✅ *NOVO CADASTRO VENDA+ - SOLICITAÇÃO DE LIBERAÇÃO* ✅\n\n`;
@@ -2241,8 +2243,14 @@
             whatsappMessage += `📱 *WHATSAPP:* ${registrationData.phone}\n`;
             whatsappMessage += `💰 *VALOR PAGO:* R$ ${amount.toFixed(2).replace('.', ',')}\n`;
             whatsappMessage += `📅 *DATA DO CADASTRO:* ${new Date().toLocaleDateString('pt-BR')}\n`;
-            whatsappMessage += `⏰ *HORA:* ${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}\n\n`;
-            whatsappMessage += `📋 *STATUS:* Comprovante enviado - Aguardando liberação\n`;
+            whatsappMessage += `⏰ *HORA:* ${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}\n`;
+            
+            // Adicionar observações apenas se houver
+            if (paymentNotes && paymentNotes.trim() !== '') {
+                whatsappMessage += `📝 *OBSERVAÇÕES:* ${paymentNotes}\n`;
+            }
+            
+            whatsappMessage += `\n📋 *STATUS:* Comprovante enviado - Aguardando liberação\n`;
             whatsappMessage += `🆔 *ID DO PAGAMENTO:* ${paymentRecordId}\n\n`;
             whatsappMessage += `⚠️ *POR FAVOR, LIBERAR O ACESSO DESTA CONTA* ⚠️\n\n`;
             whatsappMessage += `_Mensagem enviada automaticamente pelo sistema Venda+_`;

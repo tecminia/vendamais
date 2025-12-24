@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <style>
         /* Theme Variables */
@@ -27,6 +26,7 @@
             --warning-color: #ff9800;
             --info-color: #2196f3;
             --whatsapp-color: #25D366;
+            --rating-color: #FFD700;
         }
         
         .theme-red {
@@ -244,6 +244,7 @@
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
             border: 1px solid var(--border-color);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         
         .product-card:active {
@@ -814,6 +815,222 @@
             cursor: pointer;
         }
         
+        /* Product Detail Modal */
+        .product-detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--surface-color);
+            z-index: 1500;
+            overflow-y: auto;
+        }
+        
+        .product-detail-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .product-detail-title {
+            font-size: 1.2rem;
+            color: var(--text-on-primary);
+            font-weight: 600;
+        }
+        
+        .close-detail {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-on-primary);
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .product-detail-body {
+            padding: 0 15px 15px;
+        }
+        
+        .product-detail-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
+        
+        .product-detail-info {
+            margin-bottom: 20px;
+        }
+        
+        .product-detail-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .product-detail-price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .product-detail-description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        
+        /* Ratings Section */
+        .ratings-section {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+        
+        .ratings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .ratings-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .ratings-summary {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .average-rating {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .stars-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .stars {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .star {
+            color: var(--border-color);
+            font-size: 1.2rem;
+        }
+        
+        .star.filled {
+            color: var(--rating-color);
+        }
+        
+        .rating-count {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .rating-bars {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .rating-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .rating-bar-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-width: 30px;
+        }
+        
+        .rating-bar {
+            flex: 1;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .rating-bar-fill {
+            height: 100%;
+            background-color: var(--rating-color);
+        }
+        
+        /* Reviews List */
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .review-item {
+            background-color: var(--background-color);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .reviewer-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .review-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .review-stars {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 10px;
+        }
+        
+        .review-comment {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+        
+        .no-reviews {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-secondary);
+        }
+        
         /* Loading Overlay */
         .loading-overlay {
             position: fixed;
@@ -1307,6 +1524,17 @@
         </nav>
     </div>
 
+    <!-- Product Detail Modal -->
+    <div class="product-detail-modal" id="productDetailModal">
+        <div class="product-detail-header">
+            <h2 class="product-detail-title">Detalhes do Produto</h2>
+            <button class="close-detail" id="closeDetailModal">&times;</button>
+        </div>
+        <div class="product-detail-body" id="productDetailBody">
+            <!-- Product details will be loaded here -->
+        </div>
+    </div>
+
     <!-- Access Code Modal -->
     <div class="modal" id="accessCodeModal">
         <div class="modal-content">
@@ -1516,7 +1744,6 @@
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const auth = firebase.auth();
 
         // Application state
         let cart = [];
@@ -1533,11 +1760,11 @@
         let deliveryFee = 0;
         let lastTouchDistance = null;
         let zoomScale = 1;
-        let currentUser = null;
         let userData = {};
         let userPhone = '';
         let accessCode = '';
-        let isAnonymous = false;
+        let isLoggedIn = false;
+        let currentProductDetail = null;
         
         // DOM Elements
         const appContainer = document.querySelector('.app-container');
@@ -1557,6 +1784,11 @@
         const loadingOverlay = document.getElementById('loadingOverlay');
         const logoutBtn = document.getElementById('logoutBtn');
         const showAccessCodeBtn = document.getElementById('showAccessCodeBtn');
+        
+        // Product detail modal elements
+        const productDetailModal = document.getElementById('productDetailModal');
+        const closeDetailModal = document.getElementById('closeDetailModal');
+        const productDetailBody = document.getElementById('productDetailBody');
         
         // Store config elements
         const businessName = document.getElementById('businessName');
@@ -1760,37 +1992,31 @@
             
             if (!currentStoreId) {
                 showNotification('Loja não encontrada. Verifique o link de acesso.', 'error');
-                redirectToLogin();
+                window.location.href = 'index.html';
                 return;
             }
             
-            // Check if user is logged in
+            // Check if user is already logged in (anonymous)
             const storedUser = localStorage.getItem(`userData_${currentStoreId}`);
-            if (!storedUser) {
-                redirectToLogin();
-                return;
-            }
             
-            try {
+            if (storedUser) {
+                // User is already logged in
                 userData = JSON.parse(storedUser);
                 userPhone = userData.phone || '';
                 accessCode = userData.accessCode || '';
+                isLoggedIn = true;
                 
-                // Load store config first
+                showLoading('Carregando loja...');
                 await loadStoreConfig();
-                
-                // Load app
                 await loadApp();
-                
-            } catch (e) {
-                console.error('Error loading user data:', e);
-                redirectToLogin();
+                hideLoading();
+            } else {
+                // New user - load store first, then ask for data when needed
+                showLoading('Carregando loja...');
+                await loadStoreConfig();
+                await loadApp();
+                hideLoading();
             }
-        }
-
-        // Redirect to login page
-        function redirectToLogin() {
-            window.location.href = `login-vitrine.html?store=${currentStoreId}`;
         }
 
         // Setup phone masks
@@ -1871,13 +2097,29 @@
             cartIconBtn.addEventListener('click', openCart);
             closeCartModal.addEventListener('click', closeCart);
             
-            // Add to cart buttons
+            // Product card click for detail view
             document.addEventListener('click', (e) => {
+                // Check if clicked on product card or image
+                const productCard = e.target.closest('.product-card');
+                if (productCard && !e.target.closest('.add-to-cart')) {
+                    const productId = productCard.querySelector('.add-to-cart')?.getAttribute('data-id');
+                    if (productId) {
+                        showProductDetail(productId);
+                    }
+                }
+                
+                // Add to cart button
                 if (e.target.closest('.add-to-cart')) {
                     const btn = e.target.closest('.add-to-cart');
                     const productId = btn.getAttribute('data-id');
                     addToCart(productId);
+                    e.stopPropagation(); // Prevent opening detail modal
                 }
+            });
+            
+            // Product detail modal
+            closeDetailModal.addEventListener('click', () => {
+                productDetailModal.style.display = 'none';
             });
             
             // Checkout button
@@ -1886,7 +2128,13 @@
                     showNotification('Adicione produtos ao carrinho.', 'error');
                     return;
                 }
-                showCartStep(2);
+                
+                // Check if user is logged in, if not, create anonymous account
+                if (!isLoggedIn) {
+                    showCartStep(2); // Go directly to delivery form for registration
+                } else {
+                    showCartStep(2);
+                }
             });
             
             // Back to cart button
@@ -1898,6 +2146,10 @@
             deliveryForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 if (validateDeliveryForm()) {
+                    // If not logged in, create anonymous account
+                    if (!isLoggedIn) {
+                        createAnonymousAccount();
+                    }
                     showCartStep(3);
                 }
             });
@@ -2029,17 +2281,17 @@
             // Load products
             await loadProducts();
             
-            // Load user orders
-            await loadUserOrders();
-            
-            // Update profile screen
-            updateProfileScreen();
+            // If user is logged in, load orders and update profile
+            if (isLoggedIn) {
+                await loadUserOrders();
+                updateProfileScreen();
+                
+                // Pre-fill delivery form with user data
+                loadUserDataToForm();
+            }
             
             // Update cart count
             updateCartCount();
-            
-            // Pre-fill delivery form with user data
-            loadUserDataToForm();
         }
 
         // Apply theme
@@ -2225,7 +2477,7 @@
                 productCard.innerHTML = `
                     <div class="product-image">
                         ${product.imageBase64 ? 
-                            `<img src="${product.imageBase64}" alt="${product.name}" loading="lazy" style="cursor: pointer;">` : 
+                            `<img src="${product.imageBase64}" alt="${product.name}" loading="lazy">` : 
                             `<i class="fas ${product.icon || 'fa-utensils'}"></i>`
                         }
                     </div>
@@ -2243,18 +2495,169 @@
                 
                 productsGrid.appendChild(productCard);
             });
+        }
+
+        // Show product detail modal
+        async function showProductDetail(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
             
-            // Add click event for product images
-            productsGrid.querySelectorAll('.product-image img').forEach(img => {
-                img.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const productId = e.target.closest('.product-card').querySelector('.add-to-cart').getAttribute('data-id');
-                    const product = products.find(p => p.id === productId);
-                    if (product && product.imageBase64) {
-                        openImageZoom(product.imageBase64, product.name);
-                    }
-                });
+            currentProductDetail = product;
+            
+            // Load ratings for this product
+            const ratings = await loadProductRatings(productId);
+            const averageRating = calculateAverageRating(ratings);
+            const ratingDistribution = calculateRatingDistribution(ratings);
+            
+            productDetailBody.innerHTML = `
+                <img src="${product.imageBase64 || ''}" class="product-detail-image" alt="${product.name}">
+                
+                <div class="product-detail-info">
+                    <h1 class="product-detail-name">${product.name}</h1>
+                    <div class="product-detail-price">R$ ${product.price.toFixed(2).replace('.', ',')}</div>
+                    <p class="product-detail-description">${product.description}</p>
+                    
+                    <button class="btn btn-primary btn-block" id="addToCartDetailBtn">
+                        <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+                    </button>
+                </div>
+                
+                <div class="ratings-section">
+                    <div class="ratings-header">
+                        <h3 class="ratings-title">Avaliações</h3>
+                        <div class="average-rating">${averageRating.toFixed(1)}</div>
+                    </div>
+                    
+                    <div class="ratings-summary">
+                        <div class="stars-container">
+                            <div class="stars">
+                                ${getStarsHTML(averageRating)}
+                            </div>
+                            <div class="rating-count">${ratings.length} avaliações</div>
+                        </div>
+                        
+                        <div class="rating-bars">
+                            ${[5, 4, 3, 2, 1].map(stars => `
+                                <div class="rating-bar-item">
+                                    <span class="rating-bar-label">${stars}★</span>
+                                    <div class="rating-bar">
+                                        <div class="rating-bar-fill" style="width: ${ratingDistribution[stars] || 0}%"></div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="reviews-list" id="reviewsList">
+                        ${ratings.length > 0 ? 
+                            ratings.slice(0, 5).map(review => `
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <span class="reviewer-name">${review.customerName || 'Cliente'}</span>
+                                        <span class="review-date">${formatDate(review.createdAt)}</span>
+                                    </div>
+                                    <div class="review-stars">
+                                        ${getStarsHTML(review.rating, true)}
+                                    </div>
+                                    <p class="review-comment">${review.comment || 'Sem comentário'}</p>
+                                </div>
+                            `).join('') : 
+                            `<div class="no-reviews">
+                                <p>Este produto ainda não possui avaliações.</p>
+                                <p>Seja o primeiro a avaliar!</p>
+                            </div>`
+                        }
+                    </div>
+                </div>
+            `;
+            
+            // Add event listener for add to cart button in detail modal
+            document.getElementById('addToCartDetailBtn').addEventListener('click', () => {
+                addToCart(productId);
+                showNotification(`${product.name} adicionado ao carrinho!`, 'success');
             });
+            
+            productDetailModal.style.display = 'block';
+        }
+
+        // Load product ratings from Firebase
+        async function loadProductRatings(productId) {
+            try {
+                const snapshot = await db.collection('stores').doc(currentStoreId)
+                    .collection('products').doc(productId)
+                    .collection('ratings')
+                    .orderBy('createdAt', 'desc')
+                    .limit(20)
+                    .get();
+                
+                const ratings = [];
+                snapshot.forEach(doc => {
+                    ratings.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                return ratings;
+            } catch (error) {
+                console.error('Error loading ratings:', error);
+                return [];
+            }
+        }
+
+        // Calculate average rating
+        function calculateAverageRating(ratings) {
+            if (ratings.length === 0) return 0;
+            
+            const total = ratings.reduce((sum, review) => sum + (review.rating || 0), 0);
+            return total / ratings.length;
+        }
+
+        // Calculate rating distribution
+        function calculateRatingDistribution(ratings) {
+            const distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+            
+            if (ratings.length === 0) return distribution;
+            
+            ratings.forEach(review => {
+                const rating = Math.round(review.rating);
+                if (rating >= 1 && rating <= 5) {
+                    distribution[rating] = (distribution[rating] || 0) + 1;
+                }
+            });
+            
+            // Convert to percentages
+            Object.keys(distribution).forEach(rating => {
+                distribution[rating] = (distribution[rating] / ratings.length) * 100;
+            });
+            
+            return distribution;
+        }
+
+        // Get stars HTML
+        function getStarsHTML(rating, isReview = false) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let starsHTML = '';
+            
+            // Full stars
+            for (let i = 0; i < fullStars; i++) {
+                starsHTML += `<i class="fas fa-star star filled"></i>`;
+            }
+            
+            // Half star
+            if (hasHalfStar) {
+                starsHTML += `<i class="fas fa-star-half-alt star filled"></i>`;
+            }
+            
+            // Empty stars
+            for (let i = 0; i < emptyStars; i++) {
+                starsHTML += `<i class="far fa-star star"></i>`;
+            }
+            
+            return starsHTML;
         }
 
         // Show loading
@@ -2286,7 +2689,7 @@
             
             document.getElementById(`${screen}Screen`).style.display = 'block';
             
-            if (screen === 'orders') {
+            if (screen === 'orders' && isLoggedIn) {
                 updateOrdersUI();
             }
         }
@@ -2316,6 +2719,13 @@
                 updateCartDisplay();
             } else if (step === 2) {
                 cartStep2.style.display = 'block';
+                // If not logged in, pre-fill with empty values
+                if (!isLoggedIn) {
+                    fullNameInput.value = '';
+                    addressInput.value = '';
+                    phoneInput.value = '';
+                    notesInput.value = '';
+                }
             } else if (step === 3) {
                 cartStep3.style.display = 'block';
             } else if (step === 4) {
@@ -2448,6 +2858,77 @@
             cartCount.textContent = totalItems;
         }
 
+        // Create anonymous account
+        async function createAnonymousAccount() {
+            const fullName = fullNameInput.value.trim();
+            const address = addressInput.value.trim();
+            const phone = phoneInput.value.trim();
+            
+            if (!fullName || !address || !phone) {
+                showNotification('Preencha todos os campos obrigatórios.', 'error');
+                return false;
+            }
+            
+            showLoading('Criando sua conta...');
+            
+            try {
+                // Generate access code
+                accessCode = generateAccessCode();
+                
+                // Create user data
+                userData = {
+                    id: generateUserId(),
+                    name: fullName,
+                    phone: phone,
+                    address: address,
+                    accessCode: accessCode,
+                    storeId: currentStoreId,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    isAnonymous: true
+                };
+                
+                // Save to Firestore
+                await db.collection('anonymousUsers').doc(userData.id).set(userData);
+                
+                // Save to localStorage
+                localStorage.setItem(`userData_${currentStoreId}`, JSON.stringify(userData));
+                
+                // Set user as logged in
+                isLoggedIn = true;
+                userPhone = phone;
+                
+                hideLoading();
+                showNotification('Conta criada com sucesso!', 'success');
+                
+                // Update profile screen
+                updateProfileScreen();
+                
+                return true;
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Error creating anonymous account:', error);
+                showNotification('Erro ao criar conta. Tente novamente.', 'error');
+                return false;
+            }
+        }
+
+        // Generate user ID
+        function generateUserId() {
+            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Generate access code
+        function generateAccessCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
         // Load user data and pre-fill form
         function loadUserDataToForm() {
             if (userData.name) fullNameInput.value = userData.name;
@@ -2510,8 +2991,10 @@
                 return false;
             }
             
-            // Save user data
-            saveUserDataToFirestore();
+            // If user is logged in, save updated data
+            if (isLoggedIn) {
+                saveUserDataToFirestore();
+            }
             
             const subtotal = calculateSubtotal();
             const total = subtotal + deliveryFee;
@@ -2536,8 +3019,8 @@
                 receiptBase64: null,
                 deliveryStatus: 'preparing',
                 storeId: currentStoreId,
-                userId: userData.id,
-                userAccessCode: accessCode
+                userId: userData.id || null,
+                userAccessCode: accessCode || null
             };
             
             return true;
@@ -2673,7 +3156,9 @@
                 clearCartOnly();
                 
                 // 6. Atualizar dados do usuário
-                await loadUserOrders();
+                if (isLoggedIn) {
+                    await loadUserOrders();
+                }
                 
             } catch (error) {
                 hideLoading();
@@ -2976,6 +3461,38 @@
 
         // Update profile screen
         function updateProfileScreen() {
+            if (!isLoggedIn) {
+                profileCard.innerHTML = `
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="profile-info">
+                                <h3>Faça seu primeiro pedido!</h3>
+                                <p>Seus dados serão salvos automaticamente</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <p>Você ainda não fez nenhum pedido. Faça seu primeiro pedido para cadastrar seus dados automaticamente!</p>
+                            <button class="btn btn-primary btn-block" id="goToHomeBtn">
+                                <i class="fas fa-shopping-cart"></i> Fazer Pedido
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('goToHomeBtn')?.addEventListener('click', () => {
+                    showScreen('home');
+                    navBtns.forEach(b => b.classList.remove('active'));
+                    document.querySelector('[data-screen="home"]').classList.add('active');
+                });
+                
+                profileStatusCard.style.display = 'none';
+                return;
+            }
+            
             if (!userData.name || !userData.phone) {
                 profileCard.innerHTML = `
                     <div class="profile-card">
@@ -2991,14 +3508,14 @@
                         
                         <div class="mt-3">
                             <p>Seus dados serão salvos automaticamente quando você fizer seu primeiro pedido.</p>
-                            <button class="btn btn-primary btn-block" id="goToHomeBtn">
+                            <button class="btn btn-primary btn-block" id="goToHomeBtn2">
                                 <i class="fas fa-shopping-cart"></i> Fazer Pedido
                             </button>
                         </div>
                     </div>
                 `;
                 
-                document.getElementById('goToHomeBtn')?.addEventListener('click', () => {
+                document.getElementById('goToHomeBtn2')?.addEventListener('click', () => {
                     showScreen('home');
                     navBtns.forEach(b => b.classList.remove('active'));
                     document.querySelector('[data-screen="home"]').classList.add('active');
@@ -3142,6 +3659,11 @@
 
         // Show access code modal
         function showAccessCodeModal() {
+            if (!isLoggedIn) {
+                showNotification('Faça um pedido para gerar seu código de acesso.', 'info');
+                return;
+            }
+            
             accessCodeDisplay.textContent = accessCode;
             accessCodeModal.style.display = 'block';
         }
@@ -3156,14 +3678,21 @@
                 accessCode = '';
                 cart = [];
                 userOrders = [];
+                isLoggedIn = false;
                 
-                // Sign out from Firebase auth
-                auth.signOut();
+                // Update UI
+                updateProfileScreen();
+                updateCartCount();
                 
-                // Redirect to login
-                redirectToLogin();
+                // Reset delivery form
+                deliveryForm.reset();
                 
                 showNotification('Você saiu da sua conta.', 'info');
+                
+                // Go back to home screen
+                showScreen('home');
+                navBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-screen="home"]').classList.add('active');
             }
         }
 
@@ -3268,7 +3797,9 @@
             receiptPreview.style.display = 'none';
             receiptUpload.value = '';
             paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
-            loadUserDataToForm();
+            if (isLoggedIn) {
+                loadUserDataToForm();
+            }
         }
 
         // Format date
