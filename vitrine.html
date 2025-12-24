@@ -1438,23 +1438,15 @@
                                     <i class="fas fa-file-upload"></i>
                                 </div>
                                 <div class="upload-text">Clique para enviar comprovante</div>
-                                <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                                <div class="upload-info">Aceitamos imagens (JPG, PNG)</div>
                                 <div class="file-types">
                                     <span class="file-type-badge">JPG</span>
                                     <span class="file-type-badge">PNG</span>
-                                    <span class="file-type-badge">PDF</span>
                                 </div>
-                                <input type="file" id="receiptUpload" accept="image/*,.pdf" style="display: none;">
+                                <input type="file" id="receiptUpload" accept="image/*" style="display: none;">
                             </div>
                             
                             <img id="receiptPreview" class="receipt-preview" alt="Comprovante">
-                            
-                            <!-- PDF Preview Placeholder -->
-                            <div id="pdfPreview" class="receipt-preview" style="display: none; background-color: var(--background-color); align-items: center; justify-content: center; flex-direction: column; padding: 20px;">
-                                <i class="fas fa-file-pdf upload-icon" style="font-size: 3rem; color: #f44336;"></i>
-                                <div class="upload-text" id="pdfFileName">arquivo.pdf</div>
-                                <div class="upload-info">Arquivo PDF carregado</div>
-                            </div>
                         </div>
                     </div>
                     
@@ -1603,8 +1595,6 @@
         const receiptUploadArea = document.getElementById('receiptUploadArea');
         const receiptUpload = document.getElementById('receiptUpload');
         const receiptPreview = document.getElementById('receiptPreview');
-        const pdfPreview = document.getElementById('pdfPreview');
-        const pdfFileName = document.getElementById('pdfFileName');
         
         // Success elements
         const successMessage = document.getElementById('successMessage');
@@ -1623,6 +1613,144 @@
         const imageZoomModal = document.getElementById('imageZoomModal');
         const closeZoom = document.getElementById('closeZoom');
         const zoomedImage = document.getElementById('zoomedImage');
+
+        // ====================== PROCESSADOR DE IMAGENS ======================
+        class ImageProcessor {
+            constructor(maxSizeKB = 600) {
+                this.maxSizeKB = maxSizeKB;
+                this.maxSizeBytes = maxSizeKB * 1024;
+            }
+
+            async processImage(file) {
+                try {
+                    console.log(`Processando imagem: ${file.name} (${(file.size/1024).toFixed(2)}KB)`);
+                    
+                    // Se o arquivo já está abaixo do limite, converte direto
+                    if (file.size <= this.maxSizeBytes) {
+                        console.log('Imagem dentro do limite, mantendo original...');
+                        return await this.fileToBase64(file);
+                    }
+                    
+                    console.log('Redimensionando imagem para ficar abaixo de 600KB...');
+                    return await this.compressImage(file);
+                    
+                } catch (error) {
+                    console.error('Erro ao processar imagem:', error);
+                    throw error;
+                }
+            }
+
+            async compressImage(file) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    const reader = new FileReader();
+
+                    reader.onload = async (e) => {
+                        img.src = e.target.result;
+                        
+                        img.onload = async () => {
+                            // Reduz a imagem progressivamente até ficar abaixo do limite
+                            let compressedBase64 = await this.optimizeImage(img);
+                            
+                            // Verifica se ainda está grande e reduz mais se necessário
+                            while (this.getBase64Size(compressedBase64) > this.maxSizeBytes) {
+                                compressedBase64 = await this.reduceImageSize(img, compressedBase64);
+                            }
+                            
+                            console.log(`Imagem comprimida: ${(this.getBase64Size(compressedBase64)/1024).toFixed(2)}KB`);
+                            resolve(compressedBase64);
+                        };
+                        
+                        img.onerror = reject;
+                    };
+                    
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            async optimizeImage(img, quality = 0.8) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Calcula novas dimensões mantendo proporção (começa com 1200px max)
+                let { width, height } = this.calculateDimensions(img.width, img.height, 1200);
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Tenta diferentes qualidades para encontrar o melhor tamanho
+                for (let q = quality; q > 0.3; q -= 0.1) {
+                    const base64 = canvas.toDataURL('image/jpeg', q);
+                    if (this.getBase64Size(base64) <= this.maxSizeBytes) {
+                        return base64;
+                    }
+                }
+                
+                // Se ainda estiver grande, retorna com qualidade mínima
+                return canvas.toDataURL('image/jpeg', 0.5);
+            }
+
+            calculateDimensions(originalWidth, originalHeight, maxDimension = 1200) {
+                let width = originalWidth;
+                let height = originalHeight;
+                
+                if (width > maxDimension || height > maxDimension) {
+                    if (width > height) {
+                        height = (height * maxDimension) / width;
+                        width = maxDimension;
+                    } else {
+                        width = (width * maxDimension) / height;
+                        height = maxDimension;
+                    }
+                }
+                
+                return { 
+                    width: Math.round(width), 
+                    height: Math.round(height) 
+                };
+            }
+
+            getBase64Size(base64String) {
+                // Remove o cabeçalho "data:image/...;base64,"
+                const stringLength = base64String.length - (base64String.indexOf(',') + 1);
+                // Tamanho aproximado em bytes
+                return (stringLength * 3) / 4;
+            }
+
+            fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                });
+            }
+
+            async reduceImageSize(img, currentBase64) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Reduz ainda mais as dimensões
+                const currentWidth = img.width;
+                const currentHeight = img.height;
+                const newWidth = Math.round(currentWidth * 0.7);
+                const newHeight = Math.round(currentHeight * 0.7);
+                
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                
+                ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                
+                return canvas.toDataURL('image/jpeg', 0.6);
+            }
+        }
+
+        // Inicializa o processador de imagens
+        const imageProcessor = new ImageProcessor(600);
+        // ====================== FIM DO PROCESSADOR ======================
 
         // Initialize the app
         async function init() {
@@ -1797,7 +1925,7 @@
             // Confirm order button
             confirmOrderBtn.addEventListener('click', confirmOrderAndSendWhatsApp);
             
-            // Receipt upload with loading indicator
+            // Receipt upload com processamento automático
             receiptUploadArea.addEventListener('click', () => {
                 if (!receiptUploadArea.classList.contains('uploading')) {
                     receiptUpload.click();
@@ -2435,18 +2563,23 @@
             }
         }
 
-        // Handle receipt upload with loading indicator
-        function handleReceiptUpload(e) {
+        // Handle receipt upload COM PROCESSAMENTO DE IMAGEM
+        async function handleReceiptUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
             
-            // Verificar tamanho máximo (10MB para PDF, 5MB para imagens)
-            const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-            const maxSize = isPDF ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+            // Verificar se é imagem
+            if (!file.type.match('image.*')) {
+                showNotification('Por favor, selecione apenas imagens (JPG, PNG).', 'error');
+                receiptUpload.value = '';
+                return;
+            }
+            
+            // Verificar tamanho máximo (10MB para imagens)
+            const maxSize = 10 * 1024 * 1024;
             
             if (file.size > maxSize) {
-                const maxSizeMB = isPDF ? 10 : 5;
-                showNotification(`O arquivo deve ter no máximo ${maxSizeMB}MB.`, 'error');
+                showNotification('A imagem deve ter no máximo 10MB.', 'error');
                 receiptUpload.value = '';
                 return;
             }
@@ -2457,30 +2590,27 @@
                 <div class="upload-icon">
                     <i class="fas fa-spinner fa-spin"></i>
                 </div>
-                <div class="upload-text">Processando arquivo...</div>
+                <div class="upload-text">Processando imagem...</div>
             `;
             
-            const reader = new FileReader();
-            
-            reader.onload = function(event) {
-                receiptBase64 = event.target.result;
+            try {
+                // Usar o processador de imagens para otimizar automaticamente
+                receiptBase64 = await imageProcessor.processImage(file);
                 
-                if (isPDF) {
-                    // Mostrar preview para PDF
-                    receiptPreview.style.display = 'none';
-                    pdfPreview.style.display = 'flex';
-                    pdfFileName.textContent = file.name;
-                } else {
-                    // Mostrar preview para imagens
-                    receiptPreview.src = receiptBase64;
-                    receiptPreview.style.display = 'block';
-                    pdfPreview.style.display = 'none';
-                }
+                // Mostrar preview da imagem
+                receiptPreview.src = receiptBase64;
+                receiptPreview.style.display = 'block';
                 
                 orderData.receiptBase64 = receiptBase64;
-                orderData.receiptType = isPDF ? 'pdf' : 'image';
+                orderData.receiptType = 'image';
                 orderData.receiptFileName = file.name;
                 
+                showNotification('Comprovante processado com sucesso!', 'success');
+                
+            } catch (error) {
+                console.error('Error processing image:', error);
+                showNotification('Erro ao processar imagem. Tente novamente.', 'error');
+            } finally {
                 // Reset upload area
                 receiptUploadArea.classList.remove('uploading');
                 receiptUploadArea.innerHTML = `
@@ -2488,36 +2618,14 @@
                         <i class="fas fa-file-upload"></i>
                     </div>
                     <div class="upload-text">Clique para enviar comprovante</div>
-                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                    <div class="upload-info">Aceitamos imagens (JPG, PNG)</div>
                     <div class="file-types">
                         <span class="file-type-badge">JPG</span>
                         <span class="file-type-badge">PNG</span>
-                        <span class="file-type-badge">PDF</span>
-                    </div>
-                `;
-                
-                showNotification('Comprovante carregado com sucesso!', 'success');
-            };
-            
-            reader.onerror = function() {
-                showNotification('Erro ao carregar arquivo.', 'error');
-                receiptUploadArea.classList.remove('uploading');
-                receiptUploadArea.innerHTML = `
-                    <div class="upload-icon">
-                        <i class="fas fa-file-upload"></i>
-                    </div>
-                    <div class="upload-text">Clique para enviar comprovante</div>
-                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
-                    <div class="file-types">
-                        <span class="file-type-badge">JPG</span>
-                        <span class="file-type-badge">PNG</span>
-                        <span class="file-type-badge">PDF</span>
                     </div>
                 `;
                 receiptUpload.value = '';
-            };
-            
-            reader.readAsDataURL(file);
+            }
         }
 
         // Confirm order and send WhatsApp
@@ -2581,7 +2689,6 @@
             receiptBase64 = null;
             updateCartCount();
             receiptPreview.style.display = 'none';
-            pdfPreview.style.display = 'none';
             receiptUpload.value = '';
             paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
         }
@@ -2613,11 +2720,7 @@
             
             if (orderDataParam.paymentMethod === 'pix' && orderDataParam.receiptBase64) {
                 message += `✅ Comprovante PIX enviado pelo cliente\n`;
-                if (orderDataParam.receiptType === 'pdf') {
-                    message += `📄 Formato: PDF (${orderDataParam.receiptFileName || 'arquivo.pdf'})\n`;
-                } else {
-                    message += `🖼️ Formato: Imagem\n`;
-                }
+                message += `🖼️ Imagem otimizada para envio\n`;
             }
             
             message += `Status: ⏳ Aguardando confirmação`;
@@ -2801,18 +2904,7 @@
                             ${order.receiptBase64 ? `
                             <div class="profile-card mt-3">
                                 <h3 class="mb-2">Comprovante PIX</h3>
-                                ${order.receiptType === 'pdf' ? `
-                                    <div class="pix-details text-center">
-                                        <i class="fas fa-file-pdf upload-icon" style="font-size: 3rem; color: #f44336;"></i>
-                                        <div class="upload-text">${order.receiptFileName || 'comprovante.pdf'}</div>
-                                        <div class="upload-info">Arquivo PDF enviado</div>
-                                        <button class="btn btn-primary btn-sm mt-2" onclick="downloadReceipt('${orderId}')">
-                                            <i class="fas fa-download"></i> Baixar PDF
-                                        </button>
-                                    </div>
-                                ` : `
-                                    <img src="${order.receiptBase64}" class="receipt-preview d-block" style="cursor: pointer;" onclick="openImageZoom('${order.receiptBase64}', 'Comprovante PIX')">
-                                `}
+                                <img src="${order.receiptBase64}" class="receipt-preview d-block" style="cursor: pointer;" onclick="openImageZoom('${order.receiptBase64}', 'Comprovante PIX')">
                             </div>
                             ` : ''}
                             
@@ -2841,16 +2933,6 @@
             
             window.openWhatsAppForOrderHelper = function(orderId) {
                 openWhatsAppForOrder(orderId);
-            };
-            
-            window.downloadReceipt = function(orderId) {
-                const order = userOrders.find(o => o.id === orderId);
-                if (order && order.receiptBase64) {
-                    const link = document.createElement('a');
-                    link.href = order.receiptBase64;
-                    link.download = order.receiptFileName || 'comprovante.pdf';
-                    link.click();
-                }
             };
         }
 
@@ -3184,7 +3266,6 @@
             updateCartCount();
             deliveryForm.reset();
             receiptPreview.style.display = 'none';
-            pdfPreview.style.display = 'none';
             receiptUpload.value = '';
             paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
             loadUserDataToForm();

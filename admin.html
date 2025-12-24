@@ -3112,7 +3112,13 @@
                 configLogoUpload.click();
             });
             
-            configLogoUpload.addEventListener('change', handleLogoUpload);
+            configLogoUpload.addEventListener('change', async (e) => {
+                await handleImageUpload(e, (base64) => {
+                    logoBase64 = base64;
+                    configLogoPreview.src = base64;
+                    configLogoPreview.style.display = 'block';
+                });
+            });
             
             // Logo preview click for zoom
             configLogoPreview.addEventListener('click', () => {
@@ -3135,7 +3141,13 @@
                 productImageUpload.click();
             });
             
-            productImageUpload.addEventListener('change', handleProductImageUpload);
+            productImageUpload.addEventListener('change', async (e) => {
+                await handleImageUpload(e, (base64) => {
+                    productImageBase64 = base64;
+                    productImagePreview.src = base64;
+                    productImagePreview.style.display = 'block';
+                });
+            });
             
             // Product image preview click for zoom
             productImagePreview.addEventListener('click', () => {
@@ -3172,7 +3184,9 @@
                 renewReceiptUpload.click();
             });
             
-            renewReceiptUpload.addEventListener('change', handleRenewReceiptUpload);
+            renewReceiptUpload.addEventListener('change', async (e) => {
+                await handleRenewReceiptUpload(e);
+            });
             
             // Close modals
             closeOrderModal.addEventListener('click', () => {
@@ -3218,6 +3232,168 @@
             });
         }
 
+        // Função para otimizar imagem
+        async function optimizeImage(base64String, maxSizeKB = 600) {
+            return new Promise((resolve) => {
+                // Calcular tamanho atual
+                const base64Data = base64String.split(',')[1] || base64String;
+                const currentSizeKB = (base64Data.length * 0.75) / 1024;
+                
+                // Se já estiver abaixo do limite, retorna original
+                if (currentSizeKB <= maxSizeKB) {
+                    resolve(base64String);
+                    return;
+                }
+                
+                // Carregar imagem para redimensionar
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    let quality = 0.8;
+                    
+                    // Reduzir dimensões se necessário
+                    const maxDimension = 1200;
+                    if (width > maxDimension || height > maxDimension) {
+                        if (width > height) {
+                            height = (maxDimension / width) * height;
+                            width = maxDimension;
+                        } else {
+                            width = (maxDimension / height) * width;
+                            height = maxDimension;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Tentar diferentes qualidades até ficar abaixo do limite
+                    const tryCompression = (currentQuality) => {
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', currentQuality);
+                        const compressedData = compressedBase64.split(',')[1];
+                        const compressedSizeKB = (compressedData.length * 0.75) / 1024;
+                        
+                        if (compressedSizeKB <= maxSizeKB || currentQuality <= 0.3) {
+                            resolve(compressedBase64);
+                        } else {
+                            setTimeout(() => {
+                                tryCompression(currentQuality * 0.8);
+                            }, 0);
+                        }
+                    };
+                    
+                    tryCompression(quality);
+                };
+                
+                img.onerror = function() {
+                    // Em caso de erro, retorna a imagem original
+                    resolve(base64String);
+                };
+                
+                img.src = base64String;
+            });
+        }
+
+        // Handle image upload with optimization
+        async function handleImageUpload(e, callback) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('A imagem deve ter no máximo 5MB.', 'error');
+                e.target.value = '';
+                return;
+            }
+            
+            // Check file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                showNotification('Tipo de arquivo inválido. Use JPG ou PNG.', 'error');
+                e.target.value = '';
+                return;
+            }
+            
+            // Get the upload area element
+            const uploadArea = e.target.closest('.upload-area');
+            if (uploadArea) {
+                uploadArea.classList.add('uploading');
+                uploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div class="upload-text">Otimizando imagem...</div>
+                `;
+            }
+            
+            try {
+                // Read file as base64
+                const reader = new FileReader();
+                reader.onload = async function(event) {
+                    try {
+                        const originalBase64 = event.target.result;
+                        
+                        // Otimizar imagem (reduz para menos de 600KB se necessário)
+                        const optimizedBase64 = await optimizeImage(originalBase64, 600);
+                        
+                        // Call callback with optimized image
+                        callback(optimizedBase64);
+                        
+                        showNotification('Imagem otimizada com sucesso!', 'success');
+                    } catch (error) {
+                        console.error('Error optimizing image:', error);
+                        callback(event.target.result);
+                        showNotification('Imagem carregada (sem otimização)', 'info');
+                    }
+                    
+                    // Reset upload area
+                    if (uploadArea) {
+                        uploadArea.classList.remove('uploading');
+                        uploadArea.innerHTML = `
+                            <div class="upload-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div class="upload-text">Clique para fazer upload</div>
+                            <div class="upload-info">Tamanho máximo: 5MB</div>
+                        `;
+                    }
+                };
+                
+                reader.onerror = function() {
+                    showNotification('Erro ao carregar imagem.', 'error');
+                    if (uploadArea) {
+                        uploadArea.classList.remove('uploading');
+                        uploadArea.innerHTML = `
+                            <div class="upload-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div class="upload-text">Clique para fazer upload</div>
+                            <div class="upload-info">Tamanho máximo: 5MB</div>
+                        `;
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Error in handleImageUpload:', error);
+                showNotification('Erro ao processar imagem.', 'error');
+                if (uploadArea) {
+                    uploadArea.classList.remove('uploading');
+                    uploadArea.innerHTML = `
+                        <div class="upload-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="upload-text">Clique para fazer upload</div>
+                        <div class="upload-info">Tamanho máximo: 5MB</div>
+                    `;
+                }
+            }
+        }
+
         // Show renew payment modal
         async function showRenewPaymentModal() {
             try {
@@ -3249,8 +3425,8 @@
             renewPaymentNotes.value = '';
         }
 
-        // Handle renew receipt upload
-        function handleRenewReceiptUpload(e) {
+        // Handle renew receipt upload with image optimization
+        async function handleRenewReceiptUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
             
@@ -3278,24 +3454,73 @@
                 <div class="upload-text">Processando arquivo...</div>
             `;
             
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                renewReceiptBase64 = event.target.result;
-                renewReceiptType = file.type.includes('pdf') ? 'pdf' : 'image';
-                renewReceiptFileName = file.name;
+            try {
+                const reader = new FileReader();
+                reader.onload = async function(event) {
+                    let base64 = event.target.result;
+                    renewReceiptType = file.type.includes('pdf') ? 'pdf' : 'image';
+                    renewReceiptFileName = file.name;
+                    
+                    // Se for imagem, otimizar
+                    if (renewReceiptType === 'image') {
+                        try {
+                            base64 = await optimizeImage(base64, 600);
+                        } catch (error) {
+                            console.error('Error optimizing receipt image:', error);
+                            // Continua com a imagem original se houver erro
+                        }
+                    }
+                    
+                    renewReceiptBase64 = base64;
+                    
+                    // Show preview
+                    if (renewReceiptType === 'pdf') {
+                        renewReceiptPdfPreview.style.display = 'flex';
+                        renewPdfFileName.textContent = file.name;
+                        renewReceiptImagePreview.style.display = 'none';
+                    } else {
+                        renewReceiptImagePreview.src = renewReceiptBase64;
+                        renewReceiptImagePreview.style.display = 'block';
+                        renewReceiptPdfPreview.style.display = 'none';
+                    }
+                    
+                    // Reset upload area
+                    renewReceiptUploadArea.classList.remove('uploading');
+                    renewReceiptUploadArea.innerHTML = `
+                        <div class="upload-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <div class="upload-text">Clique para fazer upload</div>
+                        <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                        <div class="file-types">
+                            <span class="file-type-badge">JPG</span>
+                            <span class="file-type-badge">PNG</span>
+                            <span class="file-type-badge">PDF</span>
+                        </div>
+                    `;
+                };
                 
-                // Show preview
-                if (renewReceiptType === 'pdf') {
-                    renewReceiptPdfPreview.style.display = 'flex';
-                    renewPdfFileName.textContent = file.name;
-                    renewReceiptImagePreview.style.display = 'none';
-                } else {
-                    renewReceiptImagePreview.src = renewReceiptBase64;
-                    renewReceiptImagePreview.style.display = 'block';
-                    renewReceiptPdfPreview.style.display = 'none';
-                }
+                reader.onerror = function() {
+                    showNotification('Erro ao carregar arquivo.', 'error');
+                    renewReceiptUploadArea.classList.remove('uploading');
+                    renewReceiptUploadArea.innerHTML = `
+                        <div class="upload-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <div class="upload-text">Clique para fazer upload</div>
+                        <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
+                        <div class="file-types">
+                            <span class="file-type-badge">JPG</span>
+                            <span class="file-type-badge">PNG</span>
+                            <span class="file-type-badge">PDF</span>
+                        </div>
+                    `;
+                };
                 
-                // Reset upload area
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Error in handleRenewReceiptUpload:', error);
+                showNotification('Erro ao processar arquivo.', 'error');
                 renewReceiptUploadArea.classList.remove('uploading');
                 renewReceiptUploadArea.innerHTML = `
                     <div class="upload-icon">
@@ -3309,26 +3534,7 @@
                         <span class="file-type-badge">PDF</span>
                     </div>
                 `;
-            };
-            
-            reader.onerror = function() {
-                showNotification('Erro ao carregar arquivo.', 'error');
-                renewReceiptUploadArea.classList.remove('uploading');
-                renewReceiptUploadArea.innerHTML = `
-                    <div class="upload-icon">
-                        <i class="fas fa-file-upload"></i>
-                    </div>
-                    <div class="upload-text">Clique para fazer upload</div>
-                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
-                    <div class="file-types">
-                        <span class="file-type-badge">JPG</span>
-                        <span class="file-type-badge">PNG</span>
-                        <span class="file-type-badge">PDF</span>
-                    </div>
-                `;
-            };
-            
-            reader.readAsDataURL(file);
+            }
         }
 
         // Submit renewal payment
@@ -3469,110 +3675,6 @@
         function resetZoom() {
             zoomedImage.style.transform = 'scale(1)';
             lastTouchDistance = null;
-        }
-
-        // Handle logo upload with loading indicator
-        function handleLogoUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                if (file.size > 5 * 1024 * 1024) {
-                    showNotification('A imagem deve ter no máximo 5MB.', 'error');
-                    configLogoUpload.value = '';
-                    return;
-                }
-                
-                // Show loading
-                logoUploadArea.classList.add('uploading');
-                logoUploadArea.innerHTML = `
-                    <div class="upload-icon">
-                        <i class="fas fa-spinner fa-spin"></i>
-                    </div>
-                    <div class="upload-text">Processando imagem...</div>
-                `;
-                
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    logoBase64 = event.target.result;
-                    configLogoPreview.src = logoBase64;
-                    configLogoPreview.style.display = 'block';
-                    
-                    // Reset upload area
-                    logoUploadArea.classList.remove('uploading');
-                    logoUploadArea.innerHTML = `
-                        <div class="upload-icon">
-                            <i class="fas fa-image"></i>
-                        </div>
-                        <div class="upload-text">Clique para fazer upload</div>
-                        <div class="upload-info">Tamanho máximo: 5MB</div>
-                    `;
-                };
-                
-                reader.onerror = function() {
-                    showNotification('Erro ao carregar imagem.', 'error');
-                    logoUploadArea.classList.remove('uploading');
-                    logoUploadArea.innerHTML = `
-                        <div class="upload-icon">
-                            <i class="fas fa-image"></i>
-                        </div>
-                        <div class="upload-text">Clique para fazer upload</div>
-                        <div class="upload-info">Tamanho máximo: 5MB</div>
-                    `;
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // Handle product image upload with loading indicator
-        function handleProductImageUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                if (file.size > 5 * 1024 * 1024) {
-                    showNotification('A imagem deve ter no máximo 5MB.', 'error');
-                    productImageUpload.value = '';
-                    return;
-                }
-                
-                // Show loading
-                productImageUploadArea.classList.add('uploading');
-                productImageUploadArea.innerHTML = `
-                    <div class="upload-icon">
-                        <i class="fas fa-spinner fa-spin"></i>
-                    </div>
-                    <div class="upload-text">Processando imagem...</div>
-                `;
-                
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    productImageBase64 = event.target.result;
-                    productImagePreview.src = productImageBase64;
-                    productImagePreview.style.display = 'block';
-                    
-                    // Reset upload area
-                    productImageUploadArea.classList.remove('uploading');
-                    productImageUploadArea.innerHTML = `
-                        <div class="upload-icon">
-                            <i class="fas fa-image"></i>
-                        </div>
-                        <div class="upload-text">Clique para fazer upload</div>
-                        <div class="upload-info">Tamanho máximo: 5MB</div>
-                    `;
-                };
-                
-                reader.onerror = function() {
-                    showNotification('Erro ao carregar imagem.', 'error');
-                    productImageUploadArea.classList.remove('uploading');
-                    productImageUploadArea.innerHTML = `
-                        <div class="upload-icon">
-                            <i class="fas fa-image"></i>
-                        </div>
-                        <div class="upload-text">Clique para fazer upload</div>
-                        <div class="upload-info">Tamanho máximo: 5MB</div>
-                    `;
-                };
-                
-                reader.readAsDataURL(file);
-            }
         }
 
         // Open image zoom modal
