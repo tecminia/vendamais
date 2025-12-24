@@ -18,6 +18,10 @@
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
             -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         
         html, body {
@@ -182,6 +186,10 @@
             transition: all 0.3s ease;
             background-color: #ffffff;
             color: #212121;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
         
         .form-input:focus {
@@ -316,7 +324,10 @@
             word-break: break-all;
             margin-bottom: 15px;
             border: 1px solid #e0e0e0;
-            user-select: all;
+            user-select: text;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
             cursor: pointer;
             position: relative;
         }
@@ -915,9 +926,38 @@
             margin-top: 5px;
             display: block;
         }
+        
+        /* Proteção contra cópia */
+        .copy-protection-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        
+        .no-copy {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        .allow-copy {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
     </style>
 </head>
 <body>
+    <!-- Overlay para proteção contra cópia -->
+    <div class="copy-protection-overlay" id="copyProtection"></div>
+    
     <!-- Fullscreen Loader -->
     <div class="fullscreen-loader" id="fullscreenLoader">
         <div class="loader-spinner"></div>
@@ -1059,7 +1099,7 @@
                 <i class="fas fa-store"></i>
             </div>
             <h1>Venda+</h1>
-            <p>Sistema Multi-Usuários</p>
+            <p>Já tem uma conta? Faça login. Não tem? Cadastre-se.</p>
         </div>
         
         <!-- Login Form -->
@@ -1293,6 +1333,7 @@
         const pendingModal = document.getElementById('pendingModal');
         const closePendingBtn = document.getElementById('closePendingBtn');
         const supportLinks = document.querySelectorAll('[id^="supportLink"]');
+        const copyProtection = document.getElementById('copyProtection');
         
         // Alert Modals
         const alertModal1 = document.getElementById('alertModal1');
@@ -1345,20 +1386,27 @@
         let statusCheckInterval = null;
         let whatsappMessage = '';
         let whatsappUrl = '';
+        
+        // Variáveis para proteção contra cópia
+        let copyProtectionActive = true;
+        let allowedToCopy = false;
+        let lastCopyTime = 0;
+        let copyAttemptCount = 0;
 
         // Constantes para otimização
-        const TAMANHO_MAXIMO_KB = 600; // 600 KB
-        const TAMANHO_MAXIMO_BYTES = TAMANHO_MAXIMO_KB * 1024; // 600 KB em bytes
-        const QUALIDADE_INICIAL = 0.8; // 80% de qualidade inicial
-        const LARGURA_MAXIMA = 1200; // Largura máxima em pixels
-        const ALTURA_MAXIMA = 1200; // Altura máxima em pixels
-        const MAX_TENTATIVAS = 5; // Máximo de tentativas de otimização
+        const TAMANHO_MAXIMO_KB = 600;
+        const TAMANHO_MAXIMO_BYTES = TAMANHO_MAXIMO_KB * 1024;
+        const QUALIDADE_INICIAL = 0.8;
+        const LARGURA_MAXIMA = 1200;
+        const ALTURA_MAXIMA = 1200;
+        const MAX_TENTATIVAS = 5;
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
             loadSystemConfig();
             setupPhoneMask();
             setupEventListeners();
+            setupCopyProtection(); // Adicionar proteção contra cópia
             restoreRegistrationProgress();
             
             // Check if user is already logged in
@@ -1387,14 +1435,101 @@
             });
         });
 
+        // Configurar proteção contra cópia
+        function setupCopyProtection() {
+            // Desabilitar menu de contexto
+            document.addEventListener('contextmenu', function(e) {
+                // Permitir apenas no campo PIX
+                if (e.target.closest('.pix-key') || e.target.closest('.form-input')) {
+                    return;
+                }
+                e.preventDefault();
+                return false;
+            });
+            
+            // Bloquear seleção de texto (exceto onde permitido)
+            document.addEventListener('selectstart', function(e) {
+                const target = e.target;
+                const allowedClasses = ['pix-key', 'form-input'];
+                const isAllowed = allowedClasses.some(className => target.classList.contains(className));
+                
+                if (!isAllowed && !target.closest('.pix-key') && !target.closest('.form-input')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            
+            // Bloquear cópia via teclado (Ctrl+C)
+            document.addEventListener('keydown', function(e) {
+                // Permitir cópia no campo PIX quando clicado
+                const activeElement = document.activeElement;
+                const isPixKey = activeElement.classList.contains('pix-key') || 
+                               (activeElement.closest && activeElement.closest('.pix-key'));
+                
+                if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
+                    if (!isPixKey) {
+                        e.preventDefault();
+                        showNotification('Cópia não permitida nesta área.', 'warning');
+                        return false;
+                    }
+                }
+            });
+            
+            // Bloquear arrastar
+            document.addEventListener('dragstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Permitir cópia apenas no campo PIX quando clicado
+            pixKeyDisplay.addEventListener('click', function() {
+                allowCopyTemporarily(2000); // Permitir cópia por 2 segundos
+            });
+            
+            // Adicionar mensagem de aviso
+            pixKeyDisplay.addEventListener('mouseenter', function() {
+                this.title = "Clique para copiar a chave PIX";
+            });
+        }
+        
+        // Permitir cópia temporariamente
+        function allowCopyTemporarily(ms) {
+            allowedToCopy = true;
+            copyProtection.style.pointerEvents = 'none';
+            
+            setTimeout(() => {
+                allowedToCopy = false;
+                copyProtection.style.pointerEvents = 'auto';
+            }, ms);
+        }
+        
+        // Verificar se a cópia é permitida
+        function isCopyAllowed(target) {
+            if (allowedToCopy) return true;
+            
+            // Permitir apenas no campo PIX
+            const isPixKey = target.classList.contains('pix-key') || 
+                           (target.closest && target.closest('.pix-key'));
+            
+            // Permitir apenas em campos de entrada
+            const isInput = target.classList.contains('form-input') || 
+                          target.tagName === 'INPUT' || 
+                          target.tagName === 'TEXTAREA';
+            
+            return isPixKey || isInput;
+        }
+
         // Setup event listeners
         function setupEventListeners() {
             // Login/Register toggle
             startRegisterBtn.addEventListener('click', startRegistration);
             
-            // Support links
+            // Support links - corrigido para evitar bloqueio de pop-ups
             supportLinks.forEach(link => {
-                link.addEventListener('click', showSupport);
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showSupport(e);
+                });
             });
             
             // Forms
@@ -1402,7 +1537,10 @@
             registerForm.addEventListener('submit', handleRegister);
             
             // Alert Modal buttons
-            openWhatsAppBtn.addEventListener('click', sendWhatsAppMessage);
+            openWhatsAppBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                sendWhatsAppMessage(e);
+            });
             
             backWhatsAppBtn.addEventListener('click', () => {
                 alertModal1.classList.remove('active');
@@ -1532,7 +1670,7 @@
             saveRegistrationProgress();
         }
 
-        // Show support contact
+        // Show support contact - CORRIGIDO para evitar bloqueio de pop-ups
         function showSupport(e) {
             e.preventDefault();
             
@@ -1544,14 +1682,37 @@
             const message = encodeURIComponent('Olá! Gostaria de tirar uma dúvida sobre o sistema Venda+.');
             const whatsappUrl = `https://wa.me/${supportPhone}?text=${message}`;
             
-            // Método seguro para evitar bloqueio de pop-ups
+            // Método otimizado para evitar bloqueio de pop-ups
             const link = document.createElement('a');
             link.href = whatsappUrl;
             link.target = '_blank';
-            link.rel = 'noopener noreferrer';
+            link.rel = 'noopener noreferrer nofollow';
+            link.style.cssText = 'position: fixed; left: -9999px; top: -9999px; width: 1px; height: 1px; opacity: 0;';
+            
             document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            
+            // Usar requestAnimationFrame para garantir que o clique seja processado
+            requestAnimationFrame(() => {
+                try {
+                    link.click();
+                    
+                    // Remover após um tempo seguro (5 segundos)
+                    setTimeout(() => {
+                        if (link.parentNode) {
+                            document.body.removeChild(link);
+                        }
+                    }, 5000);
+                } catch (error) {
+                    console.error('Erro ao abrir WhatsApp:', error);
+                    // Fallback: abrir em nova janela se o método anterior falhar
+                    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+                    
+                    // Remover o link de qualquer forma
+                    if (link.parentNode) {
+                        document.body.removeChild(link);
+                    }
+                }
+            });
         }
 
         // Update progress steps
@@ -1799,14 +1960,9 @@
             if (!base64String) return 0;
             
             try {
-                // Remove o prefixo "data:image/..." se existir
                 const stringBase64 = base64String.split(',')[1] || base64String;
-                
-                // Calcula o tamanho em bytes
                 const tamanhoString = stringBase64.length;
                 const tamanhoBytes = (tamanhoString * 3) / 4;
-                
-                // Subtrai os caracteres de preenchimento (=) se existirem
                 const padding = (stringBase64.match(/=/g) || []).length;
                 
                 return tamanhoBytes - padding;
@@ -1816,16 +1972,13 @@
             }
         }
 
-        // Função para processar imagem - otimizar se for maior que 600KB
+        // Função para processar imagem - otimizar sem mostrar detalhes técnicos
         function processarImagem(file, callback) {
-            // Se for PDF ou imagem muito pequena (menos de 600KB), converte direto
+            // Se for PDF ou imagem pequena, converte direto
             if (file.type === 'application/pdf' || file.size <= TAMANHO_MAXIMO_BYTES) {
                 converterParaBase64(file, callback);
                 return;
             }
-            
-            // Mostrar mensagem de otimização
-            showNotification(`Imagem grande detectada (${(file.size/1024/1024).toFixed(2)} MB). Otimizando para ${TAMANHO_MAXIMO_KB}KB...`, 'info');
             
             const img = new Image();
             const reader = new FileReader();
@@ -1837,8 +1990,7 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     
-                    // Reduzir qualidade e tamanho gradualmente
-                    let qualidade = QUALIDADE_INICIAL; // Começa com qualidade inicial
+                    let qualidade = QUALIDADE_INICIAL;
                     let largura = img.width;
                     let altura = img.height;
                     let base64Otimizada = '';
@@ -1847,69 +1999,44 @@
                     function tentarOtimizar() {
                         tentativas++;
                         
-                        // Reduzir dimensões se necessário (apenas após primeira tentativa)
                         if (tentativas > 1) {
-                            // Reduz dimensões em 20%
                             const fatorReducao = 0.8;
                             largura = Math.floor(largura * fatorReducao);
                             altura = Math.floor(altura * fatorReducao);
-                            
-                            // Reduz qualidade gradualmente
-                            qualidade = Math.max(0.4, qualidade - 0.1); // Mínimo de 40% de qualidade
+                            qualidade = Math.max(0.4, qualidade - 0.1);
                         }
                         
-                        // Garantir que não exceda dimensões máximas
                         if (largura > LARGURA_MAXIMA || altura > ALTURA_MAXIMA) {
                             const ratio = Math.min(LARGURA_MAXIMA / largura, ALTURA_MAXIMA / altura);
                             largura = Math.floor(largura * ratio);
                             altura = Math.floor(altura * ratio);
                         }
                         
-                        // Configurar canvas
                         canvas.width = largura;
                         canvas.height = altura;
                         
-                        // Desenhar imagem redimensionada
                         ctx.drawImage(img, 0, 0, largura, altura);
                         
-                        // Converter para base64 com qualidade específica
                         base64Otimizada = canvas.toDataURL('image/jpeg', qualidade);
                         const tamanhoAtual = calcularTamanhoBase64(base64Otimizada);
                         
-                        // Verificar se está abaixo do limite ou atingiu máximo de tentativas
                         if (tamanhoAtual <= TAMANHO_MAXIMO_BYTES || tentativas >= MAX_TENTATIVAS) {
-                            const tamanhoOriginalMB = (file.size / 1048576).toFixed(2);
-                            const tamanhoOriginalKB = (file.size / 1024).toFixed(0);
-                            const tamanhoOtimizadoKB = (tamanhoAtual / 1024).toFixed(0);
-                            
-                            console.log(`Imagem otimizada: ${tamanhoOriginalKB}KB -> ${tamanhoOtimizadoKB}KB (${tamanhoAtual <= TAMANHO_MAXIMO_BYTES ? '✓ dentro do limite' : '⚠️ mínimo possível'})`);
-                            
-                            if (tamanhoAtual <= TAMANHO_MAXIMO_BYTES) {
-                                showNotification(`Imagem otimizada: ${tamanhoOriginalKB}KB → ${tamanhoOtimizadoKB}KB (abaixo de ${TAMANHO_MAXIMO_KB}KB)`, 'success');
-                            } else {
-                                showNotification(`Imagem otimizada ao máximo: ${tamanhoOriginalKB}KB → ${tamanhoOtimizadoKB}KB (melhor redução possível)`, 'warning');
-                            }
-                            
                             callback(base64Otimizada);
                         } else {
-                            // Tentar novamente com qualidade menor
                             setTimeout(tentarOtimizar, 100);
                         }
                     }
                     
-                    // Iniciar otimização
                     tentarOtimizar();
                 };
                 
                 img.onerror = function() {
-                    // Se der erro ao carregar imagem, tenta converter normalmente
-                    console.warn('Erro ao carregar imagem para otimização, convertendo normalmente');
                     converterParaBase64(file, callback);
                 };
             };
             
             reader.onerror = function() {
-                showNotification('Erro ao ler arquivo.', 'error');
+                showNotification('Erro ao processar arquivo.', 'error');
                 callback(null);
             };
             
@@ -1961,16 +2088,14 @@
                 <div class="upload-text">Processando arquivo...</div>
             `;
             
-            // Processar arquivo com otimização se necessário
+            // Processar arquivo sem mostrar detalhes técnicos
             if (file.type === 'application/pdf') {
-                // Para PDF, converter normalmente
                 converterParaBase64(file, function(base64) {
                     if (base64) {
                         processarArquivoComprovante(file, base64);
                     }
                 });
             } else {
-                // Para imagens, usar a função de otimização
                 processarImagem(file, function(base64) {
                     if (base64) {
                         processarArquivoComprovante(file, base64);
@@ -1979,63 +2104,44 @@
             }
         }
 
-        // Função auxiliar para processar o comprovante após conversão
+        // Função auxiliar para processar o comprovante
         function processarArquivoComprovante(file, base64Data) {
             receiptBase64 = base64Data;
             receiptType = file.type.includes('pdf') ? 'pdf' : 'image';
             receiptFileName = file.name;
             
-            // Mostrar tamanho otimizado
-            const tamanhoKB = (calcularTamanhoBase64(base64Data) / 1024).toFixed(0);
-            const tamanhoOriginalKB = (file.size / 1024).toFixed(0);
-            
             // Show preview
             if (receiptType === 'pdf') {
                 receiptPdfPreview.style.display = 'flex';
-                pdfFileName.textContent = `${file.name} (${tamanhoKB} KB)`;
+                pdfFileName.textContent = file.name;
                 receiptImagePreview.style.display = 'none';
             } else {
                 receiptImagePreview.src = receiptBase64;
                 receiptImagePreview.style.display = 'block';
                 receiptPdfPreview.style.display = 'none';
                 
-                // Adicionar informação de tamanho na imagem
-                const imgTitle = `${file.name}\nOriginal: ${tamanhoOriginalKB}KB | Otimizado: ${tamanhoKB}KB`;
-                receiptImagePreview.title = imgTitle;
-                receiptImagePreview.alt = imgTitle;
+                // Mostrar apenas o nome do arquivo, sem detalhes técnicos
+                receiptImagePreview.alt = file.name;
             }
             
-            // Reset upload area
+            // Reset upload area com mensagem simplificada
             receiptUploadArea.classList.remove('uploading');
             
-            // Mostrar mensagem apropriada baseada no tamanho
             if (receiptType === 'pdf') {
                 receiptUploadArea.innerHTML = `
                     <div class="upload-icon">
                         <i class="fas fa-file-pdf" style="color: #f44336;"></i>
                     </div>
                     <div class="upload-text">PDF carregado</div>
-                    <div class="upload-info">Tamanho: ${tamanhoKB} KB</div>
-                    <div class="upload-info">Clique para alterar</div>
-                `;
-            } else if (file.size > TAMANHO_MAXIMO_BYTES) {
-                // Imagem foi otimizada
-                receiptUploadArea.innerHTML = `
-                    <div class="upload-icon">
-                        <i class="fas fa-compress-alt" style="color: #ff9800;"></i>
-                    </div>
-                    <div class="upload-text">Imagem otimizada!</div>
-                    <div class="upload-info">${tamanhoOriginalKB}KB → ${tamanhoKB}KB</div>
                     <div class="upload-info">Clique para alterar</div>
                 `;
             } else {
-                // Imagem já estava pequena
+                // Mensagem simplificada sem detalhes técnicos
                 receiptUploadArea.innerHTML = `
                     <div class="upload-icon">
                         <i class="fas fa-check-circle" style="color: #4caf50;"></i>
                     </div>
                     <div class="upload-text">Imagem carregada</div>
-                    <div class="upload-info">Tamanho: ${tamanhoKB} KB (abaixo de ${TAMANHO_MAXIMO_KB}KB)</div>
                     <div class="upload-info">Clique para alterar</div>
                 `;
             }
@@ -2067,25 +2173,33 @@
             whatsappMessage += `⚠️ *POR FAVOR, LIBERAR O ACESSO DESTA CONTA* ⚠️\n\n`;
             whatsappMessage += `_Mensagem enviada automaticamente pelo sistema Venda+_`;
             
-            // Encode message for URL
             const encodedMessage = encodeURIComponent(whatsappMessage);
             whatsappUrl = `https://wa.me/${supportPhone}?text=${encodedMessage}`;
             
-            // Método seguro que evita bloqueio de pop-ups
-            // Usando elemento <a> em vez de window.open()
             const link = document.createElement('a');
             link.href = whatsappUrl;
             link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            link.style.display = 'none';
+            link.rel = 'noopener noreferrer nofollow';
+            link.style.cssText = 'position: fixed; left: -9999px; top: -9999px; width: 1px; height: 1px; opacity: 0;';
             
             document.body.appendChild(link);
-            link.click();
             
-            // Remove o link após o uso
             setTimeout(() => {
-                if (link.parentNode) {
-                    document.body.removeChild(link);
+                try {
+                    link.click();
+                    
+                    setTimeout(() => {
+                        if (link.parentNode) {
+                            document.body.removeChild(link);
+                        }
+                    }, 8000);
+                } catch (error) {
+                    console.error('Erro ao abrir WhatsApp:', error);
+                    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+                    
+                    if (link.parentNode) {
+                        document.body.removeChild(link);
+                    }
                 }
             }, 100);
             
