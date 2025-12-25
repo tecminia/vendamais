@@ -17,12 +17,16 @@
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
             -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         
         html, body {
             height: 100%;
             overflow: hidden;
-            background: linear-gradient(135deg, #212121 0%, #424242 100%);
+            background: #000000;
             color: #ffffff;
         }
         
@@ -37,11 +41,11 @@
         .admin-login-container {
             max-width: 400px;
             width: 100%;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
-            padding: 40px 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 50px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
         }
         
@@ -51,95 +55,81 @@
         }
         
         .logo-icon {
-            font-size: 4rem;
+            font-size: 3.5rem;
             color: #ffffff;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
         
         .logo-section h1 {
             font-size: 2rem;
             color: #ffffff;
             margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
         }
         
         .logo-section p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
             margin-bottom: 30px;
-        }
-        
-        .google-login-section {
-            text-align: center;
-            margin: 40px 0 20px 0;
+            line-height: 1.5;
         }
         
         .admin-info {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
             padding: 20px;
             margin: 30px 0;
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         
         .admin-info h3 {
             color: #ffffff;
             margin-bottom: 10px;
             font-size: 1.1rem;
+            font-weight: 500;
         }
         
         .admin-info p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
             line-height: 1.5;
         }
         
         .btn {
-            padding: 16px 20px;
-            border-radius: 10px;
+            padding: 18px 20px;
+            border-radius: 12px;
             border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 1rem;
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-        }
-        
-        .btn-primary {
-            background-color: #ffffff;
-            color: #212121;
-        }
-        
-        .btn-primary:hover {
-            background-color: #f5f5f5;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.3px;
         }
         
         .btn-google {
             background-color: #ffffff;
-            color: #212121;
-            border: 2px solid #e0e0e0;
+            color: #000000;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
         }
         
         .btn-google:hover {
-            background-color: #f8f9fa;
+            background-color: #f5f5f5;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
         }
         
-        .btn-secondary {
-            background-color: transparent;
-            color: #ffffff;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            margin-top: 15px;
-        }
-        
-        .btn-secondary:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+        .btn-google:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
         }
         
         .notification {
@@ -147,34 +137,38 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 15px 25px;
+            padding: 18px 25px;
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
             z-index: 10000;
             animation: fadeIn 0.3s ease;
-            font-weight: 600;
+            font-weight: 500;
             color: white;
             text-align: center;
             backdrop-filter: blur(10px);
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: rgba(0, 0, 0, 0.9);
             max-width: 300px;
             width: 90%;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .notification.success {
-            background-color: rgba(76, 175, 80, 0.95);
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #000000;
         }
         
         .notification.error {
-            background-color: rgba(244, 67, 54, 0.95);
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #000000;
         }
         
         .notification.info {
-            background-color: rgba(33, 150, 243, 0.95);
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #000000;
         }
         
         @keyframes fadeIn {
@@ -191,9 +185,9 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(33, 33, 33, 0.3);
+            border: 3px solid rgba(0, 0, 0, 0.2);
             border-radius: 50%;
-            border-top-color: #212121;
+            border-top-color: #000000;
             animation: spin 1s ease-in-out infinite;
         }
         
@@ -203,16 +197,32 @@
         
         @media (max-width: 480px) {
             .admin-login-container {
-                padding: 30px 20px;
+                padding: 40px 25px;
             }
             
             .logo-section h1 {
-                font-size: 1.5rem;
+                font-size: 1.7rem;
             }
             
             .logo-icon {
                 font-size: 3rem;
             }
+            
+            .btn {
+                padding: 16px 20px;
+            }
+        }
+        
+        /* Prevent text selection on non-editable elements */
+        .admin-login-container,
+        .logo-section,
+        .admin-info,
+        .btn,
+        h1, h3, p {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
     </style>
 </head>
@@ -223,21 +233,17 @@
                 <i class="fas fa-user-shield"></i>
             </div>
             <h1>Venda+ Admin</h1>
-            <p>Acesso ao Painel Administrativo</p>
+            <p>Acesso exclusivo ao Painel Administrativo</p>
             
             <div class="admin-info">
                 <h3>👑 Painel de Controle</h3>
-                <p>Acesse com sua conta Google para gerenciar usuários, pagamentos e configurações do sistema.</p>
+                <p>Utilize sua conta Google para acessar e gerenciar usuários, pagamentos e configurações do sistema.</p>
             </div>
         </div>
         
         <div class="google-login-section">
             <button class="btn btn-google" id="googleLoginBtn">
                 <i class="fab fa-google"></i> Entrar com Google
-            </button>
-            
-            <button type="button" class="btn btn-secondary" id="backToLoginBtn">
-                <i class="fas fa-arrow-left"></i> Voltar para Login Normal
             </button>
         </div>
     </div>
@@ -260,7 +266,6 @@
 
         // DOM Elements
         const googleLoginBtn = document.getElementById('googleLoginBtn');
-        const backToLoginBtn = document.getElementById('backToLoginBtn');
 
         // Check if already logged in
         document.addEventListener('DOMContentLoaded', async () => {
@@ -382,11 +387,6 @@
                 googleLoginBtn.innerHTML = '<i class="fab fa-google"></i> Entrar com Google';
                 googleLoginBtn.disabled = false;
             }
-        });
-
-        // Back to normal login
-        backToLoginBtn.addEventListener('click', () => {
-            window.location.href = 'login.html';
         });
 
         // Helper functions
