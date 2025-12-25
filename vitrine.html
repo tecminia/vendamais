@@ -6,9 +6,11 @@
     <title id="pageTitle">Venda+ | Vitrine</title>
     <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <style>
         /* Theme Variables */
@@ -26,7 +28,7 @@
             --warning-color: #ff9800;
             --info-color: #2196f3;
             --whatsapp-color: #25D366;
-            --rating-color: #FFD700;
+            --star-color: #FFD700;
         }
         
         .theme-red {
@@ -244,7 +246,6 @@
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
             border: 1px solid var(--border-color);
             transition: all 0.3s ease;
-            cursor: pointer;
         }
         
         .product-card:active {
@@ -298,6 +299,33 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             transition: color 0.3s ease;
+        }
+        
+        /* Product Rating */
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+        
+        .star-rating {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .star {
+            color: var(--border-color);
+            font-size: 0.8rem;
+        }
+        
+        .star.filled {
+            color: var(--star-color);
+        }
+        
+        .rating-count {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
         }
         
         .product-footer {
@@ -358,6 +386,7 @@
             flex: 1;
             cursor: pointer;
             transition: color 0.3s ease;
+            position: relative;
         }
         
         .nav-btn i {
@@ -367,6 +396,19 @@
         
         .nav-btn.active {
             color: var(--primary-color);
+        }
+        
+        /* New Order Badge */
+        .new-order-badge {
+            position: absolute;
+            top: 2px;
+            right: 15px;
+            background-color: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 8px;
+            height: 8px;
+            animation: pulse 2s infinite;
         }
         
         /* Cart Modal */
@@ -815,222 +857,6 @@
             cursor: pointer;
         }
         
-        /* Product Detail Modal */
-        .product-detail-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--surface-color);
-            z-index: 1500;
-            overflow-y: auto;
-        }
-        
-        .product-detail-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        .product-detail-title {
-            font-size: 1.2rem;
-            color: var(--text-on-primary);
-            font-weight: 600;
-        }
-        
-        .close-detail {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--text-on-primary);
-            cursor: pointer;
-            padding: 5px;
-        }
-        
-        .product-detail-body {
-            padding: 0 15px 15px;
-        }
-        
-        .product-detail-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            margin-bottom: 15px;
-            border-radius: 10px;
-        }
-        
-        .product-detail-info {
-            margin-bottom: 20px;
-        }
-        
-        .product-detail-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--text-primary);
-        }
-        
-        .product-detail-price {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-        }
-        
-        .product-detail-description {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-        }
-        
-        /* Ratings Section */
-        .ratings-section {
-            margin-top: 20px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 20px;
-        }
-        
-        .ratings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .ratings-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        
-        .ratings-summary {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .average-rating {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        
-        .stars-container {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .stars {
-            display: flex;
-            gap: 2px;
-        }
-        
-        .star {
-            color: var(--border-color);
-            font-size: 1.2rem;
-        }
-        
-        .star.filled {
-            color: var(--rating-color);
-        }
-        
-        .rating-count {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-        
-        .rating-bars {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .rating-bar-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .rating-bar-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            min-width: 30px;
-        }
-        
-        .rating-bar {
-            flex: 1;
-            height: 8px;
-            background-color: var(--border-color);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        
-        .rating-bar-fill {
-            height: 100%;
-            background-color: var(--rating-color);
-        }
-        
-        /* Reviews List */
-        .reviews-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .review-item {
-            background-color: var(--background-color);
-            border-radius: 10px;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-        }
-        
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .reviewer-name {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        
-        .review-date {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-        
-        .review-stars {
-            display: flex;
-            gap: 2px;
-            margin-bottom: 10px;
-        }
-        
-        .review-comment {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: var(--text-primary);
-        }
-        
-        .no-reviews {
-            text-align: center;
-            padding: 30px 0;
-            color: var(--text-secondary);
-        }
-        
         /* Loading Overlay */
         .loading-overlay {
             position: fixed;
@@ -1096,6 +922,8 @@
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
             border: 1px solid var(--border-color);
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         
         .status-header {
@@ -1170,10 +998,23 @@
             border-radius: 50%;
             background-color: var(--border-color);
             transition: background-color 0.3s ease;
+            position: relative;
         }
         
         .timeline-dot.active {
             background-color: var(--primary-color);
+        }
+        
+        .timeline-dot.animating::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color);
+            animation: pulseDot 1.5s infinite;
         }
         
         .timeline-text {
@@ -1199,6 +1040,19 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             border: 1px solid var(--border-color);
             transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .order-card.has-update::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            background-color: #ff4757;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
         
         .order-header {
@@ -1340,6 +1194,159 @@
             transition: color 0.3s ease;
         }
         
+        /* Product Detail Modal */
+        .product-detail-modal {
+            background-color: var(--surface-color);
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: absolute;
+            bottom: 0;
+            animation: slideUp 0.3s ease;
+            padding-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .product-detail-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        .product-detail-content {
+            padding: 20px;
+        }
+        
+        .product-detail-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .product-detail-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .product-detail-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            white-space: pre-line;
+        }
+        
+        /* Reviews Section */
+        .reviews-section {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+        
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .reviews-title {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+        }
+        
+        .average-rating {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .average-rating-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .review-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .reviewer-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .review-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .review-comment {
+            color: var(--text-primary);
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+        
+        .no-reviews {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+        }
+        
+        .add-review-section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--background-color);
+            border-radius: 10px;
+        }
+        
+        .add-review-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .review-stars-input {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .review-star-input {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--border-color);
+            cursor: pointer;
+            padding: 0;
+        }
+        
+        .review-star-input.filled {
+            color: var(--star-color);
+        }
+        
+        .review-comment-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 15px;
+            font-family: inherit;
+        }
+        
         /* Notification */
         .notification {
             position: fixed;
@@ -1384,6 +1391,26 @@
             font-size: 1.5rem;
         }
         
+        /* WhatsApp Button */
+        .whatsapp-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--whatsapp-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .whatsapp-button:hover {
+            background-color: #128C7E;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+        
         /* Animations */
         @keyframes slideUp {
             from { transform: translateY(100%); }
@@ -1403,6 +1430,30 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes pulseDot {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes cooking {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-10deg); }
+            100% { transform: rotate(0deg); }
+        }
+        
+        .cooking-animation {
+            animation: cooking 2s infinite;
         }
         
         /* Utilities */
@@ -1459,7 +1510,7 @@
                 
                 <div class="empty-state" id="productsEmpty" style="display: none;">
                     <div class="empty-icon">
-                        <i class="fas fa-utensils"></i>
+                        <i class="fas fa-box-open"></i>
                     </div>
                     <h3>Nenhum produto disponível</h3>
                     <p>Aguarde enquanto carregamos nossos produtos.</p>
@@ -1513,26 +1564,16 @@
                 <i class="fas fa-home"></i>
                 <span>Início</span>
             </button>
-            <button class="nav-btn" data-screen="orders">
+            <button class="nav-btn" data-screen="orders" id="ordersNavBtn">
                 <i class="fas fa-shopping-bag"></i>
                 <span>Pedidos</span>
+                <div class="new-order-badge" id="newOrderBadge" style="display: none;"></div>
             </button>
             <button class="nav-btn" data-screen="profile">
                 <i class="fas fa-user"></i>
                 <span>Minha Conta</span>
             </button>
         </nav>
-    </div>
-
-    <!-- Product Detail Modal -->
-    <div class="product-detail-modal" id="productDetailModal">
-        <div class="product-detail-header">
-            <h2 class="product-detail-title">Detalhes do Produto</h2>
-            <button class="close-detail" id="closeDetailModal">&times;</button>
-        </div>
-        <div class="product-detail-body" id="productDetailBody">
-            <!-- Product details will be loaded here -->
-        </div>
     </div>
 
     <!-- Access Code Modal -->
@@ -1625,7 +1666,7 @@
                         
                         <div class="form-group">
                             <label class="form-label">Observações (opcional)</label>
-                            <textarea id="notes" class="form-input" rows="3" placeholder="Ponto de referência, sem cebola, etc."></textarea>
+                            <textarea id="notes" class="form-input" rows="3" placeholder="Ponto de referência, instruções especiais, etc."></textarea>
                         </div>
                         
                         <div class="d-flex gap-2">
@@ -1690,18 +1731,18 @@
                         <button type="button" class="btn btn-secondary" id="backToDeliveryBtn">
                             <i class="fas fa-arrow-left"></i> Voltar
                         </button>
-                        <button type="button" class="btn btn-primary" id="confirmOrderBtn">
-                            <i class="fas fa-check"></i> Confirmar Pedido e Enviar WhatsApp
+                        <button type="button" class="btn btn-primary" id="completeOrderBtn">
+                            <i class="fas fa-check"></i> Concluir Pedido
                         </button>
                     </div>
                 </div>
                 
-                <!-- Success Screen -->
-                <div id="cartSuccess" class="success-screen" style="display: none;">
+                <!-- Step 4: WhatsApp Confirmation -->
+                <div id="cartStep4" class="success-screen" style="display: none;">
                     <div class="success-icon">
                         <i class="fas fa-check-circle"></i>
                     </div>
-                    <h2 class="success-title">Pedido Confirmado!</h2>
+                    <h2 class="success-title">Pedido Registrado!</h2>
                     <div class="success-message" id="successMessage">
                         Seu pedido foi registrado com sucesso.
                     </div>
@@ -1710,12 +1751,64 @@
                         <!-- Status do pedido -->
                     </div>
                     
-                    <button class="btn btn-primary btn-block mb-2" id="viewOrdersBtn">
-                        <i class="fas fa-shopping-bag"></i> Ver Meus Pedidos
-                    </button>
+                    <div class="text-center mt-3">
+                        <p class="mb-3">Clique abaixo para enviar o pedido via WhatsApp:</p>
+                        <a id="whatsappSendLink" class="whatsapp-button" target="_blank">
+                            <i class="fab fa-whatsapp"></i> Enviar Pedido via WhatsApp
+                        </a>
+                    </div>
                     
-                    <button class="btn btn-secondary" id="newOrderBtn">
-                        <i class="fas fa-plus"></i> Fazer Novo Pedido
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-secondary flex-1" id="viewOrdersBtn">
+                            <i class="fas fa-shopping-bag"></i> Ver Pedidos
+                        </button>
+                        <button class="btn btn-primary flex-1" id="newOrderBtn">
+                            <i class="fas fa-plus"></i> Novo Pedido
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div class="modal" id="productDetailModal">
+        <div class="modal-content product-detail-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Detalhes do Produto</h2>
+                <button class="close-modal" id="closeProductDetail">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="productDetailImage" class="product-detail-image" src="" alt="">
+                <div class="product-detail-content">
+                    <h1 id="productDetailTitle" class="product-detail-title"></h1>
+                    <div id="productDetailRating" class="average-rating"></div>
+                    <div id="productDetailPrice" class="product-detail-price"></div>
+                    <p id="productDetailDescription" class="product-detail-description"></p>
+                    
+                    <div class="reviews-section">
+                        <div class="reviews-header">
+                            <h3 class="reviews-title">Avaliações</h3>
+                        </div>
+                        <div id="productReviewsList"></div>
+                        <div id="addReviewSection" class="add-review-section" style="display: none;">
+                            <h4 class="add-review-title">Deixe sua avaliação</h4>
+                            <div class="review-stars-input">
+                                <button class="review-star-input" data-rating="1">★</button>
+                                <button class="review-star-input" data-rating="2">★</button>
+                                <button class="review-star-input" data-rating="3">★</button>
+                                <button class="review-star-input" data-rating="4">★</button>
+                                <button class="review-star-input" data-rating="5">★</button>
+                            </div>
+                            <textarea id="reviewCommentInput" class="review-comment-input" placeholder="Compartilhe sua experiência com este produto..."></textarea>
+                            <button class="btn btn-primary" id="submitReviewBtn">
+                                <i class="fas fa-paper-plane"></i> Enviar Avaliação
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-block mt-3" id="addToCartFromDetail">
+                        <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
                     </button>
                 </div>
             </div>
@@ -1744,6 +1837,7 @@
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
         // Application state
         let cart = [];
@@ -1760,11 +1854,15 @@
         let deliveryFee = 0;
         let lastTouchDistance = null;
         let zoomScale = 1;
+        let currentUser = null;
         let userData = {};
         let userPhone = '';
         let accessCode = '';
-        let isLoggedIn = false;
+        let isAnonymous = false;
         let currentProductDetail = null;
+        let userReviewRating = 0;
+        let orderBadgeVisible = false;
+        let viewedOrders = new Set();
         
         // DOM Elements
         const appContainer = document.querySelector('.app-container');
@@ -1784,11 +1882,8 @@
         const loadingOverlay = document.getElementById('loadingOverlay');
         const logoutBtn = document.getElementById('logoutBtn');
         const showAccessCodeBtn = document.getElementById('showAccessCodeBtn');
-        
-        // Product detail modal elements
-        const productDetailModal = document.getElementById('productDetailModal');
-        const closeDetailModal = document.getElementById('closeDetailModal');
-        const productDetailBody = document.getElementById('productDetailBody');
+        const newOrderBadge = document.getElementById('newOrderBadge');
+        const ordersNavBtn = document.getElementById('ordersNavBtn');
         
         // Store config elements
         const businessName = document.getElementById('businessName');
@@ -1807,7 +1902,7 @@
         const cartStep1 = document.getElementById('cartStep1');
         const cartStep2 = document.getElementById('cartStep2');
         const cartStep3 = document.getElementById('cartStep3');
-        const cartSuccess = document.getElementById('cartSuccess');
+        const cartStep4 = document.getElementById('cartStep4');
         
         // Delivery form
         const deliveryForm = document.getElementById('deliveryForm');
@@ -1822,11 +1917,27 @@
         const pixDetails = document.getElementById('pixDetails');
         const moneyDetails = document.getElementById('moneyDetails');
         const backToDeliveryBtn = document.getElementById('backToDeliveryBtn');
-        const confirmOrderBtn = document.getElementById('confirmOrderBtn');
+        const completeOrderBtn = document.getElementById('completeOrderBtn');
         const pixKey = document.getElementById('pixKey');
         const receiptUploadArea = document.getElementById('receiptUploadArea');
         const receiptUpload = document.getElementById('receiptUpload');
         const receiptPreview = document.getElementById('receiptPreview');
+        const whatsappSendLink = document.getElementById('whatsappSendLink');
+        
+        // Product detail elements
+        const productDetailModal = document.getElementById('productDetailModal');
+        const closeProductDetail = document.getElementById('closeProductDetail');
+        const productDetailImage = document.getElementById('productDetailImage');
+        const productDetailTitle = document.getElementById('productDetailTitle');
+        const productDetailPrice = document.getElementById('productDetailPrice');
+        const productDetailDescription = document.getElementById('productDetailDescription');
+        const productDetailRating = document.getElementById('productDetailRating');
+        const productReviewsList = document.getElementById('productReviewsList');
+        const addReviewSection = document.getElementById('addReviewSection');
+        const reviewStarInputs = document.querySelectorAll('.review-star-input');
+        const reviewCommentInput = document.getElementById('reviewCommentInput');
+        const submitReviewBtn = document.getElementById('submitReviewBtn');
+        const addToCartFromDetail = document.getElementById('addToCartFromDetail');
         
         // Success elements
         const successMessage = document.getElementById('successMessage');
@@ -1857,7 +1968,6 @@
                 try {
                     console.log(`Processando imagem: ${file.name} (${(file.size/1024).toFixed(2)}KB)`);
                     
-                    // Se o arquivo já está abaixo do limite, converte direto
                     if (file.size <= this.maxSizeBytes) {
                         console.log('Imagem dentro do limite, mantendo original...');
                         return await this.fileToBase64(file);
@@ -1881,10 +1991,8 @@
                         img.src = e.target.result;
                         
                         img.onload = async () => {
-                            // Reduz a imagem progressivamente até ficar abaixo do limite
                             let compressedBase64 = await this.optimizeImage(img);
                             
-                            // Verifica se ainda está grande e reduz mais se necessário
                             while (this.getBase64Size(compressedBase64) > this.maxSizeBytes) {
                                 compressedBase64 = await this.reduceImageSize(img, compressedBase64);
                             }
@@ -1905,7 +2013,6 @@
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // Calcula novas dimensões mantendo proporção (começa com 1200px max)
                 let { width, height } = this.calculateDimensions(img.width, img.height, 1200);
                 
                 canvas.width = width;
@@ -1913,7 +2020,6 @@
                 
                 ctx.drawImage(img, 0, 0, width, height);
                 
-                // Tenta diferentes qualidades para encontrar o melhor tamanho
                 for (let q = quality; q > 0.3; q -= 0.1) {
                     const base64 = canvas.toDataURL('image/jpeg', q);
                     if (this.getBase64Size(base64) <= this.maxSizeBytes) {
@@ -1921,7 +2027,6 @@
                     }
                 }
                 
-                // Se ainda estiver grande, retorna com qualidade mínima
                 return canvas.toDataURL('image/jpeg', 0.5);
             }
 
@@ -1946,9 +2051,7 @@
             }
 
             getBase64Size(base64String) {
-                // Remove o cabeçalho "data:image/...;base64,"
                 const stringLength = base64String.length - (base64String.indexOf(',') + 1);
-                // Tamanho aproximado em bytes
                 return (stringLength * 3) / 4;
             }
 
@@ -1965,7 +2068,6 @@
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // Reduz ainda mais as dimensões
                 const currentWidth = img.width;
                 const currentHeight = img.height;
                 const newWidth = Math.round(currentWidth * 0.7);
@@ -1992,30 +2094,32 @@
             
             if (!currentStoreId) {
                 showNotification('Loja não encontrada. Verifique o link de acesso.', 'error');
-                window.location.href = 'index.html';
                 return;
             }
             
-            // Check if user is already logged in (anonymous)
+            // Try to load user data from localStorage
             const storedUser = localStorage.getItem(`userData_${currentStoreId}`);
             
             if (storedUser) {
-                // User is already logged in
                 userData = JSON.parse(storedUser);
                 userPhone = userData.phone || '';
                 accessCode = userData.accessCode || '';
-                isLoggedIn = true;
                 
-                showLoading('Carregando loja...');
+                // Load store config first
                 await loadStoreConfig();
+                
+                // Load app
                 await loadApp();
-                hideLoading();
+                
             } else {
-                // New user - load store first, then ask for data when needed
-                showLoading('Carregando loja...');
+                // No user data found, load store config first
                 await loadStoreConfig();
                 await loadApp();
-                hideLoading();
+                
+                // Show welcome message
+                setTimeout(() => {
+                    showNotification('Bem-vindo! Faça seu primeiro pedido para cadastrar seus dados.', 'info');
+                }, 1000);
             }
         }
 
@@ -2039,10 +2143,8 @@
                     storeConfig = configDoc.data();
                     updateStoreUI();
                     
-                    // Carregar taxa de entrega
                     deliveryFee = storeConfig.deliveryFee || 0;
                     
-                    // Definir favicon se existir logo
                     if (storeConfig.logoBase64) {
                         const favicon = document.createElement('link');
                         favicon.rel = 'icon';
@@ -2065,7 +2167,6 @@
 
         // Update UI with store configuration
         function updateStoreUI() {
-            // Atualizar título da página com nome do negócio
             const title = storeConfig.businessName || 'Loja Virtual';
             pageTitle.textContent = title;
             
@@ -2090,6 +2191,11 @@
                     
                     navBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
+                    
+                    // If going to orders screen, mark all orders as viewed
+                    if (screen === 'orders') {
+                        markOrdersAsViewed();
+                    }
                 });
             });
             
@@ -2097,29 +2203,13 @@
             cartIconBtn.addEventListener('click', openCart);
             closeCartModal.addEventListener('click', closeCart);
             
-            // Product card click for detail view
+            // Add to cart buttons
             document.addEventListener('click', (e) => {
-                // Check if clicked on product card or image
-                const productCard = e.target.closest('.product-card');
-                if (productCard && !e.target.closest('.add-to-cart')) {
-                    const productId = productCard.querySelector('.add-to-cart')?.getAttribute('data-id');
-                    if (productId) {
-                        showProductDetail(productId);
-                    }
-                }
-                
-                // Add to cart button
                 if (e.target.closest('.add-to-cart')) {
                     const btn = e.target.closest('.add-to-cart');
                     const productId = btn.getAttribute('data-id');
                     addToCart(productId);
-                    e.stopPropagation(); // Prevent opening detail modal
                 }
-            });
-            
-            // Product detail modal
-            closeDetailModal.addEventListener('click', () => {
-                productDetailModal.style.display = 'none';
             });
             
             // Checkout button
@@ -2128,13 +2218,7 @@
                     showNotification('Adicione produtos ao carrinho.', 'error');
                     return;
                 }
-                
-                // Check if user is logged in, if not, create anonymous account
-                if (!isLoggedIn) {
-                    showCartStep(2); // Go directly to delivery form for registration
-                } else {
-                    showCartStep(2);
-                }
+                showCartStep(2);
             });
             
             // Back to cart button
@@ -2146,17 +2230,12 @@
             deliveryForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 if (validateDeliveryForm()) {
-                    // If not logged in, create anonymous account
-                    if (!isLoggedIn) {
-                        createAnonymousAccount();
-                    }
                     showCartStep(3);
                 }
             });
             
             // Salvar dados do usuário quando o formulário mudar
             deliveryForm.addEventListener('input', () => {
-                // Salva os dados automaticamente enquanto o usuário digita
                 if (fullNameInput.value && addressInput.value && phoneInput.value) {
                     saveUserDataToFirestore();
                 }
@@ -2174,10 +2253,10 @@
                 showCartStep(2);
             });
             
-            // Confirm order button
-            confirmOrderBtn.addEventListener('click', confirmOrderAndSendWhatsApp);
+            // Complete order button
+            completeOrderBtn.addEventListener('click', completeOrder);
             
-            // Receipt upload com processamento automático
+            // Receipt upload
             receiptUploadArea.addEventListener('click', () => {
                 if (!receiptUploadArea.classList.contains('uploading')) {
                     receiptUpload.click();
@@ -2246,6 +2325,38 @@
                 accessCodeModal.style.display = 'none';
             });
             
+            // Product detail modal
+            closeProductDetail.addEventListener('click', () => {
+                productDetailModal.style.display = 'none';
+            });
+            
+            // Close product detail when clicking outside
+            productDetailModal.addEventListener('click', (e) => {
+                if (e.target === productDetailModal) {
+                    productDetailModal.style.display = 'none';
+                }
+            });
+            
+            // Add to cart from detail
+            addToCartFromDetail.addEventListener('click', () => {
+                if (currentProductDetail) {
+                    addToCart(currentProductDetail.id);
+                    productDetailModal.style.display = 'none';
+                }
+            });
+            
+            // Review star input
+            reviewStarInputs.forEach(star => {
+                star.addEventListener('click', () => {
+                    const rating = parseInt(star.getAttribute('data-rating'));
+                    userReviewRating = rating;
+                    updateReviewStarsInput(rating);
+                });
+            });
+            
+            // Submit review button
+            submitReviewBtn.addEventListener('click', submitProductReview);
+            
             // Image zoom modal
             closeZoom.addEventListener('click', () => {
                 imageZoomModal.style.display = 'none';
@@ -2264,7 +2375,7 @@
             setupPinchZoom();
         }
 
-        // Load app after login
+        // Load app
         async function loadApp() {
             // Apply theme
             applyTheme();
@@ -2281,25 +2392,25 @@
             // Load products
             await loadProducts();
             
-            // If user is logged in, load orders and update profile
-            if (isLoggedIn) {
+            // If user data exists, load their orders
+            if (userData.id) {
                 await loadUserOrders();
-                updateProfileScreen();
-                
-                // Pre-fill delivery form with user data
-                loadUserDataToForm();
             }
+            
+            // Update profile screen
+            updateProfileScreen();
             
             // Update cart count
             updateCartCount();
+            
+            // Pre-fill delivery form with user data
+            loadUserDataToForm();
         }
 
         // Apply theme
         function applyTheme() {
             if (storeConfig.theme) {
-                // Remover todas as classes de tema
                 document.body.classList.remove('theme-red', 'theme-blue', 'theme-pink', 'theme-yellow', 'theme-black', 'theme-purple', 'theme-green', 'theme-orange');
-                // Adicionar a classe do tema atual
                 document.body.classList.add(`theme-${storeConfig.theme}`);
             }
         }
@@ -2315,18 +2426,14 @@
                     const visitsData = visitsDoc.data();
                     const dailyVisits = visitsData.dailyVisits || [];
                     
-                    // Check if we have today's date
                     const todayIndex = dailyVisits.findIndex(v => v.date === today);
                     
                     if (todayIndex >= 0) {
-                        // Increment today's count
                         dailyVisits[todayIndex].count += 1;
                     } else {
-                        // Add new entry for today
                         dailyVisits.push({ date: today, count: 1 });
                     }
                     
-                    // Keep only last 30 days
                     const recentVisits = dailyVisits.slice(-30);
                     
                     await visitsRef.update({
@@ -2335,7 +2442,6 @@
                         lastUpdated: new Date().toISOString()
                     });
                 } else {
-                    // Create new visits document
                     await visitsRef.set({
                         totalVisits: 1,
                         dailyVisits: [{ date: today, count: 1 }],
@@ -2350,13 +2456,11 @@
 
         // Setup pinch-to-zoom for images
         function setupPinchZoom() {
-            // Product images
             document.addEventListener('DOMContentLoaded', () => {
                 document.addEventListener('touchstart', handleTouchStart, { passive: false });
                 document.addEventListener('touchmove', handleTouchMove, { passive: false });
                 document.addEventListener('touchend', handleTouchEnd);
                 
-                // Also setup for zoomed image
                 zoomedImage.addEventListener('touchstart', handleTouchStart, { passive: false });
                 zoomedImage.addEventListener('touchmove', handleTouchMove, { passive: false });
                 zoomedImage.addEventListener('touchend', handleTouchEnd);
@@ -2440,11 +2544,11 @@
         // Load user orders by phone for current store
         async function loadUserOrders() {
             try {
-                if (!userPhone) return;
+                if (!userData.id) return;
                 
                 const snapshot = await db.collection('orders')
                     .where('storeId', '==', currentStoreId)
-                    .where('customerPhone', '==', userPhone)
+                    .where('userId', '==', userData.id)
                     .get();
                 
                 userOrders = [];
@@ -2461,6 +2565,8 @@
                 
                 updateOrdersUI();
                 updateProfileScreen();
+                checkForNewOrders();
+                
             } catch (error) {
                 console.error('Error loading user orders:', error);
                 showNotification('Erro ao carregar pedidos. Tente novamente.', 'error');
@@ -2472,18 +2578,31 @@
             productsGrid.innerHTML = '';
             
             products.forEach(product => {
+                // Calculate average rating
+                const avgRating = calculateProductRating(product);
+                
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 productCard.innerHTML = `
                     <div class="product-image">
                         ${product.imageBase64 ? 
-                            `<img src="${product.imageBase64}" alt="${product.name}" loading="lazy">` : 
-                            `<i class="fas ${product.icon || 'fa-utensils'}"></i>`
+                            `<img src="${product.imageBase64}" alt="${product.name}" loading="lazy" style="cursor: pointer;">` : 
+                            `<i class="fas ${product.icon || 'fa-box'}"></i>`
                         }
                     </div>
                     <div class="product-info">
                         <h3 class="product-title">${product.name}</h3>
-                        <p class="product-description">${product.description}</p>
+                        
+                        ${avgRating > 0 ? `
+                            <div class="product-rating">
+                                <div class="star-rating">
+                                    ${getStarRatingHTML(avgRating)}
+                                </div>
+                                <span class="rating-count">${avgRating.toFixed(1)}</span>
+                            </div>
+                        ` : ''}
+                        
+                        <p class="product-description">${product.description || ''}</p>
                         <div class="product-footer">
                             <div class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</div>
                             <button class="add-to-cart" data-id="${product.id}">
@@ -2495,169 +2614,200 @@
                 
                 productsGrid.appendChild(productCard);
             });
+            
+            // Add click event for product images
+            productsGrid.querySelectorAll('.product-image img, .product-image i').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const productId = e.target.closest('.product-card').querySelector('.add-to-cart').getAttribute('data-id');
+                    const product = products.find(p => p.id === productId);
+                    if (product) {
+                        showProductDetail(product);
+                    }
+                });
+            });
         }
 
         // Show product detail modal
-        async function showProductDetail(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
-            
+        async function showProductDetail(product) {
             currentProductDetail = product;
             
-            // Load ratings for this product
-            const ratings = await loadProductRatings(productId);
-            const averageRating = calculateAverageRating(ratings);
-            const ratingDistribution = calculateRatingDistribution(ratings);
+            // Load product image
+            if (product.imageBase64) {
+                productDetailImage.src = product.imageBase64;
+                productDetailImage.style.display = 'block';
+            } else {
+                productDetailImage.style.display = 'none';
+            }
             
-            productDetailBody.innerHTML = `
-                <img src="${product.imageBase64 || ''}" class="product-detail-image" alt="${product.name}">
-                
-                <div class="product-detail-info">
-                    <h1 class="product-detail-name">${product.name}</h1>
-                    <div class="product-detail-price">R$ ${product.price.toFixed(2).replace('.', ',')}</div>
-                    <p class="product-detail-description">${product.description}</p>
-                    
-                    <button class="btn btn-primary btn-block" id="addToCartDetailBtn">
-                        <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
-                    </button>
-                </div>
-                
-                <div class="ratings-section">
-                    <div class="ratings-header">
-                        <h3 class="ratings-title">Avaliações</h3>
-                        <div class="average-rating">${averageRating.toFixed(1)}</div>
-                    </div>
-                    
-                    <div class="ratings-summary">
-                        <div class="stars-container">
-                            <div class="stars">
-                                ${getStarsHTML(averageRating)}
-                            </div>
-                            <div class="rating-count">${ratings.length} avaliações</div>
-                        </div>
-                        
-                        <div class="rating-bars">
-                            ${[5, 4, 3, 2, 1].map(stars => `
-                                <div class="rating-bar-item">
-                                    <span class="rating-bar-label">${stars}★</span>
-                                    <div class="rating-bar">
-                                        <div class="rating-bar-fill" style="width: ${ratingDistribution[stars] || 0}%"></div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <div class="reviews-list" id="reviewsList">
-                        ${ratings.length > 0 ? 
-                            ratings.slice(0, 5).map(review => `
-                                <div class="review-item">
-                                    <div class="review-header">
-                                        <span class="reviewer-name">${review.customerName || 'Cliente'}</span>
-                                        <span class="review-date">${formatDate(review.createdAt)}</span>
-                                    </div>
-                                    <div class="review-stars">
-                                        ${getStarsHTML(review.rating, true)}
-                                    </div>
-                                    <p class="review-comment">${review.comment || 'Sem comentário'}</p>
-                                </div>
-                            `).join('') : 
-                            `<div class="no-reviews">
-                                <p>Este produto ainda não possui avaliações.</p>
-                                <p>Seja o primeiro a avaliar!</p>
-                            </div>`
-                        }
-                    </div>
-                </div>
-            `;
+            // Set product details
+            productDetailTitle.textContent = product.name;
+            productDetailPrice.textContent = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
+            productDetailDescription.textContent = product.description || 'Sem descrição detalhada.';
             
-            // Add event listener for add to cart button in detail modal
-            document.getElementById('addToCartDetailBtn').addEventListener('click', () => {
-                addToCart(productId);
-                showNotification(`${product.name} adicionado ao carrinho!`, 'success');
-            });
+            // Load reviews
+            await loadProductReviews(product.id);
             
+            // Show add review section if user is logged in
+            if (userData.id) {
+                addReviewSection.style.display = 'block';
+                userReviewRating = 0;
+                updateReviewStarsInput(0);
+                reviewCommentInput.value = '';
+            } else {
+                addReviewSection.style.display = 'none';
+            }
+            
+            // Show modal
             productDetailModal.style.display = 'block';
         }
 
-        // Load product ratings from Firebase
-        async function loadProductRatings(productId) {
+        // Calculate product rating
+        function calculateProductRating(product) {
+            if (!product.reviews || product.reviews.length === 0) return 0;
+            
+            const total = product.reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+            return total / product.reviews.length;
+        }
+
+        // Get star rating HTML
+        function getStarRatingHTML(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.floor(rating)) {
+                    html += '<i class="fas fa-star star filled"></i>';
+                } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
+                    html += '<i class="fas fa-star-half-alt star filled"></i>';
+                } else {
+                    html += '<i class="far fa-star star"></i>';
+                }
+            }
+            return html;
+        }
+
+        // Load product reviews
+        async function loadProductReviews(productId) {
             try {
-                const snapshot = await db.collection('stores').doc(currentStoreId)
-                    .collection('products').doc(productId)
-                    .collection('ratings')
-                    .orderBy('createdAt', 'desc')
-                    .limit(20)
-                    .get();
+                const productDoc = await db.collection('stores').doc(currentStoreId)
+                    .collection('products').doc(productId).get();
                 
-                const ratings = [];
-                snapshot.forEach(doc => {
-                    ratings.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
+                const product = productDoc.data();
+                const reviews = product.reviews || [];
                 
-                return ratings;
+                // Calculate average rating
+                const avgRating = calculateProductRating(product);
+                
+                // Display average rating
+                if (avgRating > 0) {
+                    productDetailRating.innerHTML = `
+                        <div class="average-rating-number">${avgRating.toFixed(1)}</div>
+                        <div class="star-rating">
+                            ${getStarRatingHTML(avgRating)}
+                        </div>
+                        <div class="rating-count">(${reviews.length} avaliações)</div>
+                    `;
+                    productDetailRating.style.display = 'flex';
+                } else {
+                    productDetailRating.innerHTML = '<div class="no-reviews">Sem avaliações ainda</div>';
+                    productDetailRating.style.display = 'block';
+                }
+                
+                // Display reviews
+                if (reviews.length > 0) {
+                    productReviewsList.innerHTML = reviews.slice(0, 5).map(review => `
+                        <div class="review-item">
+                            <div class="review-header">
+                                <div class="reviewer-name">${review.userName || 'Cliente'}</div>
+                                <div class="review-date">${formatDate(review.timestamp)}</div>
+                            </div>
+                            <div class="star-rating">
+                                ${getStarRatingHTML(review.rating)}
+                            </div>
+                            ${review.comment ? `<p class="review-comment">${review.comment}</p>` : ''}
+                        </div>
+                    `).join('');
+                } else {
+                    productReviewsList.innerHTML = '<div class="no-reviews">Seja o primeiro a avaliar este produto!</div>';
+                }
+                
             } catch (error) {
-                console.error('Error loading ratings:', error);
-                return [];
+                console.error('Error loading product reviews:', error);
+                productReviewsList.innerHTML = '<div class="no-reviews">Erro ao carregar avaliações</div>';
             }
         }
 
-        // Calculate average rating
-        function calculateAverageRating(ratings) {
-            if (ratings.length === 0) return 0;
-            
-            const total = ratings.reduce((sum, review) => sum + (review.rating || 0), 0);
-            return total / ratings.length;
-        }
-
-        // Calculate rating distribution
-        function calculateRatingDistribution(ratings) {
-            const distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
-            
-            if (ratings.length === 0) return distribution;
-            
-            ratings.forEach(review => {
-                const rating = Math.round(review.rating);
-                if (rating >= 1 && rating <= 5) {
-                    distribution[rating] = (distribution[rating] || 0) + 1;
+        // Update review stars input
+        function updateReviewStarsInput(rating) {
+            reviewStarInputs.forEach(star => {
+                const starRating = parseInt(star.getAttribute('data-rating'));
+                if (starRating <= rating) {
+                    star.classList.add('filled');
+                    star.textContent = '★';
+                } else {
+                    star.classList.remove('filled');
+                    star.textContent = '☆';
                 }
             });
-            
-            // Convert to percentages
-            Object.keys(distribution).forEach(rating => {
-                distribution[rating] = (distribution[rating] / ratings.length) * 100;
-            });
-            
-            return distribution;
         }
 
-        // Get stars HTML
-        function getStarsHTML(rating, isReview = false) {
-            const fullStars = Math.floor(rating);
-            const hasHalfStar = rating % 1 >= 0.5;
-            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-            
-            let starsHTML = '';
-            
-            // Full stars
-            for (let i = 0; i < fullStars; i++) {
-                starsHTML += `<i class="fas fa-star star filled"></i>`;
+        // Submit product review
+        async function submitProductReview() {
+            if (!userData.id || !currentProductDetail) {
+                showNotification('Faça login para avaliar produtos.', 'error');
+                return;
             }
             
-            // Half star
-            if (hasHalfStar) {
-                starsHTML += `<i class="fas fa-star-half-alt star filled"></i>`;
+            if (userReviewRating === 0) {
+                showNotification('Selecione uma avaliação com estrelas.', 'error');
+                return;
             }
             
-            // Empty stars
-            for (let i = 0; i < emptyStars; i++) {
-                starsHTML += `<i class="far fa-star star"></i>`;
-            }
+            const comment = reviewCommentInput.value.trim();
             
-            return starsHTML;
+            try {
+                const review = {
+                    userId: userData.id,
+                    userName: userData.name || 'Cliente',
+                    rating: userReviewRating,
+                    comment: comment,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Get current product
+                const productRef = db.collection('stores').doc(currentStoreId)
+                    .collection('products').doc(currentProductDetail.id);
+                
+                const productDoc = await productRef.get();
+                const product = productDoc.data();
+                
+                // Add review to product
+                const reviews = product.reviews || [];
+                reviews.push(review);
+                
+                await productRef.update({
+                    reviews: reviews
+                });
+                
+                // Update local product
+                const productIndex = products.findIndex(p => p.id === currentProductDetail.id);
+                if (productIndex !== -1) {
+                    products[productIndex].reviews = reviews;
+                }
+                
+                showNotification('Avaliação enviada com sucesso!', 'success');
+                
+                // Reload reviews
+                await loadProductReviews(currentProductDetail.id);
+                
+                // Reset form
+                userReviewRating = 0;
+                updateReviewStarsInput(0);
+                reviewCommentInput.value = '';
+                
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                showNotification('Erro ao enviar avaliação.', 'error');
+            }
         }
 
         // Show loading
@@ -2689,7 +2839,7 @@
             
             document.getElementById(`${screen}Screen`).style.display = 'block';
             
-            if (screen === 'orders' && isLoggedIn) {
+            if (screen === 'orders') {
                 updateOrdersUI();
             }
         }
@@ -2712,24 +2862,17 @@
             cartStep1.style.display = 'none';
             cartStep2.style.display = 'none';
             cartStep3.style.display = 'none';
-            cartSuccess.style.display = 'none';
+            cartStep4.style.display = 'none';
             
             if (step === 1) {
                 cartStep1.style.display = 'block';
                 updateCartDisplay();
             } else if (step === 2) {
                 cartStep2.style.display = 'block';
-                // If not logged in, pre-fill with empty values
-                if (!isLoggedIn) {
-                    fullNameInput.value = '';
-                    addressInput.value = '';
-                    phoneInput.value = '';
-                    notesInput.value = '';
-                }
             } else if (step === 3) {
                 cartStep3.style.display = 'block';
             } else if (step === 4) {
-                cartSuccess.style.display = 'block';
+                cartStep4.style.display = 'block';
             }
         }
 
@@ -2806,7 +2949,6 @@
                 cartItems.appendChild(cartItem);
             });
             
-            // Calcular total com taxa de entrega
             const total = subtotal + deliveryFee;
             
             cartSubtotal.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
@@ -2858,77 +3000,6 @@
             cartCount.textContent = totalItems;
         }
 
-        // Create anonymous account
-        async function createAnonymousAccount() {
-            const fullName = fullNameInput.value.trim();
-            const address = addressInput.value.trim();
-            const phone = phoneInput.value.trim();
-            
-            if (!fullName || !address || !phone) {
-                showNotification('Preencha todos os campos obrigatórios.', 'error');
-                return false;
-            }
-            
-            showLoading('Criando sua conta...');
-            
-            try {
-                // Generate access code
-                accessCode = generateAccessCode();
-                
-                // Create user data
-                userData = {
-                    id: generateUserId(),
-                    name: fullName,
-                    phone: phone,
-                    address: address,
-                    accessCode: accessCode,
-                    storeId: currentStoreId,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    isAnonymous: true
-                };
-                
-                // Save to Firestore
-                await db.collection('anonymousUsers').doc(userData.id).set(userData);
-                
-                // Save to localStorage
-                localStorage.setItem(`userData_${currentStoreId}`, JSON.stringify(userData));
-                
-                // Set user as logged in
-                isLoggedIn = true;
-                userPhone = phone;
-                
-                hideLoading();
-                showNotification('Conta criada com sucesso!', 'success');
-                
-                // Update profile screen
-                updateProfileScreen();
-                
-                return true;
-                
-            } catch (error) {
-                hideLoading();
-                console.error('Error creating anonymous account:', error);
-                showNotification('Erro ao criar conta. Tente novamente.', 'error');
-                return false;
-            }
-        }
-
-        // Generate user ID
-        function generateUserId() {
-            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        // Generate access code
-        function generateAccessCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 8; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
-
         // Load user data and pre-fill form
         function loadUserDataToForm() {
             if (userData.name) fullNameInput.value = userData.name;
@@ -2943,7 +3014,11 @@
 
         // Save user data to Firestore
         async function saveUserDataToFirestore() {
-            if (!userData.id) return;
+            // If user doesn't exist yet, create a new one
+            if (!userData.id) {
+                await createUserData();
+                return;
+            }
             
             try {
                 await db.collection('anonymousUsers').doc(userData.id).update({
@@ -2962,12 +3037,62 @@
                 // Save to localStorage with store ID
                 localStorage.setItem(`userData_${currentStoreId}`, JSON.stringify(userData));
                 
-                // Atualizar perfil imediatamente
                 updateProfileScreen();
                 
             } catch (error) {
                 console.error('Error saving user data to Firestore:', error);
             }
+        }
+
+        // Create new user data
+        async function createUserData() {
+            try {
+                // Generate access code
+                accessCode = generateAccessCode();
+                
+                // Create user document
+                const userDocRef = db.collection('anonymousUsers').doc();
+                const userId = userDocRef.id;
+                
+                const userDataToSave = {
+                    id: userId,
+                    name: fullNameInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    address: addressInput.value.trim(),
+                    accessCode: accessCode,
+                    storeId: currentStoreId,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                await userDocRef.set(userDataToSave);
+                
+                // Update local user data
+                userData = userDataToSave;
+                userPhone = userData.phone;
+                
+                // Save to localStorage
+                localStorage.setItem(`userData_${currentStoreId}`, JSON.stringify(userData));
+                
+                // Update profile screen
+                updateProfileScreen();
+                
+                showNotification('Cadastro criado com sucesso!', 'success');
+                
+            } catch (error) {
+                console.error('Error creating user data:', error);
+                showNotification('Erro ao criar cadastro.', 'error');
+            }
+        }
+
+        // Generate access code
+        function generateAccessCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
         }
 
         // Validate delivery form
@@ -2991,10 +3116,8 @@
                 return false;
             }
             
-            // If user is logged in, save updated data
-            if (isLoggedIn) {
-                saveUserDataToFirestore();
-            }
+            // Save/update user data
+            saveUserDataToFirestore();
             
             const subtotal = calculateSubtotal();
             const total = subtotal + deliveryFee;
@@ -3019,8 +3142,8 @@
                 receiptBase64: null,
                 deliveryStatus: 'preparing',
                 storeId: currentStoreId,
-                userId: userData.id || null,
-                userAccessCode: accessCode || null
+                userId: userData.id,
+                userAccessCode: accessCode
             };
             
             return true;
@@ -3038,27 +3161,23 @@
             if (method === 'pix') {
                 pixDetails.style.display = 'block';
                 moneyDetails.style.display = 'none';
-                confirmOrderBtn.textContent = 'Confirmar Pedido e Enviar WhatsApp';
             } else {
                 pixDetails.style.display = 'none';
                 moneyDetails.style.display = 'block';
-                confirmOrderBtn.textContent = 'Confirmar Pedido e Enviar WhatsApp';
             }
         }
 
-        // Handle receipt upload COM PROCESSAMENTO DE IMAGEM
+        // Handle receipt upload
         async function handleReceiptUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
             
-            // Verificar se é imagem
             if (!file.type.match('image.*')) {
                 showNotification('Por favor, selecione apenas imagens (JPG, PNG).', 'error');
                 receiptUpload.value = '';
                 return;
             }
             
-            // Verificar tamanho máximo (10MB para imagens)
             const maxSize = 10 * 1024 * 1024;
             
             if (file.size > maxSize) {
@@ -3067,7 +3186,6 @@
                 return;
             }
             
-            // Show loading state
             receiptUploadArea.classList.add('uploading');
             receiptUploadArea.innerHTML = `
                 <div class="upload-icon">
@@ -3077,10 +3195,8 @@
             `;
             
             try {
-                // Usar o processador de imagens para otimizar automaticamente
                 receiptBase64 = await imageProcessor.processImage(file);
                 
-                // Mostrar preview da imagem
                 receiptPreview.src = receiptBase64;
                 receiptPreview.style.display = 'block';
                 
@@ -3094,7 +3210,6 @@
                 console.error('Error processing image:', error);
                 showNotification('Erro ao processar imagem. Tente novamente.', 'error');
             } finally {
-                // Reset upload area
                 receiptUploadArea.classList.remove('uploading');
                 receiptUploadArea.innerHTML = `
                     <div class="upload-icon">
@@ -3111,8 +3226,8 @@
             }
         }
 
-        // Confirm order and send WhatsApp
-        async function confirmOrderAndSendWhatsApp() {
+        // Complete order
+        async function completeOrder() {
             if (!selectedPaymentMethod) {
                 showNotification('Selecione uma forma de pagamento.', 'error');
                 return;
@@ -3123,7 +3238,6 @@
                 return;
             }
             
-            // Criar uma cópia completa dos dados do pedido
             const orderDataCopy = {
                 ...orderData,
                 paymentMethod: selectedPaymentMethod,
@@ -3137,34 +3251,86 @@
             showLoading('Processando pedido...');
             
             try {
-                // 1. Primeiro salvar no Firebase
                 const docRef = await db.collection('orders').add(orderDataCopy);
                 currentOrderId = docRef.id;
                 
                 hideLoading();
                 
-                // 2. Depois enviar WhatsApp (com os dados ainda intactos)
-                sendWhatsAppMessage(currentOrderId, orderDataCopy);
-                
-                // 3. Atualizar orderData global com a cópia
+                // Update order data with ID
+                orderDataCopy.id = currentOrderId;
                 orderData = orderDataCopy;
                 
-                // 4. Mostrar tela de sucesso
-                showSuccessScreen();
+                // Show success screen with WhatsApp link
+                showCartStep(4);
+                setupWhatsAppLink();
                 
-                // 5. SÓ DEPOIS limpar o carrinho (mas manter os dados do pedido para a tela de sucesso)
+                // Clear cart only
                 clearCartOnly();
                 
-                // 6. Atualizar dados do usuário
-                if (isLoggedIn) {
-                    await loadUserOrders();
-                }
+                // Load user orders
+                await loadUserOrders();
                 
             } catch (error) {
                 hideLoading();
                 console.error('Error saving order:', error);
                 showNotification('Erro ao processar pedido.', 'error');
             }
+        }
+
+        // Setup WhatsApp link
+        function setupWhatsAppLink() {
+            if (!storeConfig.whatsappNumber) {
+                whatsappSendLink.style.display = 'none';
+                return;
+            }
+            
+            const message = generateWhatsAppMessage();
+            const phoneNumber = storeConfig.whatsappNumber.replace(/\D/g, '');
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            
+            whatsappSendLink.href = whatsappUrl;
+            whatsappSendLink.style.display = 'inline-flex';
+            
+            // Update success message
+            successMessage.innerHTML = `
+                Seu pedido <strong>#${currentOrderId.substring(0, 8)}</strong> foi registrado com sucesso!
+                <br>Clique no botão abaixo para enviar via WhatsApp.
+            `;
+            
+            updateStatusCard(successStatusCard, currentOrderId, orderData);
+        }
+
+        // Generate WhatsApp message
+        function generateWhatsAppMessage() {
+            let message = `📱 *NOVO PEDIDO - ${storeConfig.businessName}* 📱\n\n`;
+            message += `*Pedido:* #${currentOrderId.substring(0, 8)}\n`;
+            message += `*Cliente:* ${orderData.customerName}\n`;
+            message += `*Telefone:* ${orderData.customerPhone}\n`;
+            message += `*Endereço:* ${orderData.customerAddress}\n`;
+            message += `*Pagamento:* ${orderData.paymentMethod === 'money' ? '💰 Dinheiro na entrega' : '💳 PIX'}\n\n`;
+            
+            message += `*ITENS DO PEDIDO:*\n`;
+            orderData.items.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
+            });
+            
+            message += `\n*Subtotal:* R$ ${orderData.subtotal.toFixed(2).replace('.', ',')}\n`;
+            message += `*Taxa de Entrega:* R$ ${orderData.deliveryFee.toFixed(2).replace('.', ',')}\n`;
+            message += `*TOTAL: R$ ${orderData.total.toFixed(2).replace('.', ',')}*\n\n`;
+            
+            if (orderData.notes) {
+                message += `*Observações:* ${orderData.notes}\n\n`;
+            }
+            
+            if (orderData.paymentMethod === 'pix' && orderData.receiptBase64) {
+                message += `✅ Comprovante PIX enviado pelo cliente\n`;
+                message += `🖼️ Imagem otimizada para envio\n`;
+            }
+            
+            message += `Status: ⏳ Aguardando confirmação`;
+            
+            return message;
         }
 
         // Clear cart only (without resetting orderData)
@@ -3176,54 +3342,6 @@
             receiptPreview.style.display = 'none';
             receiptUpload.value = '';
             paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
-        }
-
-        // Send WhatsApp message
-        function sendWhatsAppMessage(orderId, orderDataParam) {
-            const phoneNumber = storeConfig.whatsappNumber || "(11) 99999-9999";
-            
-            let message = `📱 *NOVO PEDIDO - ${storeConfig.businessName}* 📱\n\n`;
-            message += `*Pedido:* #${orderId.substring(0, 8)}\n`;
-            message += `*Cliente:* ${orderDataParam.customerName}\n`;
-            message += `*Telefone:* ${orderDataParam.customerPhone}\n`;
-            message += `*Endereço:* ${orderDataParam.customerAddress}\n`;
-            message += `*Pagamento:* ${orderDataParam.paymentMethod === 'money' ? '💰 Dinheiro na entrega' : '💳 PIX'}\n\n`;
-            
-            message += `*ITENS DO PEDIDO:*\n`;
-            orderDataParam.items.forEach(item => {
-                const itemTotal = item.price * item.quantity;
-                message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
-            });
-            
-            message += `\n*Subtotal:* R$ ${orderDataParam.subtotal.toFixed(2).replace('.', ',')}\n`;
-            message += `*Taxa de Entrega:* R$ ${orderDataParam.deliveryFee.toFixed(2).replace('.', ',')}\n`;
-            message += `*TOTAL: R$ ${orderDataParam.total.toFixed(2).replace('.', ',')}*\n\n`;
-            
-            if (orderDataParam.notes) {
-                message += `*Observações:* ${orderDataParam.notes}\n\n`;
-            }
-            
-            if (orderDataParam.paymentMethod === 'pix' && orderDataParam.receiptBase64) {
-                message += `✅ Comprovante PIX enviado pelo cliente\n`;
-                message += `🖼️ Imagem otimizada para envio\n`;
-            }
-            
-            message += `Status: ⏳ Aguardando confirmação`;
-            
-            const whatsappUrl = `https://wa.me/${phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-
-        // Show success screen
-        function showSuccessScreen() {
-            showCartStep(4);
-            
-            successMessage.innerHTML = `
-                Seu pedido <strong>#${currentOrderId.substring(0, 8)}</strong> foi registrado com sucesso!
-                <br>Mensagem enviada para o WhatsApp do estabelecimento.
-            `;
-            
-            updateStatusCard(successStatusCard, currentOrderId, orderData);
         }
 
         // Update orders UI
@@ -3240,8 +3358,10 @@
             ordersList.style.display = 'block';
             
             userOrders.forEach(order => {
+                const hasUpdate = !viewedOrders.has(order.id);
+                
                 const orderCard = document.createElement('div');
-                orderCard.className = 'order-card';
+                orderCard.className = `order-card ${hasUpdate ? 'has-update' : ''}`;
                 
                 const status = order.deliveryStatus || 'preparing';
                 const statusText = getDeliveryStatusText(status);
@@ -3268,7 +3388,7 @@
                     </div>
                     <div class="d-flex justify-between align-center mb-2">
                         <span class="order-status-badge ${statusClass}">
-                            <i class="fas ${getDeliveryStatusIcon(status)} mr-1"></i>
+                            <i class="fas ${getDeliveryStatusIcon(status)} mr-1 ${status === 'preparing' ? 'cooking-animation' : ''}"></i>
                             ${statusText}
                         </span>
                         <div class="order-total">R$ ${total.toFixed(2).replace('.', ',')}</div>
@@ -3298,7 +3418,7 @@
             addOrderCardEventListeners();
         }
 
-        // Adiciona event listeners aos cards de pedido
+        // Add event listeners to order cards
         function addOrderCardEventListeners() {
             document.querySelectorAll('.view-details-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -3315,7 +3435,7 @@
             });
         }
 
-        // Mostra detalhes do pedido
+        // Show order details
         function showOrderDetails(orderId) {
             const order = userOrders.find(o => o.id === orderId);
             if (!order) return;
@@ -3333,7 +3453,7 @@
                             <div class="order-status-card">
                                 <div class="status-header">
                                     <div class="status-icon ${status}">
-                                        <i class="fas ${getDeliveryStatusIcon(status)}"></i>
+                                        <i class="fas ${getDeliveryStatusIcon(status)} ${status === 'preparing' ? 'cooking-animation' : ''}"></i>
                                     </div>
                                     <div>
                                         <div class="status-title">Pedido #${orderId.substring(0, 8)}</div>
@@ -3393,9 +3513,10 @@
                             </div>
                             ` : ''}
                             
-                            <button class="btn btn-whatsapp btn-block mt-3" onclick="openWhatsAppForOrderHelper('${orderId}')">
+                            <a href="https://wa.me/${storeConfig.whatsappNumber?.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá! Gostaria de informações sobre meu pedido #${orderId.substring(0, 8)}`)}" 
+                               class="whatsapp-button btn-block mt-3" target="_blank">
                                 <i class="fab fa-whatsapp"></i> Falar com o estabelecimento
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -3416,12 +3537,12 @@
                 }
             });
             
-            window.openWhatsAppForOrderHelper = function(orderId) {
-                openWhatsAppForOrder(orderId);
-            };
+            // Mark as viewed
+            viewedOrders.add(orderId);
+            updateOrderCardBadge(orderId);
         }
 
-        // Gera HTML da timeline
+        // Generate timeline HTML
         function getTimelineHTML(status) {
             const steps = [
                 { id: 'preparing', text: 'Pedido recebido' },
@@ -3430,17 +3551,21 @@
                 { id: 'delivered', text: 'Entregue' }
             ];
             
-            return steps.map(step => `
-                <div class="timeline-item">
-                    <div class="timeline-dot ${isStepActive(status, step.id) ? 'active' : ''}"></div>
-                    <div class="timeline-text ${isStepActive(status, step.id) ? 'active' : ''}">
-                        ${step.text}
+            return steps.map(step => {
+                const isActive = isStepActive(status, step.id);
+                const isCurrent = status === step.id;
+                return `
+                    <div class="timeline-item">
+                        <div class="timeline-dot ${isActive ? 'active' : ''} ${isCurrent ? 'animating' : ''}"></div>
+                        <div class="timeline-text ${isActive ? 'active' : ''}">
+                            ${step.text} ${isCurrent ? '...' : ''}
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        // Verifica se o passo está ativo
+        // Check if step is active
         function isStepActive(currentStatus, stepId) {
             const statusOrder = ['preparing', 'confirmed', 'delivering', 'delivered'];
             const currentIndex = statusOrder.indexOf(currentStatus);
@@ -3449,7 +3574,7 @@
             return stepIndex <= currentIndex;
         }
 
-        // Abre WhatsApp para pedido
+        // Open WhatsApp for order
         function openWhatsAppForOrder(orderId) {
             const order = userOrders.find(o => o.id === orderId);
             if (!order || !storeConfig.whatsappNumber) return;
@@ -3461,38 +3586,6 @@
 
         // Update profile screen
         function updateProfileScreen() {
-            if (!isLoggedIn) {
-                profileCard.innerHTML = `
-                    <div class="profile-card">
-                        <div class="profile-header">
-                            <div class="profile-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="profile-info">
-                                <h3>Faça seu primeiro pedido!</h3>
-                                <p>Seus dados serão salvos automaticamente</p>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3">
-                            <p>Você ainda não fez nenhum pedido. Faça seu primeiro pedido para cadastrar seus dados automaticamente!</p>
-                            <button class="btn btn-primary btn-block" id="goToHomeBtn">
-                                <i class="fas fa-shopping-cart"></i> Fazer Pedido
-                            </button>
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('goToHomeBtn')?.addEventListener('click', () => {
-                    showScreen('home');
-                    navBtns.forEach(b => b.classList.remove('active'));
-                    document.querySelector('[data-screen="home"]').classList.add('active');
-                });
-                
-                profileStatusCard.style.display = 'none';
-                return;
-            }
-            
             if (!userData.name || !userData.phone) {
                 profileCard.innerHTML = `
                     <div class="profile-card">
@@ -3508,14 +3601,14 @@
                         
                         <div class="mt-3">
                             <p>Seus dados serão salvos automaticamente quando você fizer seu primeiro pedido.</p>
-                            <button class="btn btn-primary btn-block" id="goToHomeBtn2">
+                            <button class="btn btn-primary btn-block" id="goToHomeBtn">
                                 <i class="fas fa-shopping-cart"></i> Fazer Pedido
                             </button>
                         </div>
                     </div>
                 `;
                 
-                document.getElementById('goToHomeBtn2')?.addEventListener('click', () => {
+                document.getElementById('goToHomeBtn')?.addEventListener('click', () => {
                     showScreen('home');
                     navBtns.forEach(b => b.classList.remove('active'));
                     document.querySelector('[data-screen="home"]').classList.add('active');
@@ -3573,7 +3666,7 @@
             }
         }
 
-        // Mostra formulário de perfil
+        // Show profile form
         function showProfileForm() {
             const formHTML = `
                 <div class="modal" id="profileFormModal">
@@ -3622,7 +3715,6 @@
             
             document.getElementById('profileFormModal').style.display = 'block';
             
-            // Setup phone mask for profile form
             const profilePhoneInput = document.getElementById('profilePhone');
             const profilePhoneMask = new IMask(profilePhoneInput, {
                 mask: '(00) 00000-0000',
@@ -3636,13 +3728,10 @@
                 userData.phone = document.getElementById('profilePhone').value;
                 userData.address = document.getElementById('profileAddress').value;
                 
-                // Save to Firestore
                 saveUserDataToFirestore();
                 
-                // Update profile screen
                 updateProfileScreen();
                 
-                // Atualizar também os campos do formulário de entrega
                 loadUserDataToForm();
                 
                 document.getElementById('profileFormModal').style.display = 'none';
@@ -3659,11 +3748,6 @@
 
         // Show access code modal
         function showAccessCodeModal() {
-            if (!isLoggedIn) {
-                showNotification('Faça um pedido para gerar seu código de acesso.', 'info');
-                return;
-            }
-            
             accessCodeDisplay.textContent = accessCode;
             accessCodeModal.style.display = 'block';
         }
@@ -3671,28 +3755,23 @@
         // Handle logout
         function handleLogout() {
             if (confirm('Deseja sair da sua conta?')) {
-                // Clear data for this store only
                 localStorage.removeItem(`userData_${currentStoreId}`);
                 userData = {};
                 userPhone = '';
                 accessCode = '';
                 cart = [];
                 userOrders = [];
-                isLoggedIn = false;
+                viewedOrders.clear();
                 
-                // Update UI
                 updateProfileScreen();
-                updateCartCount();
-                
-                // Reset delivery form
-                deliveryForm.reset();
+                updateOrdersUI();
+                loadUserDataToForm();
                 
                 showNotification('Você saiu da sua conta.', 'info');
                 
-                // Go back to home screen
-                showScreen('home');
-                navBtns.forEach(b => b.classList.remove('active'));
-                document.querySelector('[data-screen="home"]').classList.add('active');
+                setTimeout(() => {
+                    showNotification('Bem-vindo! Faça um pedido para criar uma nova conta.', 'info');
+                }, 1000);
             }
         }
 
@@ -3703,39 +3782,16 @@
             container.innerHTML = `
                 <div class="status-header">
                     <div class="status-icon ${status}">
-                        <i class="fas ${getDeliveryStatusIcon(status)}"></i>
+                        <i class="fas ${getDeliveryStatusIcon(status)} ${status === 'preparing' ? 'cooking-animation' : ''}"></i>
                     </div>
                     <div>
-                        <div class="status-title">Último Pedido #${orderId.substring(0, 8)}</div>
+                        <div class="status-title">Pedido #${orderId.substring(0, 8)}</div>
                         <div class="status-details">${getDeliveryStatusText(status)}</div>
                     </div>
                 </div>
                 
                 <div class="status-timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-dot ${status === 'preparing' || status === 'confirmed' || status === 'delivering' || status === 'delivered' ? 'active' : ''}"></div>
-                        <div class="timeline-text ${status === 'preparing' || status === 'confirmed' || status === 'delivering' || status === 'delivered' ? 'active' : ''}">
-                            Pedido recebido
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot ${status === 'confirmed' || status === 'delivering' || status === 'delivered' ? 'active' : ''}"></div>
-                        <div class="timeline-text ${status === 'confirmed' || status === 'delivering' || status === 'delivered' ? 'active' : ''}">
-                            Confirmado
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot ${status === 'delivering' || status === 'delivered' ? 'active' : ''}"></div>
-                        <div class="timeline-text ${status === 'delivering' || status === 'delivered' ? 'active' : ''}">
-                            Saiu para entrega
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot ${status === 'delivered' ? 'active' : ''}"></div>
-                        <div class="timeline-text ${status === 'delivered' ? 'active' : ''}">
-                            Entregue
-                        </div>
-                    </div>
+                    ${getTimelineHTML(status)}
                 </div>
                 
                 <div class="mt-3">
@@ -3780,6 +3836,47 @@
             }
         }
 
+        // Check for new orders
+        function checkForNewOrders() {
+            let hasNewOrders = false;
+            
+            userOrders.forEach(order => {
+                if (!viewedOrders.has(order.id)) {
+                    hasNewOrders = true;
+                }
+            });
+            
+            if (hasNewOrders && !orderBadgeVisible) {
+                newOrderBadge.style.display = 'block';
+                orderBadgeVisible = true;
+            } else if (!hasNewOrders) {
+                newOrderBadge.style.display = 'none';
+                orderBadgeVisible = false;
+            }
+        }
+
+        // Mark orders as viewed
+        function markOrdersAsViewed() {
+            userOrders.forEach(order => {
+                viewedOrders.add(order.id);
+            });
+            
+            newOrderBadge.style.display = 'none';
+            orderBadgeVisible = false;
+            
+            updateOrdersUI();
+        }
+
+        // Update order card badge
+        function updateOrderCardBadge(orderId) {
+            const orderCard = document.querySelector(`.order-card.has-update [data-id="${orderId}"]`)?.closest('.order-card');
+            if (orderCard) {
+                orderCard.classList.remove('has-update');
+            }
+            
+            checkForNewOrders();
+        }
+
         // Calculate subtotal
         function calculateSubtotal() {
             return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -3797,9 +3894,7 @@
             receiptPreview.style.display = 'none';
             receiptUpload.value = '';
             paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
-            if (isLoggedIn) {
-                loadUserDataToForm();
-            }
+            loadUserDataToForm();
         }
 
         // Format date
@@ -3824,7 +3919,7 @@
             }
         }
 
-        // Show notification - CENTRALIZADA
+        // Show notification
         function showNotification(message, type = 'info') {
             const existingNotifications = document.querySelectorAll('.notification');
             existingNotifications.forEach(notification => {
@@ -3861,7 +3956,6 @@
         
         // Make functions available globally
         window.openImageZoom = openImageZoom;
-        window.openWhatsAppForOrderHelper = (orderId) => openWhatsAppForOrder(orderId);
     </script>
 </body>
 </html>
