@@ -13,16 +13,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
+        /* Desabilitar seleção de texto em áreas não editáveis */
+        .app-header, .user-card, .stat-card, .order-card, .product-card, 
+        .link-container, .bottom-nav, .modal-header, .section-title,
+        .welcome-content, .block-content, .upload-area, .status-filter-btn,
+        .finance-tab, .theme-option, .empty-state, .notification,
+        .monthly-summary, .month-header, .daily-order {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        /* Permitir seleção apenas em campos de entrada */
+        .form-input, textarea, input[type="text"], input[type="number"], 
+        input[type="email"], input[type="tel"], select {
+            user-select: auto;
+            -webkit-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
         }
         
         html, body {
@@ -37,20 +54,6 @@
             font-size: 14px;
             padding-bottom: 70px;
             transition: all 0.3s ease;
-        }
-        
-        /* Elementos editáveis */
-        .form-input,
-        textarea,
-        input[type="text"],
-        input[type="number"],
-        input[type="email"],
-        input[type="password"],
-        select {
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
         }
         
         /* App Container */
@@ -119,13 +122,9 @@
             font-weight: 600;
             font-size: 0.9rem;
             transition: all 0.3s ease;
-            overflow: hidden;
-        }
-        
-        .user-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
         
         .logout-btn {
@@ -138,7 +137,7 @@
             transition: color 0.3s ease;
         }
         
-        /* Welcome Modal - Atualizado */
+        /* Welcome Modal - Nova versão mais didática */
         .welcome-modal {
             display: none;
             position: fixed;
@@ -146,35 +145,30 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(33, 33, 33, 0.98);
+            background: linear-gradient(135deg, #212121 0%, #424242 100%);
             z-index: 2000;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            animation: fadeIn 0.5s ease;
         }
         
         .welcome-content {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 24px;
-            padding: 40px 30px;
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
             max-width: 500px;
             width: 100%;
             text-align: center;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             position: relative;
-            animation: slideUp 0.5s ease;
+            animation: fadeIn 0.5s ease;
         }
         
         .welcome-icon {
-            font-size: 4rem;
+            font-size: 3.5rem;
             color: #212121;
-            margin-bottom: 25px;
-            background: linear-gradient(135deg, #212121, #424242);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            margin-bottom: 20px;
         }
         
         .welcome-title {
@@ -184,27 +178,28 @@
             font-weight: 700;
         }
         
-        .welcome-subtitle {
-            font-size: 1.1rem;
-            color: #666;
+        .welcome-message {
+            color: #757575;
             margin-bottom: 30px;
-            line-height: 1.5;
+            line-height: 1.6;
+            text-align: left;
         }
         
         .welcome-steps {
-            text-align: left;
-            margin: 30px 0;
+            background-color: #f9f9f9;
+            border-radius: 15px;
             padding: 20px;
-            background: rgba(33, 33, 33, 0.05);
-            border-radius: 16px;
+            margin-bottom: 30px;
+            border-left: 4px solid #212121;
         }
         
         .welcome-step {
             display: flex;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
         }
         
         .welcome-step:last-child {
@@ -213,44 +208,34 @@
             border-bottom: none;
         }
         
-        .step-number {
-            width: 32px;
-            height: 32px;
-            background: #212121;
-            color: white;
+        .step-icon {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
+            background-color: #212121;
+            color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            margin-right: 15px;
             flex-shrink: 0;
+        }
+        
+        .step-text {
+            text-align: left;
+            flex: 1;
         }
         
         .step-text h4 {
             color: #212121;
             margin-bottom: 5px;
-            font-size: 1rem;
+            font-weight: 600;
         }
         
         .step-text p {
-            color: #666;
+            color: #757575;
             font-size: 0.9rem;
             line-height: 1.4;
-        }
-        
-        .welcome-note {
-            background: #e8f5e9;
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 25px;
-            border-left: 4px solid #4caf50;
-        }
-        
-        .welcome-note p {
-            color: #2e7d32;
-            font-size: 0.9rem;
-            line-height: 1.5;
         }
         
         /* Expiry Warning Modal */
@@ -325,26 +310,20 @@
         }
         
         .user-card-avatar {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             background-color: #212121;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #ffffff;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 600;
             transition: all 0.3s ease;
-            overflow: hidden;
-            position: relative;
-            border: 4px solid #212121;
-        }
-        
-        .user-card-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
         
         .user-card-info h3 {
@@ -603,8 +582,8 @@
         }
         
         .product-image {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             border-radius: 8px;
             overflow: hidden;
             flex-shrink: 0;
@@ -612,7 +591,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
         
         .product-image img {
@@ -1301,6 +1279,81 @@
             background-color: rgba(33, 150, 243, 0.95);
         }
         
+        /* WhatsApp Notification Modal - Novo Design Minimalista */
+        .whatsapp-notification-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .whatsapp-notification-content {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .whatsapp-icon {
+            font-size: 4rem;
+            color: #25D366;
+            margin-bottom: 20px;
+        }
+        
+        .whatsapp-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #212121;
+            font-weight: 600;
+        }
+        
+        .whatsapp-message {
+            color: #757575;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            text-align: left;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #25D366;
+        }
+        
+        .whatsapp-instructions {
+            background-color: #e8f5e9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: left;
+            border: 1px solid #c8e6c9;
+        }
+        
+        .whatsapp-instructions ol {
+            margin-left: 20px;
+            margin-bottom: 0;
+        }
+        
+        .whatsapp-instructions li {
+            margin-bottom: 8px;
+            color: #2e7d32;
+        }
+        
+        .whatsapp-instructions li:last-child {
+            margin-bottom: 0;
+        }
+        
         /* Block Modal */
         .block-modal {
             display: none;
@@ -1346,171 +1399,6 @@
             line-height: 1.5;
         }
         
-        /* Crop Modal */
-        .crop-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 4000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .crop-content {
-            background-color: #ffffff;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-        
-        .crop-preview {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin: 0 auto 20px;
-            border: 3px solid #212121;
-            position: relative;
-        }
-        
-        .crop-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .crop-instructions {
-            background: #f0f9ff;
-            padding: 15px;
-            border-radius: 12px;
-            margin: 20px 0;
-            border-left: 4px solid #2196f3;
-        }
-        
-        .crop-instructions p {
-            color: #1565c0;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-        
-        /* WhatsApp Notification Modal */
-        .whatsapp-notification-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            z-index: 4000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .whatsapp-notification-content {
-            background-color: #ffffff;
-            border-radius: 24px;
-            padding: 40px 30px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            position: relative;
-            animation: slideUp 0.5s ease;
-        }
-        
-        .whatsapp-icon {
-            font-size: 5rem;
-            color: #25D366;
-            margin-bottom: 25px;
-            animation: pulse 2s infinite;
-        }
-        
-        .whatsapp-title {
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-            color: #212121;
-            font-weight: 700;
-        }
-        
-        .whatsapp-message {
-            color: #666;
-            margin-bottom: 30px;
-            line-height: 1.6;
-            font-size: 1rem;
-        }
-        
-        .whatsapp-steps {
-            text-align: left;
-            margin: 30px 0;
-            padding: 20px;
-            background: rgba(37, 211, 102, 0.05);
-            border-radius: 16px;
-            border-left: 4px solid #25D366;
-        }
-        
-        .whatsapp-step {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-        
-        .whatsapp-step:last-child {
-            margin-bottom: 0;
-        }
-        
-        .step-icon {
-            width: 32px;
-            height: 32px;
-            background: #25D366;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-        
-        .step-description {
-            flex: 1;
-            color: #212121;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-        
-        /* Image Edit Button */
-        .edit-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 5px;
-            text-align: center;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        
-        .edit-overlay:hover {
-            background: rgba(0, 0, 0, 0.9);
-        }
-        
         /* Animations */
         @keyframes slideUp {
             from { transform: translateY(100%); }
@@ -1530,12 +1418,6 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
         }
         
         /* Utilities */
@@ -1558,127 +1440,59 @@
     </style>
 </head>
 <body>
-    <!-- Welcome Modal - Atualizado -->
+    <!-- Welcome Modal - Nova versão mais didática -->
     <div class="welcome-modal" id="welcomeModal">
         <div class="welcome-content">
             <div class="welcome-icon">
-                <i class="fas fa-store-alt"></i>
+                <i class="fas fa-store"></i>
             </div>
-            <h2 class="welcome-title">🚀 Bem-vindo ao Venda+!</h2>
-            <p class="welcome-subtitle">
-                Sua loja virtual está quase pronta! Complete algumas informações básicas para começar a vender.
+            <h2 class="welcome-title">Bem-vindo ao Venda+!</h2>
+            <p class="welcome-message">
+                Para começar a usar todas as funcionalidades do sistema, é importante configurar sua loja corretamente. 
+                Vamos guiá-lo passo a passo:
             </p>
             
             <div class="welcome-steps">
                 <div class="welcome-step">
-                    <div class="step-number">1</div>
+                    <div class="step-icon">1</div>
                     <div class="step-text">
-                        <h4>Configure sua Loja</h4>
-                        <p>Adicione o nome do seu negócio, telefone e chave PIX para receber pagamentos.</p>
+                        <h4>Nome do Negócio</h4>
+                        <p>Defina o nome da sua empresa ou loja que aparecerá para seus clientes.</p>
                     </div>
                 </div>
                 
                 <div class="welcome-step">
-                    <div class="step-number">2</div>
+                    <div class="step-icon">2</div>
                     <div class="step-text">
-                        <h4>Adicione seus Produtos</h4>
-                        <p>Cadastre seus produtos ou serviços com fotos, descrições e preços.</p>
+                        <h4>Contato WhatsApp</h4>
+                        <p>Informe seu número do WhatsApp para que os clientes possam entrar em contato.</p>
                     </div>
                 </div>
                 
                 <div class="welcome-step">
-                    <div class="step-number">3</div>
+                    <div class="step-icon">3</div>
                     <div class="step-text">
-                        <h4>Compartilhe seu Link</h4>
-                        <p>Compartilhe o link da sua loja com seus clientes e comece a vender!</p>
+                        <h4>Chave PIX</h4>
+                        <p>Configure sua chave PIX para receber pagamentos dos pedidos.</p>
+                    </div>
+                </div>
+                
+                <div class="welcome-step">
+                    <div class="step-icon">4</div>
+                    <div class="step-text">
+                        <h4>Logo e Tema</h4>
+                        <p>Personalize sua loja com sua logo e escolha um tema que combine com sua marca.</p>
                     </div>
                 </div>
             </div>
             
-            <div class="welcome-note">
-                <p><i class="fas fa-lightbulb"></i> <strong>Dica:</strong> Você pode editar estas informações a qualquer momento nas Configurações.</p>
-            </div>
-            
-            <button class="btn btn-primary btn-block" id="goToConfigBtn">
-                <i class="fas fa-rocket"></i> Começar Configuração
-            </button>
-        </div>
-    </div>
-
-    <!-- Crop Modal -->
-    <div class="crop-modal" id="cropModal">
-        <div class="crop-content">
-            <h2 class="modal-title mb-3">✂️ Cortar Imagem</h2>
-            
-            <div class="crop-preview" id="cropPreview">
-                <img id="cropImage" src="" alt="Imagem para cortar">
-            </div>
-            
-            <div class="crop-instructions">
-                <p><i class="fas fa-info-circle"></i> A imagem será cortada para ficar quadrada (1:1). Arraste e ajuste conforme necessário.</p>
-            </div>
-            
-            <div class="d-flex gap-2">
-                <button type="button" class="btn btn-secondary flex-1" id="cancelCropBtn">
-                    Cancelar
-                </button>
-                <button type="button" class="btn btn-primary flex-1" id="applyCropBtn">
-                    <i class="fas fa-check"></i> Aplicar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- WhatsApp Notification Modal -->
-    <div class="whatsapp-notification-modal" id="whatsappNotificationModal">
-        <div class="whatsapp-notification-content">
-            <div class="whatsapp-icon">
-                <i class="fab fa-whatsapp"></i>
-            </div>
-            
-            <h2 class="whatsapp-title">📲 Notificar Administrador</h2>
-            
-            <p class="whatsapp-message">
-                Seu comprovante foi enviado com sucesso! Agora, por favor, notifique o administrador via WhatsApp sobre o pagamento da renovação.
+            <p class="text-gray mb-3" style="text-align: center;">
+                <i class="fas fa-info-circle"></i> Você pode alterar essas configurações a qualquer momento.
             </p>
             
-            <div class="whatsapp-steps">
-                <div class="whatsapp-step">
-                    <div class="step-icon">
-                        <i class="fas fa-check"></i>
-                    </div>
-                    <div class="step-description">
-                        <strong>Comprovante enviado</strong> - O sistema já registrou seu pagamento
-                    </div>
-                </div>
-                
-                <div class="whatsapp-step">
-                    <div class="step-icon">
-                        <i class="fas fa-phone"></i>
-                    </div>
-                    <div class="step-description">
-                        <strong>Clique no botão abaixo</strong> - Você será redirecionado para o WhatsApp
-                    </div>
-                </div>
-                
-                <div class="whatsapp-step">
-                    <div class="step-icon">
-                        <i class="fas fa-comment"></i>
-                    </div>
-                    <div class="step-description">
-                        <strong>Envie uma mensagem</strong> - Informe que realizou o pagamento da renovação
-                    </div>
-                </div>
-            </div>
-            
-            <div class="d-flex gap-2">
-                <button type="button" class="btn btn-secondary flex-1" id="closeWhatsAppModalBtn">
-                    <i class="fas fa-times"></i> Fechar
-                </button>
-                <button type="button" class="btn btn-success flex-1" id="openWhatsAppBtn">
-                    <i class="fab fa-whatsapp"></i> Abrir WhatsApp
-                </button>
-            </div>
+            <button class="btn btn-primary btn-block" id="goToConfigBtn">
+                <i class="fas fa-cog"></i> Começar Configuração
+            </button>
         </div>
     </div>
 
@@ -1695,6 +1509,43 @@
             <button class="btn btn-primary" id="logoutBlockedBtn">
                 <i class="fas fa-sign-out-alt"></i> Sair
             </button>
+        </div>
+    </div>
+
+    <!-- WhatsApp Notification Modal - Novo Design -->
+    <div class="whatsapp-notification-modal" id="whatsappNotificationModal">
+        <div class="whatsapp-notification-content">
+            <div class="whatsapp-icon">
+                <i class="fab fa-whatsapp"></i>
+            </div>
+            <h2 class="whatsapp-title">Enviar Notificação</h2>
+            
+            <div class="whatsapp-message">
+                <strong>Mensagem que será enviada:</strong><br><br>
+                <span id="whatsappMessageContent">Carregando mensagem...</span>
+            </div>
+            
+            <div class="whatsapp-instructions">
+                <strong>Instruções:</strong>
+                <ol>
+                    <li>Clique no botão "Abrir WhatsApp" abaixo</li>
+                    <li>O WhatsApp será aberto com a mensagem pronta</li>
+                    <li>Verifique a mensagem e envie para o cliente</li>
+                    <li>Após enviar, volte para esta tela e clique em "Notificação Enviada"</li>
+                </ol>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button class="btn btn-secondary flex-1" id="cancelWhatsappBtn">
+                    Cancelar
+                </button>
+                <button class="btn btn-success flex-1" id="openWhatsappBtn">
+                    <i class="fab fa-whatsapp"></i> Abrir WhatsApp
+                </button>
+                <button class="btn btn-primary flex-1" id="confirmWhatsappBtn">
+                    <i class="fas fa-check"></i> Notificação Enviada
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1717,9 +1568,7 @@
                 </div>
             </div>
             <div class="user-info">
-                <div class="user-avatar" id="userAvatar">
-                    <!-- Imagem será carregada via JavaScript -->
-                </div>
+                <div class="user-avatar" id="userAvatar">U</div>
                 <button class="logout-btn" id="logoutBtn" title="Sair">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
@@ -1747,9 +1596,7 @@
                 <!-- User Info Card -->
                 <div class="user-card">
                     <div class="user-card-header">
-                        <div class="user-card-avatar" id="storeAvatar">
-                            <!-- Imagem será carregada via JavaScript -->
-                        </div>
+                        <div class="user-card-avatar" id="storeAvatar">S</div>
                         <div class="user-card-info">
                             <h3 id="storeNameDisplay">Carregando...</h3>
                             <p id="storeEmail">carregando...</p>
@@ -2052,9 +1899,7 @@
                             <div class="upload-info">Tamanho máximo: 8MB</div>
                             <input type="file" id="configLogoUpload" accept="image/*" style="display: none;">
                         </div>
-                        <div class="image-preview-container">
-                            <img id="configLogoPreview" class="image-preview" alt="Logo">
-                        </div>
+                        <img id="configLogoPreview" class="image-preview" alt="Logo">
                     </div>
                     
                     <div class="form-group">
@@ -2231,9 +2076,7 @@
                             <option value="">Selecione...</option>
                             <option value="alimentos">Alimentos</option>
                             <option value="bebidas">Bebidas</option>
-                            <option value="roupas">Roupas</option>
-                            <option value="eletronicos">Eletrônicos</option>
-                            <option value="servicos">Serviços</option>
+                            <option value="artesanato">Artesanato</option>
                             <option value="outros">Outros</option>
                         </select>
                     </div>
@@ -2248,9 +2091,7 @@
                             <div class="upload-info">Tamanho máximo: 8MB</div>
                             <input type="file" id="productImageUpload" accept="image/*" style="display: none;">
                         </div>
-                        <div class="image-preview-container">
-                            <img id="productImagePreview" class="image-preview" alt="Produto">
-                        </div>
+                        <img id="productImagePreview" class="image-preview" alt="Produto">
                     </div>
                     
                     <div class="form-group">
@@ -2351,7 +2192,7 @@
                             <i class="fas fa-file-upload"></i>
                         </div>
                         <div class="upload-text">Clique para fazer upload</div>
-                        <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF - Máx. 8MB</div>
+                        <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF - Tamanho máximo: 8MB</div>
                         <div class="file-types">
                             <span class="file-type-badge">JPG</span>
                             <span class="file-type-badge">PNG</span>
@@ -2431,9 +2272,8 @@
         let renewReceiptType = '';
         let renewReceiptFileName = '';
         let userActivityListener = null;
-        let cropImageElement = null;
-        let cropType = ''; // 'logo' ou 'product'
-        let cropCallback = null;
+        let whatsappNotificationType = null;
+        let whatsappNotificationData = null;
 
         // DOM Elements
         const welcomeModal = document.getElementById('welcomeModal');
@@ -2452,17 +2292,12 @@
         const shareLinkBtn = document.getElementById('shareLinkBtn');
         const loadingOverlay = document.getElementById('loadingOverlay');
         
-        // Crop modal elements
-        const cropModal = document.getElementById('cropModal');
-        const cropPreview = document.getElementById('cropPreview');
-        const cropImage = document.getElementById('cropImage');
-        const cancelCropBtn = document.getElementById('cancelCropBtn');
-        const applyCropBtn = document.getElementById('applyCropBtn');
-        
-        // WhatsApp notification modal
+        // WhatsApp Notification Modal elements
         const whatsappNotificationModal = document.getElementById('whatsappNotificationModal');
-        const closeWhatsAppModalBtn = document.getElementById('closeWhatsAppModalBtn');
-        const openWhatsAppBtn = document.getElementById('openWhatsAppBtn');
+        const whatsappMessageContent = document.getElementById('whatsappMessageContent');
+        const cancelWhatsappBtn = document.getElementById('cancelWhatsappBtn');
+        const openWhatsappBtn = document.getElementById('openWhatsappBtn');
+        const confirmWhatsappBtn = document.getElementById('confirmWhatsappBtn');
         
         // Expiry warning elements
         const expiryWarningModal = document.getElementById('expiryWarningModal');
@@ -2748,7 +2583,7 @@
             }
         }
 
-        // Load user data
+        // Load user data and update avatar with logo
         async function loadUserData() {
             try {
                 const userDoc = await db.collection('users').doc(currentStoreId).get();
@@ -2759,8 +2594,11 @@
                     currentUser.phone = userData.phone || '';
                     userConfigCompleted = userData.configCompleted || false;
                     
-                    // Update avatar with user's profile image
+                    // Atualizar o avatar do usuário (canto superior direito)
                     updateUserAvatar();
+                    
+                    // Atualizar o avatar da loja (dashboard)
+                    updateStoreAvatar();
                     
                     storeNameDisplay.textContent = userData.storeName || 'Minha Loja';
                     storeEmail.textContent = currentUser.email;
@@ -2773,51 +2611,26 @@
             }
         }
 
-        // Update user avatar with profile image
+        // Update user avatar with logo from store config
         function updateUserAvatar() {
-            const storeAvatarImg = storeAvatar.querySelector('img');
-            const userAvatarImg = userAvatar.querySelector('img');
-            
             if (storeConfig.logoBase64) {
-                // Remove existing image elements
-                if (storeAvatarImg) storeAvatarImg.remove();
-                if (userAvatarImg) userAvatarImg.remove();
-                
-                // Create new image for store avatar
-                const newStoreImg = document.createElement('img');
-                newStoreImg.src = storeConfig.logoBase64;
-                newStoreImg.alt = 'Logo da Loja';
-                storeAvatar.appendChild(newStoreImg);
-                
-                // Create new image for user avatar
-                const newUserImg = document.createElement('img');
-                newUserImg.src = storeConfig.logoBase64;
-                newUserImg.alt = 'Perfil';
-                userAvatar.appendChild(newUserImg);
-                
-                // Add edit overlay
-                addEditOverlay(storeAvatar, 'Editar logo', () => {
-                    configLogoUpload.click();
-                });
+                userAvatar.style.backgroundImage = `url(${storeConfig.logoBase64})`;
+                userAvatar.textContent = '';
             } else {
-                // Use initial letter if no image
-                const initials = currentUser.storeName ? currentUser.storeName.charAt(0).toUpperCase() : 'U';
-                storeAvatar.innerHTML = initials;
-                userAvatar.innerHTML = initials;
+                userAvatar.style.backgroundImage = '';
+                userAvatar.textContent = storeConfig.businessName ? storeConfig.businessName.charAt(0).toUpperCase() : 'U';
             }
         }
 
-        // Add edit overlay to image
-        function addEditOverlay(container, text, onClick) {
-            // Remove existing overlay
-            const existingOverlay = container.querySelector('.edit-overlay');
-            if (existingOverlay) existingOverlay.remove();
-            
-            const overlay = document.createElement('div');
-            overlay.className = 'edit-overlay';
-            overlay.innerHTML = `<i class="fas fa-edit"></i> ${text}`;
-            overlay.addEventListener('click', onClick);
-            container.appendChild(overlay);
+        // Update store avatar with logo from store config
+        function updateStoreAvatar() {
+            if (storeConfig.logoBase64) {
+                storeAvatar.style.backgroundImage = `url(${storeConfig.logoBase64})`;
+                storeAvatar.textContent = '';
+            } else {
+                storeAvatar.style.backgroundImage = '';
+                storeAvatar.textContent = storeConfig.businessName ? storeConfig.businessName.charAt(0).toUpperCase() : 'S';
+            }
         }
 
         // Setup user activity listener
@@ -2875,7 +2688,10 @@
                 if (configDoc.exists) {
                     storeConfig = configDoc.data();
                     updateConfigForm();
+                    
+                    // Atualizar os avatares após carregar a configuração
                     updateUserAvatar();
+                    updateStoreAvatar();
                 } else {
                     storeConfig = {
                         businessName: currentUser.storeName || 'Minha Loja',
@@ -3129,11 +2945,6 @@
                 configLogoPreview.src = storeConfig.logoBase64;
                 configLogoPreview.style.display = 'block';
                 logoBase64 = storeConfig.logoBase64;
-                
-                // Add edit overlay to logo preview
-                addEditOverlay(configLogoPreview.parentElement, 'Editar logo', () => {
-                    configLogoUpload.click();
-                });
             }
             
             // Update delivery fee stat
@@ -3435,19 +3246,20 @@
                 document.querySelector('[data-screen="config"]').classList.add('active');
             });
             
-            // Crop modal
-            cancelCropBtn.addEventListener('click', () => {
-                cropModal.style.display = 'none';
-            });
-            
-            applyCropBtn.addEventListener('click', applyCrop);
-            
             // WhatsApp notification modal
-            closeWhatsAppModalBtn.addEventListener('click', () => {
+            cancelWhatsappBtn.addEventListener('click', () => {
                 whatsappNotificationModal.style.display = 'none';
+                whatsappNotificationType = null;
+                whatsappNotificationData = null;
             });
             
-            openWhatsAppBtn.addEventListener('click', openWhatsAppForRenewal);
+            openWhatsappBtn.addEventListener('click', () => {
+                openWhatsAppNotification();
+            });
+            
+            confirmWhatsappBtn.addEventListener('click', () => {
+                confirmWhatsAppNotification();
+            });
             
             // Logout
             logoutBtn.addEventListener('click', async () => {
@@ -3591,14 +3403,13 @@
             
             configLogoUpload.addEventListener('change', async (e) => {
                 await handleImageUpload(e, (base64) => {
-                    openCropModal(base64, 'logo', (croppedBase64) => {
-                        logoBase64 = croppedBase64;
-                        configLogoPreview.src = croppedBase64;
-                        configLogoPreview.style.display = 'block';
-                        
-                        // Update avatar immediately
-                        updateUserAvatar();
-                    });
+                    logoBase64 = base64;
+                    configLogoPreview.src = base64;
+                    configLogoPreview.style.display = 'block';
+                    
+                    // Atualizar os avatares após upload da logo
+                    updateUserAvatar();
+                    updateStoreAvatar();
                 });
             });
             
@@ -3625,11 +3436,9 @@
             
             productImageUpload.addEventListener('change', async (e) => {
                 await handleImageUpload(e, (base64) => {
-                    openCropModal(base64, 'product', (croppedBase64) => {
-                        productImageBase64 = croppedBase64;
-                        productImagePreview.src = croppedBase64;
-                        productImagePreview.style.display = 'block';
-                    });
+                    productImageBase64 = base64;
+                    productImagePreview.src = base64;
+                    productImagePreview.style.display = 'block';
                 });
             });
             
@@ -3709,11 +3518,10 @@
                     renewPaymentModal.style.display = 'none';
                     resetRenewReceipt();
                 }
-                if (e.target === cropModal) {
-                    cropModal.style.display = 'none';
-                }
                 if (e.target === whatsappNotificationModal) {
                     whatsappNotificationModal.style.display = 'none';
+                    whatsappNotificationType = null;
+                    whatsappNotificationData = null;
                 }
                 if (e.target === blockModal) {
                     // Não permitir fechar o modal de bloqueio clicando fora
@@ -3722,63 +3530,8 @@
             });
         }
 
-        // Open crop modal
-        function openCropModal(imageBase64, type, callback) {
-            cropImage.src = imageBase64;
-            cropType = type;
-            cropCallback = callback;
-            cropModal.style.display = 'flex';
-        }
-
-        // Apply crop to image
-        function applyCrop() {
-            try {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Set canvas size to square (1:1 aspect ratio)
-                    const size = Math.min(img.width, img.height);
-                    canvas.width = size;
-                    canvas.height = size;
-                    
-                    // Calculate cropping coordinates (center crop)
-                    const sx = (img.width - size) / 2;
-                    const sy = (img.height - size) / 2;
-                    
-                    // Draw cropped image
-                    ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size);
-                    
-                    // Convert to base64
-                    const croppedBase64 = canvas.toDataURL('image/jpeg', 0.9);
-                    
-                    // Call callback with cropped image
-                    if (cropCallback) {
-                        cropCallback(croppedBase64);
-                    }
-                    
-                    // Close modal
-                    cropModal.style.display = 'none';
-                    
-                    showNotification('Imagem cortada com sucesso!', 'success');
-                };
-                
-                img.onerror = function() {
-                    showNotification('Erro ao processar imagem.', 'error');
-                    cropModal.style.display = 'none';
-                };
-                
-                img.src = cropImage.src;
-            } catch (error) {
-                console.error('Error cropping image:', error);
-                showNotification('Erro ao cortar imagem.', 'error');
-                cropModal.style.display = 'none';
-            }
-        }
-
         // Função para otimizar imagem
-        async function optimizeImage(base64String, maxSizeKB = 800) {
+        async function optimizeImage(base64String, maxSizeKB = 600) {
             return new Promise((resolve) => {
                 // Calcular tamanho atual
                 const base64Data = base64String.split(',')[1] || base64String;
@@ -3848,7 +3601,7 @@
             const file = e.target.files[0];
             if (!file) return;
             
-            // Check file size (max 8MB)
+            // Check file size (max 8MB) - AUMENTADO DE 5MB PARA 8MB
             if (file.size > 8 * 1024 * 1024) {
                 showNotification('A imagem deve ter no máximo 8MB.', 'error');
                 e.target.value = '';
@@ -3871,7 +3624,7 @@
                     <div class="upload-icon">
                         <i class="fas fa-spinner fa-spin"></i>
                     </div>
-                    <div class="upload-text">Processando imagem...</div>
+                    <div class="upload-text">Otimizando imagem...</div>
                 `;
             }
             
@@ -3882,13 +3635,13 @@
                     try {
                         const originalBase64 = event.target.result;
                         
-                        // Otimizar imagem (reduz para menos de 800KB se necessário)
-                        const optimizedBase64 = await optimizeImage(originalBase64, 800);
+                        // Otimizar imagem (reduz para menos de 600KB se necessário)
+                        const optimizedBase64 = await optimizeImage(originalBase64, 600);
                         
                         // Call callback with optimized image
                         callback(optimizedBase64);
                         
-                        showNotification('Imagem carregada com sucesso!', 'success');
+                        showNotification('Imagem otimizada com sucesso!', 'success');
                     } catch (error) {
                         console.error('Error optimizing image:', error);
                         callback(event.target.result);
@@ -3975,7 +3728,7 @@
             const file = e.target.files[0];
             if (!file) return;
             
-            // Check file size (max 8MB)
+            // Check file size (max 8MB) - AUMENTADO DE 5MB PARA 8MB
             if (file.size > 8 * 1024 * 1024) {
                 showNotification('O arquivo deve ter no máximo 8MB.', 'error');
                 renewReceiptUpload.value = '';
@@ -4009,7 +3762,7 @@
                     // Se for imagem, otimizar
                     if (renewReceiptType === 'image') {
                         try {
-                            base64 = await optimizeImage(base64, 800);
+                            base64 = await optimizeImage(base64, 600);
                         } catch (error) {
                             console.error('Error optimizing receipt image:', error);
                             // Continua com a imagem original se houver erro
@@ -4036,7 +3789,7 @@
                             <i class="fas fa-file-upload"></i>
                         </div>
                         <div class="upload-text">Clique para fazer upload</div>
-                        <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF - Máx. 8MB</div>
+                        <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF - Tamanho máximo: 8MB</div>
                         <div class="file-types">
                             <span class="file-type-badge">JPG</span>
                             <span class="file-type-badge">PNG</span>
@@ -4053,7 +3806,7 @@
                             <i class="fas fa-file-upload"></i>
                         </div>
                         <div class="upload-text">Clique para fazer upload</div>
-                        <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF - Máx. 8MB</div>
+                        <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF - Tamanho máximo: 8MB</div>
                         <div class="file-types">
                             <span class="file-type-badge">JPG</span>
                             <span class="file-type-badge">PNG</span>
@@ -4072,7 +3825,7 @@
                         <i class="fas fa-file-upload"></i>
                     </div>
                     <div class="upload-text">Clique para fazer upload</div>
-                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF - Máx. 8MB</div>
+                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF - Tamanho máximo: 8MB</div>
                     <div class="file-types">
                         <span class="file-type-badge">JPG</span>
                         <span class="file-type-badge">PNG</span>
@@ -4082,7 +3835,94 @@
             }
         }
 
-        // Submit renewal payment
+        // Show WhatsApp notification modal
+        function showWhatsAppNotification(type, data) {
+            whatsappNotificationType = type;
+            whatsappNotificationData = data;
+            
+            let message = '';
+            let title = '';
+            
+            if (type === 'renewal') {
+                title = 'Renovação Concluída';
+                message = `✅ *RENOVAÇÃO CONFIRMADA!* ✅\n\n`;
+                message += `Olá, *${data.userName || 'Cliente'}*!\n\n`;
+                message += `Sua renovação do plano Venda+ foi *confirmada com sucesso*! 🎉\n\n`;
+                message += `📅 *Nova data de vencimento:* ${formatDate(data.newExpiryDate)}\n`;
+                message += `💰 *Valor pago:* R$ ${data.amount.toFixed(2)}\n\n`;
+                message += `Seu acesso ao sistema está *garantido por mais 30 dias*.\n\n`;
+                message += `Agradecemos pela confiança! ✨\n\n`;
+                message += `*Equipe Venda+*`;
+            }
+            
+            whatsappMessageContent.textContent = message;
+            whatsappNotificationModal.style.display = 'flex';
+        }
+
+        // Open WhatsApp with notification message
+        function openWhatsAppNotification() {
+            if (!whatsappNotificationData || !whatsappNotificationType) return;
+            
+            let phoneNumber = '';
+            let message = '';
+            
+            if (whatsappNotificationType === 'renewal') {
+                // Para renovação, o WhatsApp é enviado para o próprio cliente
+                phoneNumber = storeConfig.whatsappNumber || currentUser.phone;
+                
+                message = `✅ *RENOVAÇÃO CONFIRMADA!* ✅\n\n`;
+                message += `Olá, *${whatsappNotificationData.userName || 'Cliente'}*!\n\n`;
+                message += `Sua renovação do plano Venda+ foi *confirmada com sucesso*! 🎉\n\n`;
+                message += `📅 *Nova data de vencimento:* ${formatDate(whatsappNotificationData.newExpiryDate)}\n`;
+                message += `💰 *Valor pago:* R$ ${whatsappNotificationData.amount.toFixed(2)}\n\n`;
+                message += `Seu acesso ao sistema está *garantido por mais 30 dias*.\n\n`;
+                message += `Agradecemos pela confiança! ✨\n\n`;
+                message += `*Equipe Venda+*`;
+            }
+            
+            if (phoneNumber) {
+                const whatsappUrl = `https://wa.me/${phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            } else {
+                showNotification('Número do WhatsApp não configurado.', 'error');
+            }
+        }
+
+        // Confirm WhatsApp notification was sent
+        async function confirmWhatsAppNotification() {
+            try {
+                if (whatsappNotificationType === 'renewal') {
+                    // Atualizar o status do usuário para renovado
+                    const newExpiryDate = new Date();
+                    newExpiryDate.setDate(newExpiryDate.getDate() + 30);
+                    
+                    await db.collection('users').doc(currentStoreId).update({
+                        renewalStatus: 'completed',
+                        expiryDate: newExpiryDate.toISOString(),
+                        lastRenewalDate: new Date().toISOString()
+                    });
+                    
+                    // Atualizar dados locais do usuário
+                    currentUser.expiryDate = newExpiryDate.toISOString();
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    showNotification('Renovação confirmada com sucesso!', 'success');
+                    
+                    // Atualizar banner de vencimento
+                    expiryWarningBanner.classList.add('d-none');
+                }
+                
+                whatsappNotificationModal.style.display = 'none';
+                whatsappNotificationType = null;
+                whatsappNotificationData = null;
+                
+            } catch (error) {
+                console.error('Error confirming WhatsApp notification:', error);
+                showNotification('Erro ao confirmar notificação.', 'error');
+            }
+        }
+
+        // Submit renewal payment (nova versão em duas etapas)
         async function submitRenewalPayment() {
             if (!renewReceiptBase64) {
                 showNotification('Por favor, envie o comprovante do pagamento.', 'error');
@@ -4097,6 +3937,10 @@
                 const configDoc = await db.collection('systemConfig').doc('paymentSettings').get();
                 const configData = configDoc.exists ? configDoc.data() : {};
                 const amount = configData.monthlyPlanPrice || 99.00;
+                
+                // Calculate new expiry date
+                const newExpiryDate = new Date();
+                newExpiryDate.setDate(newExpiryDate.getDate() + 30);
                 
                 // Create renewal payment record
                 await db.collection('renewalPayments').add({
@@ -4120,12 +3964,16 @@
                     lastRenewalRequest: new Date().toISOString()
                 });
                 
-                // Close renew modal
+                // Fechar modal de renovação
                 renewPaymentModal.style.display = 'none';
                 resetRenewReceipt();
                 
-                // Show WhatsApp notification modal
-                showWhatsAppNotificationModal();
+                // Mostrar modal de WhatsApp para notificar o cliente
+                showWhatsAppNotification('renewal', {
+                    userName: currentUser.storeName,
+                    amount: amount,
+                    newExpiryDate: newExpiryDate.toISOString()
+                });
                 
             } catch (error) {
                 console.error('Error submitting renewal payment:', error);
@@ -4133,56 +3981,6 @@
             } finally {
                 submitRenewBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Concluir Renovação';
                 submitRenewBtn.disabled = false;
-            }
-        }
-
-        // Show WhatsApp notification modal
-        function showWhatsAppNotificationModal() {
-            whatsappNotificationModal.style.display = 'flex';
-        }
-
-        // Open WhatsApp for renewal notification
-        async function openWhatsAppForRenewal() {
-            try {
-                // Load admin WhatsApp from system config
-                const configDoc = await db.collection('systemConfig').doc('paymentSettings').get();
-                if (!configDoc.exists) {
-                    showNotification('Configuração do administrador não encontrada.', 'error');
-                    return;
-                }
-                
-                const configData = configDoc.data();
-                const adminWhatsApp = configData.adminWhatsApp || '(11) 99999-9999';
-                const amount = configData.monthlyPlanPrice || 99.00;
-                
-                // Format WhatsApp message
-                let message = `🔄 *SOLICITAÇÃO DE RENOVAÇÃO* 🔄\n\n`;
-                message += `👤 *Cliente:* ${currentUser.storeName}\n`;
-                message += `🏪 *Loja:* ${currentUser.storeName}\n`;
-                message += `📧 *E-mail:* ${currentUser.email}\n`;
-                message += `💰 *Valor:* R$ ${amount.toFixed(2)}\n`;
-                message += `📅 *Data:* ${new Date().toLocaleDateString('pt-BR')}\n`;
-                message += `⏰ *Hora:* ${new Date().toLocaleTimeString('pt-BR')}\n\n`;
-                message += `✅ *Comprovante já foi enviado pelo sistema*\n\n`;
-                message += `Por favor, verifique o comprovante no painel administrativo e libere a renovação.`;
-                
-                const encodedMessage = encodeURIComponent(message);
-                const whatsappUrl = `https://wa.me/${adminWhatsApp.replace(/\D/g, '')}?text=${encodedMessage}`;
-                
-                // Open WhatsApp in new tab
-                window.open(whatsappUrl, '_blank');
-                
-                // Close modal
-                whatsappNotificationModal.style.display = 'none';
-                
-                // Update expiry warning banner
-                expiryWarningBanner.classList.add('d-none');
-                
-                showNotification('WhatsApp aberto! Envie a mensagem ao administrador.', 'success');
-                
-            } catch (error) {
-                console.error('Error opening WhatsApp:', error);
-                showNotification('Erro ao abrir WhatsApp.', 'error');
             }
         }
 
@@ -4772,7 +4570,7 @@
                 message += `*Observações:* ${order.notes}\n\n`;
             }
             
-            message += `Obrigado pela preferência! 🛍️`;
+            message += `Obrigado pela preferência! 🛒✨`;
             
             return message;
         }
@@ -4908,9 +4706,12 @@
                 userConfigCompleted = true;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
-                // Update avatar with new logo
+                // Atualizar os avatares após salvar configurações
                 updateUserAvatar();
+                updateStoreAvatar();
                 
+                userAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
+                storeAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
                 storeNameDisplay.textContent = configBusinessName.value;
                 adminStoreName.textContent = `Venda+`;
                 
