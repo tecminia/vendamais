@@ -324,6 +324,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            position: relative;
         }
         
         .user-card-info h3 {
@@ -1568,7 +1569,7 @@
                 </div>
             </div>
             <div class="user-info">
-                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-avatar" id="userAvatar"></div>
                 <button class="logout-btn" id="logoutBtn" title="Sair">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
@@ -1596,7 +1597,7 @@
                 <!-- User Info Card -->
                 <div class="user-card">
                     <div class="user-card-header">
-                        <div class="user-card-avatar" id="storeAvatar">S</div>
+                        <div class="user-card-avatar" id="storeAvatar"></div>
                         <div class="user-card-info">
                             <h3 id="storeNameDisplay">Carregando...</h3>
                             <p id="storeEmail">carregando...</p>
@@ -1929,7 +1930,29 @@
                         <small class="text-gray">Valor da taxa de entrega que será adicionada ao total dos pedidos</small>
                     </div>
                     
-                    <!-- Link para Clientes (movido para Configurações) -->
+                    <!-- Gerenciar Categorias -->
+                    <div class="link-section">
+                        <h3 class="link-title">Gerenciar Categorias</h3>
+                        <p class="link-description">
+                            Adicione, edite ou remova categorias para seus produtos:
+                        </p>
+                        
+                        <div id="categoriesList" class="mb-3">
+                            <!-- Categorias serão carregadas aqui -->
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Nova Categoria</label>
+                            <div class="d-flex gap-2">
+                                <input type="text" id="newCategoryName" class="form-input" placeholder="Nome da categoria">
+                                <button type="button" class="btn btn-primary" id="addCategoryBtn">
+                                    <i class="fas fa-plus"></i> Adicionar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Link para Clientes -->
                     <div class="link-section">
                         <h3 class="link-title">Link para Clientes</h3>
                         <p class="link-description">
@@ -2074,10 +2097,7 @@
                         <label class="form-label">Categoria *</label>
                         <select id="productCategory" class="form-input" required>
                             <option value="">Selecione...</option>
-                            <option value="alimentos">Alimentos</option>
-                            <option value="bebidas">Bebidas</option>
-                            <option value="artesanato">Artesanato</option>
-                            <option value="outros">Outros</option>
+                            <!-- Categorias serão carregadas dinamicamente -->
                         </select>
                     </div>
                     
@@ -2249,6 +2269,7 @@
         let currentScreen = 'dashboard';
         let orders = [];
         let products = [];
+        let categories = [];
         let storeConfig = {};
         let selectedOrder = null;
         let selectedProduct = null;
@@ -2360,6 +2381,11 @@
         const configTheme = document.getElementById('configTheme');
         const themeOptions = document.querySelectorAll('.theme-option');
         
+        // Categories elements
+        const categoriesList = document.getElementById('categoriesList');
+        const newCategoryName = document.getElementById('newCategoryName');
+        const addCategoryBtn = document.getElementById('addCategoryBtn');
+        
         // Product form elements
         const productForm = document.getElementById('productForm');
         const productIdInput = document.getElementById('productId');
@@ -2408,6 +2434,7 @@
             await checkUserStatus();
             await loadUserData();
             await loadStoreConfig();
+            await loadCategories();
             setupPhoneMasks();
             setupEventListeners();
             setupOrdersListener();
@@ -2618,7 +2645,7 @@
                 userAvatar.textContent = '';
             } else {
                 userAvatar.style.backgroundImage = '';
-                userAvatar.textContent = storeConfig.businessName ? storeConfig.businessName.charAt(0).toUpperCase() : 'U';
+                userAvatar.textContent = '';
             }
         }
 
@@ -2629,7 +2656,7 @@
                 storeAvatar.textContent = '';
             } else {
                 storeAvatar.style.backgroundImage = '';
-                storeAvatar.textContent = storeConfig.businessName ? storeConfig.businessName.charAt(0).toUpperCase() : 'S';
+                storeAvatar.textContent = '';
             }
         }
 
@@ -2711,6 +2738,153 @@
             } catch (error) {
                 console.error('Error loading store config:', error);
                 showNotification('Erro ao carregar configurações.', 'error');
+            }
+        }
+
+        // Load categories for current store
+        async function loadCategories() {
+            try {
+                const categoriesDoc = await db.collection('stores').doc(currentStoreId).collection('categories').get();
+                categories = [];
+                categoriesDoc.forEach(doc => {
+                    categories.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                updateCategoriesList();
+                updateProductCategorySelect();
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                // Se não houver categorias, criar algumas padrão
+                await createDefaultCategories();
+            }
+        }
+
+        // Create default categories if none exist
+        async function createDefaultCategories() {
+            const defaultCategories = [
+                { name: 'Alimentos', createdAt: new Date().toISOString() },
+                { name: 'Bebidas', createdAt: new Date().toISOString() },
+                { name: 'Artesanato', createdAt: new Date().toISOString() },
+                { name: 'Outros', createdAt: new Date().toISOString() }
+            ];
+            
+            try {
+                for (const category of defaultCategories) {
+                    await db.collection('stores').doc(currentStoreId).collection('categories').add({
+                        ...category,
+                        storeId: currentStoreId
+                    });
+                }
+                
+                await loadCategories();
+            } catch (error) {
+                console.error('Error creating default categories:', error);
+            }
+        }
+
+        // Update categories list in config screen
+        function updateCategoriesList() {
+            categoriesList.innerHTML = '';
+            
+            if (categories.length === 0) {
+                categoriesList.innerHTML = `
+                    <div class="empty-state" style="padding: 20px;">
+                        <div class="empty-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <p>Nenhuma categoria cadastrada</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            categories.forEach(category => {
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'd-flex justify-between align-center mb-2 p-2 border rounded';
+                categoryElement.innerHTML = `
+                    <span>${category.name}</span>
+                    <button class="btn btn-danger btn-sm delete-category-btn" data-id="${category.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                categoriesList.appendChild(categoryElement);
+            });
+            
+            // Add event listeners for delete buttons
+            document.querySelectorAll('.delete-category-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const categoryId = e.currentTarget.getAttribute('data-id');
+                    await deleteCategory(categoryId);
+                });
+            });
+        }
+
+        // Update product category select
+        function updateProductCategorySelect() {
+            const select = document.getElementById('productCategory');
+            if (!select) return;
+            
+            // Clear existing options except the first one
+            select.innerHTML = '<option value="">Selecione...</option>';
+            
+            // Add categories
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                select.appendChild(option);
+            });
+        }
+
+        // Add new category
+        async function addCategory() {
+            const name = newCategoryName.value.trim();
+            if (!name) {
+                showNotification('Digite um nome para a categoria.', 'error');
+                return;
+            }
+            
+            try {
+                await db.collection('stores').doc(currentStoreId).collection('categories').add({
+                    name: name,
+                    storeId: currentStoreId,
+                    createdAt: new Date().toISOString()
+                });
+                
+                newCategoryName.value = '';
+                await loadCategories();
+                showNotification('Categoria adicionada com sucesso!', 'success');
+            } catch (error) {
+                console.error('Error adding category:', error);
+                showNotification('Erro ao adicionar categoria.', 'error');
+            }
+        }
+
+        // Delete category
+        async function deleteCategory(categoryId) {
+            if (!confirm('Tem certeza que deseja excluir esta categoria?')) return;
+            
+            try {
+                // Verificar se há produtos usando esta categoria
+                const productsSnapshot = await db.collection('stores').doc(currentStoreId)
+                    .collection('products')
+                    .where('category', '==', categoryId)
+                    .get();
+                
+                if (!productsSnapshot.empty) {
+                    showNotification('Não é possível excluir esta categoria porque existem produtos vinculados a ela.', 'error');
+                    return;
+                }
+                
+                await db.collection('stores').doc(currentStoreId).collection('categories').doc(categoryId).delete();
+                await loadCategories();
+                showNotification('Categoria excluída com sucesso!', 'success');
+            } catch (error) {
+                console.error('Error deleting category:', error);
+                showNotification('Erro ao excluir categoria.', 'error');
             }
         }
 
@@ -2981,7 +3155,7 @@
                     });
                     
                     orders.sort((a, b) => {
-                        return new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt);
+                        return new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || b.createdAt);
                     });
                     
                     updateDashboardStats();
@@ -3261,6 +3435,15 @@
                 confirmWhatsAppNotification();
             });
             
+            // Categories
+            addCategoryBtn.addEventListener('click', addCategory);
+            newCategoryName.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addCategory();
+                }
+            });
+            
             // Logout
             logoutBtn.addEventListener('click', async () => {
                 try {
@@ -3301,6 +3484,11 @@
                     if (screen === 'finance') {
                         updateFinanceUI();
                         updateFinanceCharts();
+                    }
+                    
+                    // Load categories when viewing config screen
+                    if (screen === 'config') {
+                        loadCategories();
                     }
                 });
             });
@@ -3601,7 +3789,7 @@
             const file = e.target.files[0];
             if (!file) return;
             
-            // Check file size (max 8MB) - AUMENTADO DE 5MB PARA 8MB
+            // Check file size (max 8MB)
             if (file.size > 8 * 1024 * 1024) {
                 showNotification('A imagem deve ter no máximo 8MB.', 'error');
                 e.target.value = '';
@@ -3728,7 +3916,7 @@
             const file = e.target.files[0];
             if (!file) return;
             
-            // Check file size (max 8MB) - AUMENTADO DE 5MB PARA 8MB
+            // Check file size (max 8MB)
             if (file.size > 8 * 1024 * 1024) {
                 showNotification('O arquivo deve ter no máximo 8MB.', 'error');
                 renewReceiptUpload.value = '';
@@ -3922,7 +4110,7 @@
             }
         }
 
-        // Submit renewal payment (nova versão em duas etapas)
+        // Submit renewal payment
         async function submitRenewalPayment() {
             if (!renewReceiptBase64) {
                 showNotification('Por favor, envie o comprovante do pagamento.', 'error');
@@ -4583,6 +4771,10 @@
             productImagePreview.style.display = 'none';
             productImageBase64 = '';
             productActive.checked = true;
+            
+            // Atualizar as opções de categoria
+            updateProductCategorySelect();
+            
             productFormModal.style.display = 'block';
         }
 
@@ -4597,7 +4789,10 @@
             productName.value = selectedProduct.name;
             productDescription.value = selectedProduct.description;
             productPrice.value = selectedProduct.price;
-            productCategory.value = selectedProduct.category;
+            
+            // Set category
+            productCategory.value = selectedProduct.category || '';
+            
             productActive.checked = selectedProduct.active !== false;
             productImageBase64 = selectedProduct.imageBase64 || '';
             
@@ -4607,6 +4802,9 @@
             } else {
                 productImagePreview.style.display = 'none';
             }
+            
+            // Atualizar as opções de categoria
+            updateProductCategorySelect();
             
             productFormModal.style.display = 'block';
         }
@@ -4710,8 +4908,6 @@
                 updateUserAvatar();
                 updateStoreAvatar();
                 
-                userAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
-                storeAvatar.textContent = configBusinessName.value.charAt(0).toUpperCase();
                 storeNameDisplay.textContent = configBusinessName.value;
                 adminStoreName.textContent = `Venda+`;
                 
