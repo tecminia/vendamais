@@ -1068,9 +1068,7 @@
                 <a href="#" class="btn btn-whatsapp" id="openWhatsAppBtn">
                     <i class="fab fa-whatsapp"></i> Enviar WhatsApp
                 </a>
-                <button type="button" class="btn btn-secondary" id="backWhatsAppBtn">
-                    <i class="fas fa-arrow-left"></i> Voltar
-                </button>
+                <!-- Botão "Voltar" REMOVIDO conforme solicitado -->
             </div>
         </div>
     </div>
@@ -1399,7 +1397,6 @@
         const alertModal1 = document.getElementById('alertModal1');
         const alertModal2 = document.getElementById('alertModal2');
         const openWhatsAppBtn = document.getElementById('openWhatsAppBtn');
-        const backWhatsAppBtn = document.getElementById('backWhatsAppBtn');
         const backToLoginBtn = document.getElementById('backToLoginBtn');
         
         // Progress Steps
@@ -1603,10 +1600,7 @@
                 sendWhatsAppMessage(e);
             });
             
-            backWhatsAppBtn.addEventListener('click', () => {
-                alertModal1.classList.remove('active');
-                showNotification('Você pode enviar o WhatsApp mais tarde.', 'info');
-            });
+            // Botão "Voltar" foi REMOVIDO conforme solicitado
             
             backToLoginBtn.addEventListener('click', () => {
                 alertModal2.classList.remove('active');
@@ -2612,7 +2606,7 @@
             
             document.body.appendChild(notification);
             
-            // Auto remove after 5 seconds
+            // MODIFICAÇÃO 1: Reduzir tempo de exibição de 5 segundos para 3 segundos
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.style.animation = 'fadeOutScale 0.3s ease';
@@ -2620,7 +2614,7 @@
                         if (notification.parentNode) notification.remove();
                     }, 300);
                 }
-            }, 5000);
+            }, 3000); // Alterado de 5000 para 3000 ms (5s → 3s)
         }
 
         function getErrorMessage(error) {
