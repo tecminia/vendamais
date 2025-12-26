@@ -4158,7 +4158,7 @@
             }
         }
 
-        // Submit renewal payment
+        // Submit renewal payment - CORRIGIDO: Agora salva na coleção 'payments' em vez de 'renewalPayments'
         async function submitRenewalPayment() {
             if (!renewReceiptBase64) {
                 showNotification('Por favor, envie o comprovante do pagamento.', 'error');
@@ -4178,23 +4178,32 @@
                 const newExpiryDate = new Date();
                 newExpiryDate.setDate(newExpiryDate.getDate() + 30);
                 
-                // Create renewal payment record
-                await db.collection('renewalPayments').add({
+                // CORREÇÃO: Criar registro na coleção 'payments' em vez de 'renewalPayments'
+                const paymentData = {
                     userId: currentStoreId,
-                    userEmail: currentUser.email,
                     userName: currentUser.storeName,
                     storeName: currentUser.storeName,
+                    userEmail: currentUser.email,
+                    userPhone: storeConfig.contactPhone || currentUser.phone || '',
+                    status: 'pending', // Status inicial conforme estrutura
+                    plan: 'monthly',
+                    planDays: 30,
                     amount: amount,
-                    status: 'pending',
                     receiptBase64: renewReceiptBase64,
                     receiptType: renewReceiptType,
                     receiptFileName: renewReceiptFileName,
-                    notes: renewPaymentNotes.value,
                     createdAt: new Date().toISOString(),
-                    type: 'renewal'
-                });
+                    type: 'renewal',
+                    notes: renewPaymentNotes.value || '',
+                    // Campos adicionais para controle interno
+                    paymentFor: 'plan_renewal',
+                    originalExpiryDate: currentUser.expiryDate || new Date().toISOString(),
+                    newExpiryDate: newExpiryDate.toISOString()
+                };
                 
-                // Update user status to pending renewal
+                await db.collection('payments').add(paymentData);
+                
+                // Atualizar status do usuário para aguardando renovação
                 await db.collection('users').doc(currentStoreId).update({
                     renewalStatus: 'pending',
                     lastRenewalRequest: new Date().toISOString()
