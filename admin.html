@@ -162,7 +162,7 @@
             border: 1px solid #e0e0e0;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             position: relative;
-            animation: fadeIn 0.5s ease;
+            animation: modalFadeIn 0.5s ease;
         }
         
         .welcome-icon {
@@ -764,7 +764,7 @@
             color: #212121;
         }
         
-        /* Modal */
+        /* Modal - MODIFICAÇÃO AQUI: Removido slideUp e adicionado centralizado */
         .modal {
             display: none;
             position: fixed;
@@ -774,19 +774,22 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
             z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
         
         .modal-content {
             background-color: #ffffff;
-            border-radius: 20px 20px 0 0;
+            border-radius: 20px;
             width: 100%;
+            max-width: 500px;
             max-height: 85vh;
             overflow-y: auto;
-            position: absolute;
-            bottom: 0;
-            animation: slideUp 0.3s ease;
+            animation: modalFadeIn 0.3s ease;
             border: 1px solid #e0e0e0;
             transition: background-color 0.3s ease;
+            position: relative;
         }
         
         .modal-header {
@@ -925,11 +928,13 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
+            transition: all 0.3s ease;
         }
         
         .month-name {
             font-weight: 600;
             color: #212121;
+            transition: color 0.3s ease;
         }
         
         .month-revenue {
@@ -1305,7 +1310,7 @@
             border: 1px solid #e0e0e0;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             position: relative;
-            animation: fadeIn 0.3s ease;
+            animation: modalFadeIn 0.3s ease;
         }
         
         .whatsapp-icon {
@@ -1380,6 +1385,7 @@
             border: 1px solid #e0e0e0;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             position: relative;
+            animation: modalFadeIn 0.3s ease;
         }
         
         .block-icon {
@@ -1400,10 +1406,16 @@
             line-height: 1.5;
         }
         
-        /* Animations */
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
+        /* Animations - MODIFICAÇÃO AQUI */
+        @keyframes modalFadeIn {
+            from { 
+                opacity: 0; 
+                transform: scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1); 
+            }
         }
         
         @keyframes fadeIn {
@@ -2558,7 +2570,7 @@
                             : `Seu plano vence em ${daysUntilExpiry} dias.`;
                         
                         expiryWarningMessage.textContent = modalMessage;
-                        expiryWarningModal.style.display = 'block';
+                        expiryWarningModal.style.display = 'flex';
                     }
                 } else if (daysUntilExpiry <= 0) {
                     // Plan has expired
@@ -2567,7 +2579,7 @@
                     
                     const modalMessage = 'Seu plano está VENCIDO! Renove agora para continuar usando o sistema.';
                     expiryWarningMessage.textContent = modalMessage;
-                    expiryWarningModal.style.display = 'block';
+                    expiryWarningModal.style.display = 'flex';
                 }
             } catch (error) {
                 console.error('Error checking expiry warning:', error);
@@ -3444,25 +3456,61 @@
                 }
             });
             
-            // Logout
+            // Logout - MODIFICAÇÃO AQUI: Adicionada limpeza de cache
             logoutBtn.addEventListener('click', async () => {
                 try {
+                    // Limpar todos os dados do localStorage
+                    localStorage.clear();
+                    
+                    // Limpar todos os dados do sessionStorage
+                    sessionStorage.clear();
+                    
+                    // Desconectar do Firebase
                     await auth.signOut();
-                    localStorage.removeItem('currentUser');
+                    
+                    // Limpar variáveis locais
+                    currentUser = null;
+                    currentStoreId = null;
+                    orders = [];
+                    products = [];
+                    
+                    // Redirecionar para login
                     window.location.href = 'login.html';
+                    
                 } catch (error) {
                     console.error('Logout error:', error);
+                    // Mesmo em caso de erro, limpar cache e redirecionar
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
                 }
             });
             
-            // Logout blocked user
+            // Logout blocked user - MODIFICAÇÃO AQUI: Adicionada limpeza de cache
             logoutBlockedBtn.addEventListener('click', async () => {
                 try {
+                    // Limpar todos os dados do localStorage
+                    localStorage.clear();
+                    
+                    // Limpar todos os dados do sessionStorage
+                    sessionStorage.clear();
+                    
+                    // Desconectar do Firebase
                     await auth.signOut();
-                    localStorage.removeItem('currentUser');
+                    
+                    // Limpar variáveis locais
+                    currentUser = null;
+                    currentStoreId = null;
+                    
+                    // Redirecionar para login
                     window.location.href = 'login.html';
+                    
                 } catch (error) {
                     console.error('Logout error:', error);
+                    // Mesmo em caso de erro, limpar cache e redirecionar
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
                 }
             });
             
@@ -3891,7 +3939,7 @@
                     renewPlanPrice.textContent = `R$ ${(configData.monthlyPlanPrice || 99.00).toFixed(2).replace('.', ',')}`;
                 }
                 
-                renewPaymentModal.style.display = 'block';
+                renewPaymentModal.style.display = 'flex';
                 resetRenewReceipt();
                 
             } catch (error) {
