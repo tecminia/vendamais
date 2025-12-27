@@ -1406,6 +1406,159 @@
             line-height: 1.5;
         }
         
+        /* Renewal Modals */
+        .renewal-alert-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 5000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .renewal-alert-content {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        .renewal-alert-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ff9800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .renewal-alert-list {
+            text-align: left;
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        
+        .renewal-alert-list li {
+            margin-bottom: 10px;
+            color: #212121;
+        }
+        
+        .renewal-alert-info {
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #25D366;
+        }
+        
+        .renewal-alert-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .renewal-alert-info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .renewal-alert-info-label {
+            font-weight: 600;
+            color: #212121;
+        }
+        
+        .renewal-alert-info-value {
+            color: #757575;
+        }
+        
+        .waiting-approval-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 5000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .waiting-approval-content {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        .waiting-approval-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2196f3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .waiting-approval-status {
+            background-color: #e3f2fd;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .waiting-approval-status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #1565c0;
+        }
+        
+        .waiting-approval-status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .check-icon {
+            color: #4caf50;
+        }
+        
+        .clock-icon {
+            color: #ff9800;
+        }
+        
+        .notification-icon {
+            color: #9c27b0;
+        }
+        
         /* Animations - MODIFICAÇÃO AQUI */
         @keyframes modalFadeIn {
             from { 
@@ -1559,6 +1712,110 @@
                     <i class="fas fa-check"></i> Notificação Enviada
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Renewal Alert Modal (Modal 1) -->
+    <div class="renewal-alert-modal" id="renewalAlertModal">
+        <div class="renewal-alert-content">
+            <div class="renewal-alert-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                ⚠️ ENVIE WHATSAPP AO SUPORTE
+            </div>
+            
+            <div class="renewal-alert-info">
+                <div class="renewal-alert-info-item">
+                    <span class="renewal-alert-info-label">✅ Renovação salvo com sucesso!</span>
+                </div>
+                <div class="renewal-alert-info-item">
+                    <span class="renewal-alert-info-label">✅ Comprovante enviado!</span>
+                </div>
+                <div class="renewal-alert-info-item">
+                    <span class="renewal-alert-info-label">📋 Status:</span>
+                    <span class="renewal-alert-info-value">Aguardando envio do WhatsApp</span>
+                </div>
+            </div>
+            
+            <h3 class="mb-2">Informações que serão enviadas:</h3>
+            <div class="renewal-alert-info">
+                <div class="renewal-alert-info-item">
+                    <span class="renewal-alert-info-label">Nome da loja:</span>
+                    <span class="renewal-alert-info-value" id="alertStoreName"></span>
+                </div>
+                <div class="renewal-alert-info-item">
+                    <span class="renewal-alert-info-label">E-mail cadastrado:</span>
+                    <span class="renewal-alert-info-value" id="alertStoreEmail"></span>
+                </div>
+                <div class="renewal-alert-info-item">
+                    <span class="renewal-alert-info-label">WhatsApp:</span>
+                    <span class="renewal-alert-info-value" id="alertStoreWhatsApp"></span>
+                </div>
+                <div class="renewal-alert-info-item">
+                    <span class="renewal-alert-info-label">Valor do pagamento:</span>
+                    <span class="renewal-alert-info-value" id="alertPaymentAmount"></span>
+                </div>
+                <div class="renewal-alert-info-item">
+                    <span class="renewal-alert-info-label">Data do cadastro:</span>
+                    <span class="renewal-alert-info-value" id="alertPaymentDate"></span>
+                </div>
+                <div class="renewal-alert-info-item">
+                    <span class="renewal-alert-info-label">Observações:</span>
+                    <span class="renewal-alert-info-value" id="alertPaymentNotes"></span>
+                </div>
+                <div class="renewal-alert-info-item">
+                    <span class="renewal-alert-info-label">ID do Pagamento:</span>
+                    <span class="renewal-alert-info-value" id="alertPaymentId"></span>
+                </div>
+            </div>
+            
+            <p class="text-gray mb-3">
+                <i class="fas fa-clock"></i> ⏱️ Prazo de liberação: até 12 horas após confirmação.
+            </p>
+            
+            <button class="btn btn-success btn-block" id="sendWhatsappSupportBtn">
+                <i class="fab fa-whatsapp"></i> Enviar WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Waiting Approval Modal (Modal 2) -->
+    <div class="waiting-approval-modal" id="waitingApprovalModal">
+        <div class="waiting-approval-content">
+            <div class="waiting-approval-title">
+                <i class="fas fa-hourglass-half"></i>
+                ⏳ AGUARDANDO APROVAÇÃO
+            </div>
+            
+            <div class="waiting-approval-status">
+                <div class="waiting-approval-status-item">
+                    <i class="fas fa-check-circle status-icon check-icon"></i>
+                    <span>Cadastro concluído</span>
+                </div>
+                <div class="waiting-approval-status-item">
+                    <i class="fas fa-check-circle status-icon check-icon"></i>
+                    <span>Comprovante enviado</span>
+                </div>
+                <div class="waiting-approval-status-item">
+                    <i class="fas fa-check-circle status-icon check-icon"></i>
+                    <span>WhatsApp enviado</span>
+                </div>
+                <div class="waiting-approval-status-item">
+                    <i class="fas fa-clipboard-check status-icon clock-icon"></i>
+                    <span>Status atual: Conta em análise pelo suporte</span>
+                </div>
+                <div class="waiting-approval-status-item">
+                    <i class="fas fa-clock status-icon clock-icon"></i>
+                    <span>Prazo máximo: 12 horas</span>
+                </div>
+                <div class="waiting-approval-status-item">
+                    <i class="fas fa-bell status-icon notification-icon"></i>
+                    <span>Notificação: aviso no WhatsApp quando liberado</span>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary btn-block" id="backToLoginBtn">
+                <i class="fas fa-sign-out-alt"></i> Voltar para Login
+            </button>
         </div>
     </div>
 
@@ -2307,6 +2564,8 @@
         let userActivityListener = null;
         let whatsappNotificationType = null;
         let whatsappNotificationData = null;
+        let currentPaymentId = null; // Para armazenar o ID do pagamento atual
+        let supportPhone = "+5511999999999"; // Número do suporte - ajustar conforme necessário
 
         // DOM Elements
         const welcomeModal = document.getElementById('welcomeModal');
@@ -2331,6 +2590,21 @@
         const cancelWhatsappBtn = document.getElementById('cancelWhatsappBtn');
         const openWhatsappBtn = document.getElementById('openWhatsappBtn');
         const confirmWhatsappBtn = document.getElementById('confirmWhatsappBtn');
+        
+        // Renewal Modals
+        const renewalAlertModal = document.getElementById('renewalAlertModal');
+        const waitingApprovalModal = document.getElementById('waitingApprovalModal');
+        const sendWhatsappSupportBtn = document.getElementById('sendWhatsappSupportBtn');
+        const backToLoginBtn = document.getElementById('backToLoginBtn');
+        
+        // Alert modal fields
+        const alertStoreName = document.getElementById('alertStoreName');
+        const alertStoreEmail = document.getElementById('alertStoreEmail');
+        const alertStoreWhatsApp = document.getElementById('alertStoreWhatsApp');
+        const alertPaymentAmount = document.getElementById('alertPaymentAmount');
+        const alertPaymentDate = document.getElementById('alertPaymentDate');
+        const alertPaymentNotes = document.getElementById('alertPaymentNotes');
+        const alertPaymentId = document.getElementById('alertPaymentId');
         
         // Expiry warning elements
         const expiryWarningModal = document.getElementById('expiryWarningModal');
@@ -2442,27 +2716,98 @@
 
         // Initialize the app
         async function init() {
-            await checkAuth();
-            await checkUserStatus();
-            await loadUserData();
-            await loadStoreConfig();
-            await loadCategories();
-            setupPhoneMasks();
-            setupEventListeners();
-            setupOrdersListener();
-            setupUserActivityListener();
-            loadProducts();
-            updateCustomerLink();
-            showScreen('dashboard');
+            try {
+                await checkAuth();
+                await checkUserStatus();
+                await loadUserData();
+                await loadStoreConfig();
+                await loadCategories();
+                setupPhoneMasks();
+                setupEventListeners();
+                setupOrdersListener();
+                setupUserActivityListener();
+                loadProducts();
+                updateCustomerLink();
+                showScreen('dashboard');
+                
+                // Load store visits data
+                await loadStoreVisits();
+                
+                // Verificar se precisa mostrar o modal de boas-vindas
+                checkWelcomeModal();
+                
+                // Check expiry warning
+                await checkExpiryWarning();
+            } catch (error) {
+                console.error('Error in init:', error);
+                // Se houver erro de autenticação, redirecionar para login
+                if (error.message === 'Not authenticated' || error.message.includes('auth')) {
+                    redirectToLogin();
+                } else {
+                    showNotification('Erro ao inicializar o sistema.', 'error');
+                }
+            }
+        }
+
+        // MODIFICAÇÃO 1: Função aprimorada de tratamento de erros de autenticação
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const storedUser = localStorage.getItem('currentUser');
+                if (storedUser) {
+                    currentUser = JSON.parse(storedUser);
+                    currentStoreId = currentUser.uid;
+                    
+                    // Verificar se o usuário ainda está autenticado no Firebase
+                    const user = auth.currentUser;
+                    if (!user) {
+                        // Tentar recuperar a sessão
+                        await auth.authStateReady();
+                        if (!auth.currentUser) {
+                            throw new Error('Not authenticated');
+                        }
+                    }
+                    return true;
+                }
+                
+                await new Promise((resolve, reject) => {
+                    const unsubscribe = auth.onAuthStateChanged((user) => {
+                        unsubscribe();
+                        if (user) {
+                            currentUser = {
+                                uid: user.uid,
+                                email: user.email,
+                                isAdmin: true
+                            };
+                            currentStoreId = user.uid;
+                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                            resolve(true);
+                        } else {
+                            redirectToLogin();
+                            reject(new Error('Not authenticated'));
+                        }
+                    }, (error) => {
+                        console.error('Auth state error:', error);
+                        redirectToLogin();
+                        reject(new Error('Not authenticated'));
+                    });
+                });
+                return true;
+            } catch (error) {
+                console.error('Auth error:', error);
+                redirectToLogin();
+                return false;
+            }
+        }
+
+        // Função para redirecionar para login
+        function redirectToLogin() {
+            // Limpar todos os dados locais
+            localStorage.clear();
+            sessionStorage.clear();
             
-            // Load store visits data
-            await loadStoreVisits();
-            
-            // Verificar se precisa mostrar o modal de boas-vindas
-            checkWelcomeModal();
-            
-            // Check expiry warning
-            await checkExpiryWarning();
+            // Redirecionar para página de login
+            window.location.href = 'login.html';
         }
 
         // Setup phone masks
@@ -2485,7 +2830,10 @@
         // Check user status for blocking
         async function checkUserStatus() {
             try {
-                if (!currentStoreId) return;
+                if (!currentStoreId) {
+                    redirectToLogin();
+                    return false;
+                }
                 
                 const userDoc = await db.collection('users').doc(currentStoreId).get();
                 if (userDoc.exists) {
@@ -2501,6 +2849,7 @@
                 }
             } catch (error) {
                 console.error('Error checking user status:', error);
+                showNotification('Erro ao verificar status da conta.', 'error');
             }
             return true;
         }
@@ -2586,45 +2935,13 @@
             }
         }
 
-        // Check authentication
-        async function checkAuth() {
-            try {
-                const storedUser = localStorage.getItem('currentUser');
-                if (storedUser) {
-                    currentUser = JSON.parse(storedUser);
-                    currentStoreId = currentUser.uid;
-                    return true;
-                }
-                
-                await new Promise((resolve, reject) => {
-                    const unsubscribe = auth.onAuthStateChanged((user) => {
-                        unsubscribe();
-                        if (user) {
-                            currentUser = {
-                                uid: user.uid,
-                                email: user.email,
-                                isAdmin: true
-                            };
-                            currentStoreId = user.uid;
-                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                            resolve(true);
-                        } else {
-                            window.location.href = 'login.html';
-                            reject(new Error('Not authenticated'));
-                        }
-                    });
-                });
-                return true;
-            } catch (error) {
-                console.error('Auth error:', error);
-                window.location.href = 'login.html';
-                return false;
-            }
-        }
-
         // Load user data and update avatar with logo
         async function loadUserData() {
             try {
+                if (!currentStoreId) {
+                    throw new Error('User not authenticated');
+                }
+                
                 const userDoc = await db.collection('users').doc(currentStoreId).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
@@ -2647,6 +2964,7 @@
                 }
             } catch (error) {
                 console.error('Error loading user data:', error);
+                showNotification('Erro ao carregar dados do usuário.', 'error');
             }
         }
 
@@ -2723,6 +3041,10 @@
         // Load store configuration for current user
         async function loadStoreConfig() {
             try {
+                if (!currentStoreId) {
+                    throw new Error('User not authenticated');
+                }
+                
                 const configDoc = await db.collection('stores').doc(currentStoreId).get();
                 if (configDoc.exists) {
                     storeConfig = configDoc.data();
@@ -2756,6 +3078,8 @@
         // Load categories for current store
         async function loadCategories() {
             try {
+                if (!currentStoreId) return;
+                
                 const categoriesDoc = await db.collection('stores').doc(currentStoreId).collection('categories').get();
                 categories = [];
                 categoriesDoc.forEach(doc => {
@@ -2903,6 +3227,8 @@
         // Load store visits data
         async function loadStoreVisits() {
             try {
+                if (!currentStoreId) return;
+                
                 const visitsDoc = await db.collection('storeVisits').doc(currentStoreId).get();
                 if (visitsDoc.exists) {
                     const visitsData = visitsDoc.data();
@@ -3447,6 +3773,16 @@
                 confirmWhatsAppNotification();
             });
             
+            // Renewal Alert Modal
+            sendWhatsappSupportBtn.addEventListener('click', () => {
+                sendWhatsAppToSupport();
+            });
+            
+            // Waiting Approval Modal
+            backToLoginBtn.addEventListener('click', () => {
+                logoutUser();
+            });
+            
             // Categories
             addCategoryBtn.addEventListener('click', addCategory);
             newCategoryName.addEventListener('keypress', (e) => {
@@ -3458,60 +3794,12 @@
             
             // Logout - MODIFICAÇÃO AQUI: Adicionada limpeza de cache
             logoutBtn.addEventListener('click', async () => {
-                try {
-                    // Limpar todos os dados do localStorage
-                    localStorage.clear();
-                    
-                    // Limpar todos os dados do sessionStorage
-                    sessionStorage.clear();
-                    
-                    // Desconectar do Firebase
-                    await auth.signOut();
-                    
-                    // Limpar variáveis locais
-                    currentUser = null;
-                    currentStoreId = null;
-                    orders = [];
-                    products = [];
-                    
-                    // Redirecionar para login
-                    window.location.href = 'login.html';
-                    
-                } catch (error) {
-                    console.error('Logout error:', error);
-                    // Mesmo em caso de erro, limpar cache e redirecionar
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    window.location.href = 'login.html';
-                }
+                await logoutUser();
             });
             
             // Logout blocked user - MODIFICAÇÃO AQUI: Adicionada limpeza de cache
             logoutBlockedBtn.addEventListener('click', async () => {
-                try {
-                    // Limpar todos os dados do localStorage
-                    localStorage.clear();
-                    
-                    // Limpar todos os dados do sessionStorage
-                    sessionStorage.clear();
-                    
-                    // Desconectar do Firebase
-                    await auth.signOut();
-                    
-                    // Limpar variáveis locais
-                    currentUser = null;
-                    currentStoreId = null;
-                    
-                    // Redirecionar para login
-                    window.location.href = 'login.html';
-                    
-                } catch (error) {
-                    console.error('Logout error:', error);
-                    // Mesmo em caso de erro, limpar cache e redirecionar
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    window.location.href = 'login.html';
-                }
+                await logoutUser();
             });
             
             // Navigation
@@ -3759,11 +4047,49 @@
                     whatsappNotificationType = null;
                     whatsappNotificationData = null;
                 }
+                if (e.target === renewalAlertModal) {
+                    // Não permitir fechar o modal de alerta clicando fora
+                    e.stopPropagation();
+                }
+                if (e.target === waitingApprovalModal) {
+                    // Não permitir fechar o modal de aprovação clicando fora
+                    e.stopPropagation();
+                }
                 if (e.target === blockModal) {
                     // Não permitir fechar o modal de bloqueio clicando fora
                     e.stopPropagation();
                 }
             });
+        }
+
+        // Função para fazer logout
+        async function logoutUser() {
+            try {
+                // Limpar todos os dados do localStorage
+                localStorage.clear();
+                
+                // Limpar todos os dados do sessionStorage
+                sessionStorage.clear();
+                
+                // Desconectar do Firebase
+                await auth.signOut();
+                
+                // Limpar variáveis locais
+                currentUser = null;
+                currentStoreId = null;
+                orders = [];
+                products = [];
+                
+                // Redirecionar para login
+                window.location.href = 'login.html';
+                
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Mesmo em caso de erro, limpar cache e redirecionar
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            }
         }
 
         // Função para otimizar imagem
@@ -3945,6 +4271,69 @@
             } catch (error) {
                 console.error('Error loading renewal data:', error);
                 showNotification('Erro ao carregar informações de pagamento.', 'error');
+            }
+        }
+
+        // MODIFICAÇÃO 2: Função para mostrar o Modal 1 de alerta
+        function showRenewalAlertModal(paymentId, paymentData) {
+            // Preencher os dados no modal
+            alertStoreName.textContent = storeConfig.businessName || currentUser.storeName || 'Minha Loja';
+            alertStoreEmail.textContent = currentUser.email || 'Não informado';
+            alertStoreWhatsApp.textContent = storeConfig.whatsappNumber || storeConfig.contactPhone || 'Não informado';
+            alertPaymentAmount.textContent = `R$ ${paymentData.amount.toFixed(2).replace('.', ',')}`;
+            alertPaymentDate.textContent = formatDateTime(paymentData.createdAt);
+            alertPaymentNotes.textContent = paymentData.notes || 'Nenhuma observação';
+            alertPaymentId.textContent = paymentId.substring(0, 8);
+            
+            // Salvar o ID do pagamento atual
+            currentPaymentId = paymentId;
+            
+            // Mostrar o modal
+            renewalAlertModal.style.display = 'flex';
+        }
+
+        // MODIFICAÇÃO 2: Função para enviar WhatsApp ao suporte
+        async function sendWhatsAppToSupport() {
+            try {
+                if (!currentPaymentId) {
+                    showNotification('Erro: ID do pagamento não encontrado.', 'error');
+                    return;
+                }
+                
+                // Construir a mensagem para o suporte
+                const message = `🔄 *SOLICITAÇÃO DE RENOVAÇÃO DE PLANO* 🔄\n\n` +
+                    `📋 *INFORMAÇÕES DO CLIENTE:*\n` +
+                    `🏪 *Nome da loja:* ${storeConfig.businessName || currentUser.storeName}\n` +
+                    `📧 *E-mail cadastrado:* ${currentUser.email}\n` +
+                    `📱 *WhatsApp:* ${storeConfig.whatsappNumber || storeConfig.contactPhone || 'Não informado'}\n` +
+                    `💰 *Valor do pagamento:* R$ ${alertPaymentAmount.textContent}\n` +
+                    `📅 *Data do cadastro:* ${alertPaymentDate.textContent}\n` +
+                    `📝 *Observações:* ${alertPaymentNotes.textContent}\n` +
+                    `🆔 *ID do Pagamento:* ${currentPaymentId.substring(0, 8)}\n\n` +
+                    `📋 *STATUS:* Comprovante enviado - Aguardando liberação\n\n` +
+                    `⚠️ *POR FAVOR, LIBERAR O ACESSO DESTA CONTA* ⚠️\n\n` +
+                    `_Mensagem automática do sistema Venda+_`;
+                
+                // Abrir WhatsApp com a mensagem
+                const whatsappUrl = `https://wa.me/${supportPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+                
+                // Atualizar o Firestore para marcar que o WhatsApp foi enviado
+                await db.collection('payments').doc(currentPaymentId).update({
+                    whatsappSent: true,
+                    whatsappSentAt: new Date().toISOString(),
+                    status: 'pending_approval'
+                });
+                
+                // Fechar o modal de alerta
+                renewalAlertModal.style.display = 'none';
+                
+                // Mostrar o modal de aguardando aprovação
+                waitingApprovalModal.style.display = 'flex';
+                
+            } catch (error) {
+                console.error('Error sending WhatsApp to support:', error);
+                showNotification('Erro ao enviar WhatsApp para o suporte.', 'error');
             }
         }
 
@@ -4158,7 +4547,7 @@
             }
         }
 
-        // Submit renewal payment - CORRIGIDO: Agora salva na coleção 'payments' em vez de 'renewalPayments'
+        // MODIFICAÇÃO 2: Submit renewal payment atualizado
         async function submitRenewalPayment() {
             if (!renewReceiptBase64) {
                 showNotification('Por favor, envie o comprovante do pagamento.', 'error');
@@ -4178,14 +4567,14 @@
                 const newExpiryDate = new Date();
                 newExpiryDate.setDate(newExpiryDate.getDate() + 30);
                 
-                // CORREÇÃO: Criar registro na coleção 'payments' em vez de 'renewalPayments'
+                // Criar registro na coleção 'payments'
                 const paymentData = {
                     userId: currentStoreId,
                     userName: currentUser.storeName,
                     storeName: currentUser.storeName,
                     userEmail: currentUser.email,
                     userPhone: storeConfig.contactPhone || currentUser.phone || '',
-                    status: 'pending', // Status inicial conforme estrutura
+                    status: 'pending_whatsapp', // Novo status
                     plan: 'monthly',
                     planDays: 30,
                     amount: amount,
@@ -4198,14 +4587,18 @@
                     // Campos adicionais para controle interno
                     paymentFor: 'plan_renewal',
                     originalExpiryDate: currentUser.expiryDate || new Date().toISOString(),
-                    newExpiryDate: newExpiryDate.toISOString()
+                    newExpiryDate: newExpiryDate.toISOString(),
+                    whatsappSent: false,
+                    whatsappSentAt: null
                 };
                 
-                await db.collection('payments').add(paymentData);
+                // Salvar o pagamento no Firestore
+                const paymentRef = await db.collection('payments').add(paymentData);
+                currentPaymentId = paymentRef.id;
                 
                 // Atualizar status do usuário para aguardando renovação
                 await db.collection('users').doc(currentStoreId).update({
-                    renewalStatus: 'pending',
+                    renewalStatus: 'pending_whatsapp',
                     lastRenewalRequest: new Date().toISOString()
                 });
                 
@@ -4213,12 +4606,8 @@
                 renewPaymentModal.style.display = 'none';
                 resetRenewReceipt();
                 
-                // Mostrar modal de WhatsApp para notificar o cliente
-                showWhatsAppNotification('renewal', {
-                    userName: currentUser.storeName,
-                    amount: amount,
-                    newExpiryDate: newExpiryDate.toISOString()
-                });
+                // Mostrar modal de alerta (Modal 1)
+                showRenewalAlertModal(currentPaymentId, paymentData);
                 
             } catch (error) {
                 console.error('Error submitting renewal payment:', error);
