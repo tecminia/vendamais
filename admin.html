@@ -4992,7 +4992,7 @@
 
         // View order details
         function viewOrderDetails(orderId) {
-            selectedOrder = orders.find(order => order.id === orderId);
+            selectedOrder = orders.find(o => o.id === orderId);
             
             if (!selectedOrder) return;
             
