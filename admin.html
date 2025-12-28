@@ -282,8 +282,30 @@
         <div class="whatsapp-alert-content">
             <div class="whatsapp-alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
             <h2 class="whatsapp-alert-title">⚠️ ENVIE WHATSAPP AO SUPORTE</h2>
-            <div class="whatsapp-alert-message">
-                <!-- Conteúdo do modal -->
+            <div class="whatsapp-alert-message" id="whatsappAlertMessageContent">
+                <p>Você enviou um comprovante de renovação. Agora é necessário enviar um WhatsApp ao suporte para que sua conta seja liberada.</p>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="info-label">Nome da Loja:</span>
+                        <span class="info-value" id="alertStoreName"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">E-mail:</span>
+                        <span class="info-value" id="alertUserEmail"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Telefone:</span>
+                        <span class="info-value" id="alertUserPhone"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Valor:</span>
+                        <span class="info-value" id="alertPaymentAmount"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Data:</span>
+                        <span class="info-value" id="alertRegistrationDate"></span>
+                    </div>
+                </div>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-primary flex-1" id="sendWhatsappAlertBtn">
@@ -299,7 +321,22 @@
             <div class="waiting-approval-icon"><i class="fas fa-hourglass-half"></i></div>
             <h2 class="waiting-approval-title">⏳ AGUARDANDO APROVAÇÃO</h2>
             <div class="waiting-approval-message">
-                <!-- Conteúdo do modal -->
+                <p>Sua solicitação de renovação foi enviada e está aguardando aprovação do administrador.</p>
+                <div class="status-list">
+                    <div class="status-item">
+                        <div class="status-icon"><i class="fas fa-check"></i></div>
+                        <div class="status-text">Comprovante enviado</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-icon"><i class="fas fa-check"></i></div>
+                        <div class="status-text">WhatsApp enviado ao suporte</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-icon"><i class="fas fa-hourglass-half"></i></div>
+                        <div class="status-text">Aguardando liberação</div>
+                    </div>
+                </div>
+                <p>Você receberá uma notificação assim que sua conta for liberada.</p>
             </div>
             <button class="btn btn-primary btn-block" id="backToLoginBtn">
                 <i class="fas fa-sign-in-alt"></i> Voltar para Login
@@ -940,7 +977,7 @@
         let renewalStatus = 'none';
         let expiryDate = null;
 
-        // Elementos do DOM - Adicione todas as declarações aqui
+        // Elementos do DOM
         const welcomeModal = document.getElementById('welcomeModal');
         const goToConfigBtn = document.getElementById('goToConfigBtn');
         const screens = document.querySelectorAll('.screen');
