@@ -53,92 +53,39 @@
             margin: 20px auto;
         }
         
-        /* Progress Steps */
-        .progress-steps {
-            display: none;
-            justify-content: space-between;
-            align-items: center;
+        /* Banner de Primeiro Mês Grátis */
+        .free-month-banner {
+            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
             margin-bottom: 30px;
-            position: relative;
-            padding: 0 20px;
+            text-align: center;
+            border: 2px solid #4caf50;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
         }
         
-        .progress-steps.visible {
-            display: flex;
-        }
-        
-        .progress-steps::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50px;
-            right: 50px;
-            height: 2px;
-            background-color: #e0e0e0;
-            transform: translateY(-50%);
-            z-index: 1;
-        }
-        
-        .step {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .step-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #ffffff;
-            border: 2px solid #e0e0e0;
+        .free-month-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            color: #757575;
-            transition: all 0.3s ease;
+            gap: 10px;
         }
         
-        .step.active .step-circle {
-            background-color: #212121;
-            border-color: #212121;
-            color: #ffffff;
+        .free-month-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
         }
         
-        .step.completed .step-circle {
-            background-color: #4caf50;
-            border-color: #4caf50;
-            color: #ffffff;
-        }
-        
-        .step-label {
-            font-size: 0.8rem;
-            color: #757575;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .step.active .step-label {
-            color: #212121;
-            font-weight: 600;
-        }
-        
-        /* Form Sections */
-        .form-section {
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-        
-        .form-section.active {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .price-info {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 10px;
+            color: #e0f7fa;
         }
         
         /* Logo Section */
@@ -198,11 +145,6 @@
             box-shadow: 0 0 0 3px rgba(33, 33, 33, 0.1);
         }
         
-        textarea.form-input {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
         /* Buttons */
         .btn {
             padding: 14px 20px;
@@ -253,6 +195,23 @@
             background-color: #d0d0d0;
         }
         
+        .btn-google {
+            background-color: #ffffff;
+            color: #212121;
+            border: 2px solid #e0e0e0;
+            width: 100%;
+        }
+        
+        .btn-google:hover:not(:disabled) {
+            background-color: #f5f5f5;
+            border-color: #212121;
+        }
+        
+        .btn-google img {
+            width: 20px;
+            height: 20px;
+        }
+        
         .dual-button-container {
             display: flex;
             gap: 10px;
@@ -263,256 +222,39 @@
             flex: 1;
         }
         
-        /* Plan Card */
-        .plan-card {
-            background-color: #f5f5f5;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: left;
-            border: 2px solid #e0e0e0;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        .plan-name {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 10px;
-        }
-        
-        .plan-features {
-            list-style: none;
-            margin-bottom: 15px;
-        }
-        
-        .plan-features li {
-            margin-bottom: 8px;
-            color: #757575;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .plan-features li i {
-            color: #4caf50;
-        }
-        
-        .plan-price {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #212121;
-            text-align: center;
-        }
-        
-        /* PIX Info */
-        .pix-info {
-            background-color: #f0f9ff;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: left;
-            border: 2px dashed #2196f3;
-        }
-        
-        .pix-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2196f3;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .pix-copy-btn {
-            background: transparent;
-            border: 1px solid #2196f3;
-            color: #2196f3;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .pix-copy-btn:hover {
-            background-color: #2196f3;
-            color: white;
-        }
-        
-        .pix-copy-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .pix-key-container {
-            position: relative;
-        }
-        
-        .pix-key {
-            background-color: #ffffff;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            word-break: break-all;
-            border: 1px solid #e0e0e0;
-            user-select: text;
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            cursor: text;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .pix-key-copied {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background-color: #4caf50;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            opacity: 0;
-            transform: translateY(5px);
-            transition: all 0.3s ease;
-            z-index: 10;
-        }
-        
-        .pix-key-copied.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        /* Upload Area */
-        .upload-area {
-            border: 2px dashed #e0e0e0;
-            border-radius: 10px;
-            padding: 30px;
+        /* Divider */
+        .divider {
             text-align: center;
             margin: 20px 0;
-            cursor: pointer;
-            transition: all 0.3s ease;
             position: relative;
-            -webkit-tap-highlight-color: rgba(33,33,33,0.1);
-        }
-        
-        .upload-area:active:not(.uploading) {
-            border-color: #212121;
-            transform: scale(0.995);
-        }
-        
-        .upload-area.uploading {
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        
-        .upload-icon {
-            font-size: 2rem;
-            color: #757575;
-            margin-bottom: 10px;
-            transition: color 0.3s ease;
-        }
-        
-        .upload-text {
             color: #757575;
             font-size: 0.9rem;
-            margin-bottom: 5px;
-            transition: color 0.3s ease;
         }
         
-        .upload-info {
-            font-size: 0.8rem;
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background-color: #e0e0e0;
+        }
+        
+        .divider::before {
+            left: 0;
+        }
+        
+        .divider::after {
+            right: 0;
+        }
+        
+        /* Small text */
+        .small-text {
+            font-size: 0.85rem;
             color: #757575;
-            transition: color 0.3s ease;
             margin-top: 5px;
-        }
-        
-        .file-types {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 5px;
-            flex-wrap: wrap;
-        }
-        
-        .file-type-badge {
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            background-color: #f5f5f5;
-            color: #757575;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .image-preview {
-            width: 100%;
-            height: 200px;
-            border-radius: 10px;
-            object-fit: contain;
-            margin-top: 10px;
-            display: none;
-            cursor: pointer;
-            background-color: #f5f5f5;
-        }
-        
-        /* PDF Preview */
-        .pdf-preview {
-            display: none;
-            width: 100%;
-            height: 200px;
-            border-radius: 10px;
-            margin-top: 10px;
-            background-color: #f5f5f5;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding: 20px;
-            border: 2px dashed #e0e0e0;
-            cursor: pointer;
-        }
-        
-        /* Waiting Section */
-        .waiting-section {
-            text-align: center;
-            padding: 20px 0;
-        }
-        
-        .waiting-icon {
-            font-size: 4rem;
-            color: #212121;
-            margin-bottom: 20px;
-        }
-        
-        .waiting-title {
-            font-size: 1.8rem;
-            color: #212121;
-            margin-bottom: 15px;
-        }
-        
-        .waiting-message {
-            color: #757575;
-            font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 25px;
-        }
-        
-        .whatsapp-note {
-            background-color: #25d366;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            margin: 20px 0;
+            display: block;
         }
         
         /* Support Link */
@@ -630,218 +372,52 @@
             to { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
         
-        /* Pending Status Modal */
-        .pending-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
+        /* Simple Registration Form */
+        .simple-register-form {
             display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            padding: 20px;
+            animation: fadeIn 0.4s ease;
         }
         
-        .pending-modal.active {
-            display: flex;
+        .simple-register-form.active {
+            display: block;
         }
         
-        .pending-content {
-            background-color: #ffffff;
-            border-radius: 20px;
-            padding: 40px 30px;
-            max-width: 500px;
-            width: 100%;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Login Form */
+        .login-form {
+            display: block;
+        }
+        
+        .register-link {
             text-align: center;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-        
-        .pending-icon {
-            font-size: 4rem;
-            color: #ff9800;
-            margin-bottom: 20px;
-        }
-        
-        .pending-title {
-            font-size: 1.8rem;
-            color: #212121;
-            margin-bottom: 15px;
-        }
-        
-        .pending-message {
+            margin-top: 20px;
             color: #757575;
-            font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 25px;
         }
         
-        /* Alert Modals */
-        .alert-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 20000;
-            padding: 20px;
-            backdrop-filter: blur(5px);
-        }
-        
-        .alert-modal.active {
-            display: flex;
-        }
-        
-        .alert-content {
-            background-color: #ffffff;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            border: 2px solid #e0e0e0;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-            animation: modalAppear 0.3s ease;
-        }
-        
-        @keyframes modalAppear {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        
-        .alert-icon {
-            font-size: 3.5rem;
-            margin-bottom: 20px;
-        }
-        
-        .alert-icon.success {
-            color: #4caf50;
-        }
-        
-        .alert-icon.warning {
-            color: #ff9800;
-        }
-        
-        .alert-icon.info {
-            color: #2196f3;
-        }
-        
-        .alert-title {
-            font-size: 1.6rem;
+        .register-link a {
             color: #212121;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-        
-        .alert-message {
-            color: #757575;
-            font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 25px;
-            text-align: left;
-        }
-        
-        .alert-message ul {
-            list-style: none;
-            padding-left: 0;
-            margin: 15px 0;
-        }
-        
-        .alert-message li {
-            margin-bottom: 10px;
-            padding-left: 25px;
-            position: relative;
-        }
-        
-        .alert-message li:before {
-            content: '•';
-            position: absolute;
-            left: 0;
-            color: #2196f3;
-            font-size: 1.5rem;
-            line-height: 1;
-        }
-        
-        /* Status Box */
-        .status-box {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-            border-left: 4px solid #2196f3;
-        }
-        
-        .status-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-        }
-        
-        .status-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .status-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            font-size: 0.8rem;
-        }
-        
-        .status-icon.success {
-            background-color: #4caf50;
-            color: white;
-        }
-        
-        .status-icon.pending {
-            background-color: #ff9800;
-            color: white;
-        }
-        
-        .status-icon.warning {
-            background-color: #ff9800;
-            color: white;
-        }
-        
-        /* WhatsApp button styles */
-        .btn-whatsapp {
-            background-color: #25d366;
-            color: white;
             text-decoration: none;
-            display: inline-flex;
+            font-weight: 600;
         }
         
-        .btn-whatsapp:hover {
-            background-color: #1da851;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        .register-link a:hover {
+            text-decoration: underline;
         }
         
-        .btn-whatsapp:active {
-            transform: translateY(0);
-        }
-        
-        /* Alert buttons container */
-        .alert-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 25px;
-        }
-        
-        .alert-buttons .btn {
-            flex: 1;
+        /* Proteção contra cópia */
+        .copy-protection-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 9999;
+            pointer-events: none;
         }
         
         /* Responsive */
@@ -863,44 +439,16 @@
                 font-size: 1.5rem;
             }
             
-            .progress-steps {
-                padding: 0 10px;
-                margin-bottom: 20px;
+            .free-month-banner {
+                padding: 15px;
             }
             
-            .step-circle {
-                width: 35px;
-                height: 35px;
-                font-size: 0.9rem;
-            }
-            
-            .step-label {
-                font-size: 0.7rem;
-            }
-            
-            .dual-button-container {
-                flex-direction: column;
+            .free-month-title {
+                font-size: 1.2rem;
             }
             
             .support-link {
                 font-size: 0.8rem;
-            }
-            
-            .pending-content,
-            .alert-content {
-                padding: 25px 15px;
-            }
-            
-            .alert-buttons {
-                flex-direction: column;
-            }
-            
-            .alert-icon {
-                font-size: 2.8rem;
-            }
-            
-            .alert-title {
-                font-size: 1.4rem;
             }
             
             .notification {
@@ -915,94 +463,27 @@
             display: block;
         }
         
-        .register-link {
-            text-align: center;
-            margin-top: 20px;
-            color: #757575;
-        }
-        
-        .register-link a {
-            color: #212121;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-        
-        .warning-box {
-            background-color: #fff3cd;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ff9800;
-            color: #856404;
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-        }
-        
-        .divider {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-            color: #757575;
-            font-size: 0.9rem;
-        }
-        
-        .divider::before,
-        .divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 45%;
-            height: 1px;
-            background-color: #e0e0e0;
-        }
-        
-        .divider::before {
-            left: 0;
-        }
-        
-        .divider::after {
-            right: 0;
-        }
-        
-        .small-text {
-            font-size: 0.85rem;
-            color: #757575;
-            margin-top: 5px;
-            display: block;
-        }
-        
-        /* Proteção contra cópia */
-        .copy-protection-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            z-index: 9999;
-            pointer-events: none;
-        }
-        
-        .no-copy {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-        
-        .allow-copy {
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
-        }
-        
         /* Cursor pointers para elementos clicáveis */
         .clickable {
             cursor: pointer;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: #757575;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 20px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        
+        .back-button:hover {
+            background-color: #f5f5f5;
         }
     </style>
 </head>
@@ -1016,133 +497,6 @@
         <div class="loader-text" id="loaderText">Processando...</div>
     </div>
 
-    <!-- Alert Modal 1 - Enviar WhatsApp -->
-    <div class="alert-modal" id="alertModal1">
-        <div class="alert-content">
-            <div class="alert-icon warning">
-                <i class="fas fa-exclamation-circle"></i>
-            </div>
-            <h2 class="alert-title">⚠️ ENVIE WHATSAPP AO SUPORTE</h2>
-            <div class="alert-message">
-                <p><strong>✅ Cadastro salvo com sucesso!</strong></p>
-                <p><strong>✅ Comprovante enviado!</strong></p>
-                
-                <div class="status-box">
-                    <div class="status-item">
-                        <div class="status-icon success">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        <span>Dados cadastrais salvos</span>
-                    </div>
-                    <div class="status-item">
-                        <div class="status-icon success">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        <span>Informações de pagamento salvas</span>
-                    </div>
-                    <div class="status-item">
-                        <div class="status-icon warning">
-                            <i class="fas fa-exclamation"></i>
-                        </div>
-                        <span><strong>Aguardando envio do WhatsApp</strong></span>
-                    </div>
-                </div>
-                
-                <p><strong>📱 ÚLTIMA ETAPA:</strong></p>
-                <p>Para liberar seu acesso, você precisa enviar uma mensagem ao suporte no WhatsApp.</p>
-                
-                <p><strong>📋 Informações que serão enviadas:</strong></p>
-                <ul>
-                    <li>Nome da sua loja</li>
-                    <li>Seu e-mail cadastrado</li>
-                    <li>Seu número de WhatsApp</li>
-                    <li>Valor do pagamento</li>
-                    <li>Data do cadastro</li>
-                    <li>Observações (se houver)</li>
-                </ul>
-                
-                <p><strong>⏱️ Prazo de liberação:</strong> Até 12 horas após confirmação.</p>
-            </div>
-            
-            <div class="alert-buttons">
-                <a href="#" class="btn btn-whatsapp" id="openWhatsAppBtn">
-                    <i class="fab fa-whatsapp"></i> Enviar WhatsApp
-                </a>
-                <!-- Botão "Voltar" REMOVIDO conforme solicitado -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Alert Modal 2 - Aguardando Aprovação -->
-    <div class="alert-modal" id="alertModal2">
-        <div class="alert-content">
-            <div class="alert-icon info">
-                <i class="fas fa-clock"></i>
-            </div>
-            <h2 class="alert-title">⏳ AGUARDANDO APROVAÇÃO</h2>
-            <div class="alert-message">
-                <div class="status-box">
-                    <div class="status-item">
-                        <div class="status-icon success">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        <span>Cadastro concluído</span>
-                    </div>
-                    <div class="status-item">
-                        <div class="status-icon success">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        <span>Comprovante enviado</span>
-                    </div>
-                    <div class="status-item">
-                        <div class="status-icon success">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        <span>WhatsApp enviado</span>
-                    </div>
-                </div>
-                
-                <p><strong>✅ Tudo certo! Seu processo foi concluído.</strong></p>
-                
-                <p><strong>📋 Status atual:</strong> Sua conta está em análise pelo suporte.</p>
-                
-                <p><strong>⏱️ Prazo máximo:</strong> 12 horas</p>
-                
-                <p><strong>📲 Notificação:</strong> Você será notificado no WhatsApp informado quando seu acesso for liberado.</p>
-                
-                <div class="whatsapp-note" style="margin: 20px 0;">
-                    <i class="fab fa-whatsapp"></i>
-                    Acompanhe pelo WhatsApp informado
-                </div>
-                
-                <p><strong>⚠️ Este aviso permanecerá até sua conta ser aprovada.</strong></p>
-            </div>
-            
-            <button type="button" class="btn btn-primary" id="backToLoginBtn">
-                <i class="fas fa-sign-in-alt"></i> Voltar para Login
-            </button>
-        </div>
-    </div>
-
-    <!-- Pending Status Modal -->
-    <div class="pending-modal" id="pendingModal">
-        <div class="pending-content">
-            <div class="pending-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-            <h2 class="pending-title">Conta em Análise</h2>
-            <p class="pending-message">
-                Seu cadastro e pagamento estão em análise.<br><br>
-                <strong>O prazo máximo para liberação é de até 12 horas.</strong><br><br>
-                Você receberá uma confirmação no WhatsApp informado quando seu acesso for liberado.
-                Este aviso permanecerá enquanto sua conta estiver em análise.
-            </p>
-            <button type="button" class="btn btn-primary" id="closePendingBtn">
-                <i class="fas fa-check"></i> Fechar
-            </button>
-        </div>
-    </div>
-
     <!-- Login Container (Initial State) -->
     <div class="container login-container" id="loginContainer">
         <div class="logo-section">
@@ -1150,7 +504,21 @@
                 <i class="fas fa-store"></i>
             </div>
             <h1>Venda+</h1>
-            <p>Já tem uma conta? Faça login. Não tem? Cadastre-se.</p>
+            <p>Faça login para acessar sua loja virtual</p>
+        </div>
+        
+        <!-- Banner de Primeiro Mês Grátis -->
+        <div class="free-month-banner">
+            <div class="free-month-title">
+                <i class="fas fa-gift"></i>
+                PRIMEIRO MÊS GRÁTIS!
+            </div>
+            <div class="free-month-subtitle">
+                Para novos usuários que ainda não possuem acesso
+            </div>
+            <div class="price-info" id="priceInfo">
+                Após o período gratuito: R$ 99,00/mês
+            </div>
         </div>
         
         <!-- Login Form -->
@@ -1185,48 +553,45 @@
         </div>
     </div>
 
-    <!-- Registration Container (Hidden Initially) -->
+    <!-- Simple Registration Container (Hidden Initially) -->
     <div class="container" id="registrationContainer" style="display: none;">
-        <!-- Progress Steps -->
-        <div class="progress-steps" id="progressSteps">
-            <div class="step" data-step="1">
-                <div class="step-circle">1</div>
-                <div class="step-label">Cadastro</div>
+        <button class="back-button" id="backToLoginBtn2">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </button>
+        
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-store"></i>
             </div>
-            <div class="step" data-step="2">
-                <div class="step-circle">2</div>
-                <div class="step-label">Pagamento</div>
+            <h2>Criar Nova Loja</h2>
+            <p>Cadastro simplificado - Primeiro mês grátis</p>
+        </div>
+        
+        <!-- Banner no cadastro também -->
+        <div class="free-month-banner">
+            <div class="free-month-title">
+                <i class="fas fa-gift"></i>
+                PRIMEIRO MÊS GRÁTIS!
             </div>
-            <div class="step" data-step="3">
-                <div class="step-circle">3</div>
-                <div class="step-label">Verificação</div>
+            <div class="price-info" id="priceInfo2">
+                Após o período gratuito: R$ 99,00/mês
             </div>
         </div>
         
-        <!-- Step 1: Registration Form -->
-        <div class="form-section active" id="step1">
-            <div class="logo-section">
-                <div class="logo-icon">
-                    <i class="fas fa-store"></i>
-                </div>
-                <h2>Criar Nova Loja</h2>
-                <p>Preencha os dados da sua loja</p>
-            </div>
+        <!-- Google Login Button -->
+        <button class="btn btn-google" id="googleLoginBtn">
+            <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google">
+            Entrar com Google
+        </button>
+        
+        <!-- Simple Registration Form (shown after Google auth) -->
+        <div class="simple-register-form" id="simpleRegisterForm">
+            <div class="divider">Complete seu cadastro</div>
             
             <form id="registerForm">
                 <div class="form-group">
-                    <label class="form-label">Nome da Loja *</label>
-                    <input type="text" id="storeName" class="form-input" placeholder="Nome do seu negócio" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">E-mail *</label>
-                    <input type="email" id="regEmail" class="form-input" placeholder="seu@email.com" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Senha *</label>
-                    <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres" required minlength="6">
+                    <label class="form-label">Nome da Empresa *</label>
+                    <input type="text" id="companyName" class="form-input" placeholder="Nome da sua empresa" required>
                 </div>
                 
                 <div class="form-group">
@@ -1235,135 +600,17 @@
                     <span class="small-text">Este número será usado para confirmações</span>
                 </div>
                 
-                <div class="warning-box">
-                    <i class="fas fa-info-circle"></i> <strong>Atenção:</strong> O acesso ao sistema será liberado apenas após a confirmação do pagamento.
-                </div>
-                
                 <button type="submit" class="btn btn-primary" id="registerBtn">
-                    <i class="fas fa-arrow-right"></i> Continuar para Pagamento
+                    <i class="fas fa-check"></i> Finalizar Cadastro
                 </button>
             </form>
-            
-            <!-- Support Link -->
-            <div class="support-link">
-                <a href="#" id="supportLink2">
-                    <i class="fas fa-question-circle"></i> Dúvidas? Entre em contato com suporte
-                </a>
-            </div>
         </div>
         
-        <!-- Step 2: Payment -->
-        <div class="form-section" id="step2">
-            <div class="logo-section">
-                <div class="logo-icon">
-                    <i class="fas fa-credit-card"></i>
-                </div>
-                <h2>Escolha seu Plano</h2>
-                <p>Ative sua loja virtual</p>
-            </div>
-            
-            <div class="plan-card">
-                <div class="plan-name">Plano Mensal</div>
-                <ul class="plan-features">
-                    <li><i class="fas fa-check"></i> Loja virtual completa</li>
-                    <li><i class="fas fa-check"></i> Sistema de pedidos</li>
-                    <li><i class="fas fa-check"></i> Painel administrativo</li>
-                    <li><i class="fas fa-check"></i> Suporte técnico</li>
-                    <li><i class="fas fa-check"></i> Atualizações gratuitas</li>
-                </ul>
-                <div class="plan-price" id="planPrice">R$ 99,00/mês</div>
-            </div>
-            
-            <div class="pix-info">
-                <div class="pix-title">
-                    Pagamento via PIX
-                    <button class="pix-copy-btn" id="pixCopyBtn">
-                        <i class="fas fa-copy"></i> Copiar
-                    </button>
-                </div>
-                <div class="pix-key-container">
-                    <div class="pix-key" id="pixKeyDisplay">
-                        Carregando chave PIX...
-                    </div>
-                    <div class="pix-key-copied" id="pixKeyCopied">Copiado!</div>
-                </div>
-                <p style="color: #757575; font-size: 0.9rem; margin-top: 10px;">Copie a chave PIX e faça o pagamento no seu aplicativo bancário.</p>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Envie o comprovante do pagamento *</label>
-                <div class="upload-area" id="receiptUploadArea">
-                    <div class="upload-icon">
-                        <i class="fas fa-file-upload"></i>
-                    </div>
-                    <div class="upload-text">Clique para fazer upload</div>
-                    <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
-                    <div class="file-types">
-                        <span class="file-type-badge">JPG</span>
-                        <span class="file-type-badge">PNG</span>
-                        <span class="file-type-badge">PDF</span>
-                    </div>
-                    <input type="file" id="receiptUpload" accept="image/*,.pdf" style="display: none;">
-                </div>
-                
-                <img id="receiptImagePreview" class="image-preview" alt="Comprovante">
-                
-                <div class="pdf-preview" id="receiptPdfPreview">
-                    <i class="fas fa-file-pdf"></i>
-                    <div class="upload-text" id="pdfFileName">comprovante.pdf</div>
-                    <div class="upload-info">Clique para visualizar</div>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Observações (opcional)</label>
-                <textarea id="paymentNotes" class="form-input" rows="3" placeholder="Alguma observação sobre o pagamento..."></textarea>
-            </div>
-            
-            <button type="button" class="btn btn-primary" id="submitPaymentBtn">
-                <i class="fas fa-check"></i> Concluir Cadastro
-            </button>
-            
-            <!-- Support Link -->
-            <div class="support-link">
-                <a href="#" id="supportLink3">
-                    <i class="fas fa-question-circle"></i> Dúvidas? Entre em contato com suporte
-                </a>
-            </div>
-        </div>
-        
-        <!-- Step 3: Waiting Verification -->
-        <div class="form-section" id="step3">
-            <div class="waiting-section">
-                <div class="waiting-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <h2 class="waiting-title">Aguardando Verificação</h2>
-                <p class="waiting-message">
-                    Seu cadastro e pagamento foram recebidos com sucesso! 🎉<br><br>
-                    Estamos analisando seu comprovante de pagamento.<br>
-                    <strong>O prazo máximo para liberação é de até 12 horas.</strong><br><br>
-                    Você receberá uma confirmação no WhatsApp informado quando seu acesso for liberado.
-                </p>
-                
-                <div class="whatsapp-note">
-                    <i class="fab fa-whatsapp"></i>
-                    Acompanhe pelo WhatsApp
-                </div>
-                
-                <div style="margin-top: 30px;">
-                    <button type="button" class="btn btn-primary" id="finishBtn">
-                        <i class="fas fa-check"></i> Entendido
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Support Link -->
-            <div class="support-link">
-                <a href="#" id="supportLink4">
-                    <i class="fas fa-question-circle"></i> Dúvidas? Entre em contato com suporte
-                </a>
-            </div>
+        <!-- Support Link -->
+        <div class="support-link">
+            <a href="#" id="supportLink2">
+                <i class="fas fa-question-circle"></i> Dúvidas? Entre em contato com suporte
+            </a>
         </div>
     </div>
 
@@ -1386,24 +633,14 @@
         // DOM Elements
         const loginContainer = document.getElementById('loginContainer');
         const registrationContainer = document.getElementById('registrationContainer');
-        const progressSteps = document.getElementById('progressSteps');
         const startRegisterBtn = document.getElementById('startRegisterBtn');
-        const pendingModal = document.getElementById('pendingModal');
-        const closePendingBtn = document.getElementById('closePendingBtn');
+        const backToLoginBtn2 = document.getElementById('backToLoginBtn2');
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const simpleRegisterForm = document.getElementById('simpleRegisterForm');
         const supportLinks = document.querySelectorAll('[id^="supportLink"]');
         const copyProtection = document.getElementById('copyProtection');
-        
-        // Alert Modals
-        const alertModal1 = document.getElementById('alertModal1');
-        const alertModal2 = document.getElementById('alertModal2');
-        const openWhatsAppBtn = document.getElementById('openWhatsAppBtn');
-        const backToLoginBtn = document.getElementById('backToLoginBtn');
-        
-        // Progress Steps
-        const steps = document.querySelectorAll('.step');
-        const step1 = document.getElementById('step1');
-        const step2 = document.getElementById('step2');
-        const step3 = document.getElementById('step3');
+        const priceInfo = document.getElementById('priceInfo');
+        const priceInfo2 = document.getElementById('priceInfo2');
         
         // Forms
         const loginForm = document.getElementById('loginForm');
@@ -1411,61 +648,28 @@
         const loginBtn = document.getElementById('loginBtn');
         const registerBtn = document.getElementById('registerBtn');
         
-        // Payment Elements
+        // Inputs
         const userPhone = document.getElementById('userPhone');
-        const planPrice = document.getElementById('planPrice');
-        const pixKeyDisplay = document.getElementById('pixKeyDisplay');
-        const pixCopyBtn = document.getElementById('pixCopyBtn');
-        const pixKeyCopied = document.getElementById('pixKeyCopied');
-        const receiptUploadArea = document.getElementById('receiptUploadArea');
-        const receiptUpload = document.getElementById('receiptUpload');
-        const receiptImagePreview = document.getElementById('receiptImagePreview');
-        const receiptPdfPreview = document.getElementById('receiptPdfPreview');
-        const pdfFileName = document.getElementById('pdfFileName');
-        const submitPaymentBtn = document.getElementById('submitPaymentBtn');
-        const finishBtn = document.getElementById('finishBtn');
         
         // Loader
         const fullscreenLoader = document.getElementById('fullscreenLoader');
         const loaderText = document.getElementById('loaderText');
         
         // Application State
-        let currentStep = 1;
         let systemConfig = {};
         let currentUser = null;
-        let receiptBase64 = '';
-        let receiptType = '';
-        let receiptFileName = '';
         let phoneMask = null;
-        let registrationData = {};
         let isProcessing = false;
         let supportPhone = '';
-        let paymentRecordId = null;
-        let statusCheckInterval = null;
-        let whatsappMessage = '';
-        let whatsappUrl = '';
-        
-        // Variáveis para proteção contra cópia
-        let copyProtectionActive = true;
-        let allowedToCopy = false;
-        let lastCopyTime = 0;
-        let copyAttemptCount = 0;
-
-        // Constantes para otimização
-        const TAMANHO_MAXIMO_KB = 600;
-        const TAMANHO_MAXIMO_BYTES = TAMANHO_MAXIMO_KB * 1024;
-        const QUALIDADE_INICIAL = 0.8;
-        const LARGURA_MAXIMA = 1200;
-        const ALTURA_MAXIMA = 1200;
-        const MAX_TENTATIVAS = 5;
+        let monthlyPrice = 99.00;
+        let googleUserData = null;
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
             loadSystemConfig();
             setupPhoneMask();
             setupEventListeners();
-            setupCopyProtection(); // Adicionar proteção contra cópia
-            restoreRegistrationProgress();
+            setupCopyProtection();
             
             // Check if user is already logged in
             auth.onAuthStateChanged(async (user) => {
@@ -1484,9 +688,6 @@
                                 expiryDate: userData.expiryDate
                             }));
                             window.location.href = 'index.html';
-                        } else if (userData.status === 'pending') {
-                            // Start monitoring status changes
-                            startStatusMonitoring(user.uid);
                         }
                     }
                 }
@@ -1497,8 +698,7 @@
         function setupCopyProtection() {
             // Desabilitar menu de contexto
             document.addEventListener('contextmenu', function(e) {
-                // Permitir apenas no campo PIX
-                if (e.target.closest('.pix-key') || e.target.closest('.form-input')) {
+                if (e.target.closest('.form-input')) {
                     return;
                 }
                 e.preventDefault();
@@ -1508,81 +708,24 @@
             // Bloquear seleção de texto (exceto onde permitido)
             document.addEventListener('selectstart', function(e) {
                 const target = e.target;
-                const allowedClasses = ['pix-key', 'form-input'];
-                const isAllowed = allowedClasses.some(className => target.classList.contains(className));
+                const isInput = target.classList.contains('form-input') || 
+                              target.tagName === 'INPUT' || 
+                              target.tagName === 'TEXTAREA';
                 
-                if (!isAllowed && !target.closest('.pix-key') && !target.closest('.form-input')) {
+                if (!isInput) {
                     e.preventDefault();
                     return false;
                 }
             });
-            
-            // Bloquear cópia via teclado (Ctrl+C)
-            document.addEventListener('keydown', function(e) {
-                // Permitir cópia no campo PIX quando clicado
-                const activeElement = document.activeElement;
-                const isPixKey = activeElement.classList.contains('pix-key') || 
-                               (activeElement.closest && activeElement.closest('.pix-key'));
-                
-                if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
-                    if (!isPixKey) {
-                        e.preventDefault();
-                        showNotification('Cópia não permitida nesta área.', 'warning');
-                        return false;
-                    }
-                }
-            });
-            
-            // Bloquear arrastar
-            document.addEventListener('dragstart', function(e) {
-                e.preventDefault();
-                return false;
-            });
-            
-            // Permitir cópia apenas no campo PIX quando clicado
-            pixKeyDisplay.addEventListener('click', function() {
-                allowCopyTemporarily(2000); // Permitir cópia por 2 segundos
-            });
-            
-            // Adicionar mensagem de aviso
-            pixKeyDisplay.addEventListener('mouseenter', function() {
-                this.title = "Clique para copiar a chave PIX";
-            });
-        }
-        
-        // Permitir cópia temporariamente
-        function allowCopyTemporarily(ms) {
-            allowedToCopy = true;
-            copyProtection.style.pointerEvents = 'none';
-            
-            setTimeout(() => {
-                allowedToCopy = false;
-                copyProtection.style.pointerEvents = 'auto';
-            }, ms);
-        }
-        
-        // Verificar se a cópia é permitida
-        function isCopyAllowed(target) {
-            if (allowedToCopy) return true;
-            
-            // Permitir apenas no campo PIX
-            const isPixKey = target.classList.contains('pix-key') || 
-                           (target.closest && target.closest('.pix-key'));
-            
-            // Permitir apenas em campos de entrada
-            const isInput = target.classList.contains('form-input') || 
-                          target.tagName === 'INPUT' || 
-                          target.tagName === 'TEXTAREA';
-            
-            return isPixKey || isInput;
         }
 
         // Setup event listeners
         function setupEventListeners() {
             // Login/Register toggle
             startRegisterBtn.addEventListener('click', startRegistration);
+            backToLoginBtn2.addEventListener('click', backToLogin);
             
-            // Support links - corrigido para evitar bloqueio de pop-ups
+            // Support links
             supportLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -1592,85 +735,10 @@
             
             // Forms
             loginForm.addEventListener('submit', handleLogin);
-            registerForm.addEventListener('submit', handleRegister);
+            registerForm.addEventListener('submit', handleSimpleRegister);
             
-            // Alert Modal buttons
-            openWhatsAppBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                sendWhatsAppMessage(e);
-            });
-            
-            // Botão "Voltar" foi REMOVIDO conforme solicitado
-            
-            backToLoginBtn.addEventListener('click', () => {
-                alertModal2.classList.remove('active');
-                // Go back to login
-                auth.signOut();
-                loginContainer.style.display = 'block';
-                registrationContainer.style.display = 'none';
-                progressSteps.classList.remove('visible');
-                resetRegistration();
-                showNotification('Aguarde a aprovação. Você será notificado no WhatsApp.', 'info');
-            });
-            
-            // Payment buttons with debounce
-            submitPaymentBtn.addEventListener('click', debounce(submitPayment, 1000));
-            finishBtn.addEventListener('click', finishRegistration);
-            
-            // PIX key copy
-            pixCopyBtn.addEventListener('click', copyPixKey);
-            pixKeyDisplay.addEventListener('click', copyPixKey);
-            
-            // Receipt upload
-            receiptUploadArea.addEventListener('click', () => {
-                if (!receiptUploadArea.classList.contains('uploading')) {
-                    receiptUpload.click();
-                }
-            });
-            receiptUpload.addEventListener('change', handleReceiptUpload);
-            
-            // Preview clicks
-            receiptImagePreview.addEventListener('click', () => {
-                if (receiptBase64) {
-                    window.open(receiptBase64, '_blank');
-                }
-            });
-            
-            receiptPdfPreview.addEventListener('click', () => {
-                if (receiptBase64) {
-                    window.open(receiptBase64, '_blank');
-                }
-            });
-            
-            // Pending modal close
-            closePendingBtn.addEventListener('click', () => {
-                pendingModal.classList.remove('active');
-            });
-            
-            // Prevent form submission on Enter key in textareas
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && e.target.tagName === 'TEXTAREA') {
-                    e.stopPropagation();
-                }
-            });
-            
-            // Check registration status when page loads
-            window.addEventListener('load', () => {
-                const registrationStatus = localStorage.getItem('registrationStatus');
-                
-                if (registrationStatus === 'whatsapp_sent') {
-                    // User already sent WhatsApp, show second modal
-                    setTimeout(() => {
-                        alertModal2.classList.add('active');
-                        localStorage.setItem('registrationStatus', 'waiting_approval');
-                    }, 500);
-                } else if (registrationStatus === 'waiting_approval') {
-                    // User is waiting approval
-                    setTimeout(() => {
-                        alertModal2.classList.add('active');
-                    }, 500);
-                }
-            });
+            // Google login
+            googleLoginBtn.addEventListener('click', handleGoogleLogin);
         }
 
         // Load system configuration
@@ -1680,40 +748,37 @@
                 if (configDoc.exists) {
                     systemConfig = configDoc.data();
                     
-                    // Update UI with system config
-                    if (pixKeyDisplay) {
-                        pixKeyDisplay.textContent = systemConfig.pixKey || 'chave-pix@empresa.com';
-                    }
-                    
-                    if (planPrice) {
-                        const price = systemConfig.monthlyPlanPrice || 99.00;
-                        planPrice.textContent = `R$ ${price.toFixed(2).replace('.', ',')}/mês`;
-                    }
-                    
                     // Get support phone from admin WhatsApp
                     supportPhone = systemConfig.adminWhatsApp || '5511999999999';
+                    
+                    // Get monthly price
+                    monthlyPrice = systemConfig.monthlyPlanPrice || 99.00;
+                    
+                    // Update price info
+                    if (priceInfo) {
+                        priceInfo.textContent = `Após o período gratuito: R$ ${monthlyPrice.toFixed(2).replace('.', ',')}/mês`;
+                    }
+                    if (priceInfo2) {
+                        priceInfo2.textContent = `Após o período gratuito: R$ ${monthlyPrice.toFixed(2).replace('.', ',')}/mês`;
+                    }
                 } else {
-                    // Default values if no config exists
+                    // Default values
                     systemConfig = {
-                        pixKey: 'chave-pix@empresa.com',
                         monthlyPlanPrice: 99.00,
                         adminWhatsApp: '5511999999999'
                     };
-                    pixKeyDisplay.textContent = systemConfig.pixKey;
-                    planPrice.textContent = `R$ ${systemConfig.monthlyPlanPrice.toFixed(2).replace('.', ',')}/mês`;
                     supportPhone = systemConfig.adminWhatsApp;
+                    monthlyPrice = systemConfig.monthlyPlanPrice;
                 }
             } catch (error) {
                 console.error('Error loading system config:', error);
                 // Set defaults on error
                 systemConfig = {
-                    pixKey: 'chave-pix@empresa.com',
                     monthlyPlanPrice: 99.00,
                     adminWhatsApp: '5511999999999'
                 };
-                pixKeyDisplay.textContent = systemConfig.pixKey;
-                planPrice.textContent = `R$ ${systemConfig.monthlyPlanPrice.toFixed(2).replace('.', ',')}/mês`;
                 supportPhone = systemConfig.adminWhatsApp;
+                monthlyPrice = systemConfig.monthlyPlanPrice;
             }
         }
 
@@ -1731,15 +796,20 @@
         function startRegistration() {
             loginContainer.style.display = 'none';
             registrationContainer.style.display = 'block';
-            progressSteps.classList.add('visible');
-            currentStep = 1;
-            updateProgressSteps();
-            
-            // Save state
-            saveRegistrationProgress();
+            simpleRegisterForm.style.display = 'none';
+            googleLoginBtn.style.display = 'flex';
         }
 
-        // Show support contact - CORRIGIDO para evitar bloqueio de pop-ups
+        // Back to login
+        function backToLogin() {
+            registrationContainer.style.display = 'none';
+            loginContainer.style.display = 'block';
+            simpleRegisterForm.style.display = 'none';
+            googleLoginBtn.style.display = 'flex';
+            resetRegistrationForm();
+        }
+
+        // Show support contact
         function showSupport(e) {
             e.preventDefault();
             
@@ -1760,12 +830,10 @@
             
             document.body.appendChild(link);
             
-            // Usar requestAnimationFrame para garantir que o clique seja processado
             requestAnimationFrame(() => {
                 try {
                     link.click();
                     
-                    // Remover após um tempo seguro (5 segundos)
                     setTimeout(() => {
                         if (link.parentNode) {
                             document.body.removeChild(link);
@@ -1773,44 +841,13 @@
                     }, 5000);
                 } catch (error) {
                     console.error('Erro ao abrir WhatsApp:', error);
-                    // Fallback: abrir em nova janela se o método anterior falhar
                     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
                     
-                    // Remover o link de qualquer forma
                     if (link.parentNode) {
                         document.body.removeChild(link);
                     }
                 }
             });
-        }
-
-        // Update progress steps
-        function updateProgressSteps() {
-            steps.forEach(step => {
-                const stepNumber = parseInt(step.dataset.step);
-                
-                step.classList.remove('active', 'completed');
-                
-                if (stepNumber === currentStep) {
-                    step.classList.add('active');
-                } else if (stepNumber < currentStep) {
-                    step.classList.add('completed');
-                }
-            });
-        }
-
-        // Show current step
-        function showCurrentStep() {
-            // Hide all steps
-            document.querySelectorAll('.form-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Show current step
-            document.getElementById(`step${currentStep}`).classList.add('active');
-            
-            // Scroll to top of container
-            registrationContainer.scrollTop = 0;
         }
 
         // Handle login
@@ -1844,18 +881,7 @@
                     }
                     
                     if (userData.status === 'pending') {
-                        // Show pending modal
-                        showNotification('Seu pagamento está em análise. Aguarde a confirmação.', 'info');
-                        
-                        // Start monitoring status
-                        startStatusMonitoring(user.uid);
-                        
-                        // Show modal after a short delay
-                        setTimeout(() => {
-                            pendingModal.classList.add('active');
-                        }, 500);
-                        
-                        return;
+                        throw new Error('Seu cadastro está em análise. Aguarde a confirmação.');
                     }
                     
                     if (userData.status === 'active' && userData.isActive !== false) {
@@ -1906,67 +932,96 @@
             }
         }
 
-        // Start monitoring user status changes
-        function startStatusMonitoring(userId) {
-            // Clear any existing interval
-            if (statusCheckInterval) {
-                clearInterval(statusCheckInterval);
-            }
+        // Handle Google login
+        async function handleGoogleLogin() {
+            if (isProcessing) return;
             
-            // Check status every 30 seconds
-            statusCheckInterval = setInterval(async () => {
-                try {
-                    const userDoc = await db.collection('users').doc(userId).get();
-                    if (userDoc.exists) {
-                        const userData = userDoc.data();
+            try {
+                showLoader('Conectando com Google...');
+                isProcessing = true;
+                disableButton(googleLoginBtn);
+                
+                // Configure Google Auth Provider
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.addScope('email');
+                provider.addScope('profile');
+                
+                // Sign in with Google
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                
+                // Store Google user data
+                googleUserData = {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL
+                };
+                
+                // Check if user already exists
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    
+                    // User exists, check status
+                    if (userData.status === 'active' && userData.isActive !== false) {
+                        // User is active, proceed to app
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            uid: user.uid,
+                            email: user.email,
+                            storeName: userData.storeName,
+                            phone: userData.phone,
+                            isAdmin: true,
+                            expiryDate: userData.expiryDate
+                        }));
                         
-                        if (userData.status === 'active') {
-                            // Status changed to active!
-                            clearInterval(statusCheckInterval);
-                            statusCheckInterval = null;
-                            
-                            // Hide modal
-                            pendingModal.classList.remove('active');
-                            
-                            // Show success notification
-                            showNotification('Seu acesso foi liberado! Redirecionando...', 'success');
-                            
-                            // Store user data
-                            localStorage.setItem('currentUser', JSON.stringify({
-                                uid: userId,
-                                email: userData.email,
-                                storeName: userData.storeName,
-                                phone: userData.phone,
-                                isAdmin: true,
-                                expiryDate: userData.expiryDate
-                            }));
-                            
-                            // Update last login
-                            await db.collection('users').doc(userId).update({
-                                lastLogin: new Date().toISOString()
-                            });
-                            
-                            // Redirect after 2 seconds
-                            setTimeout(() => {
-                                window.location.href = 'index.html';
-                            }, 2000);
-                        }
+                        showNotification('Login realizado com sucesso!', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1000);
+                    } else {
+                        // User exists but not active
+                        showNotification('Sua conta não está ativa. Entre em contato com o suporte.', 'error');
+                        await auth.signOut();
+                        resetRegistrationForm();
                     }
-                } catch (error) {
-                    console.error('Error checking status:', error);
+                } else {
+                    // New user, show simple registration form
+                    googleLoginBtn.style.display = 'none';
+                    simpleRegisterForm.style.display = 'block';
+                    
+                    // Pre-fill company name with user's display name if available
+                    const companyNameInput = document.getElementById('companyName');
+                    if (companyNameInput && googleUserData.displayName) {
+                        companyNameInput.value = googleUserData.displayName;
+                    }
+                    
+                    showNotification('Conta Google conectada! Complete seu cadastro.', 'success');
                 }
-            }, 30000); // Check every 30 seconds
+                
+            } catch (error) {
+                console.error('Google login error:', error);
+                showNotification(getErrorMessage(error), 'error');
+            } finally {
+                hideLoader();
+                isProcessing = false;
+                enableButton(googleLoginBtn);
+            }
         }
 
-        // Handle registration
-        async function handleRegister(e) {
+        // Handle simple registration (after Google auth)
+        async function handleSimpleRegister(e) {
             e.preventDefault();
             if (isProcessing) return;
             
-            const storeName = document.getElementById('storeName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
+            const companyName = document.getElementById('companyName').value;
             const phone = userPhone.value;
+            
+            if (!companyName || companyName.trim() === '') {
+                showNotification('Por favor, informe o nome da empresa.', 'error');
+                return;
+            }
             
             if (!phone || phone.replace(/\D/g, '').length < 11) {
                 showNotification('Por favor, informe um número de WhatsApp válido.', 'error');
@@ -1974,45 +1029,49 @@
             }
             
             try {
-                showLoader('Criando sua conta...');
+                showLoader('Finalizando cadastro...');
                 isProcessing = true;
                 disableButton(registerBtn);
                 
-                // Create user in Firebase Auth
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
+                // Calculate expiry date (1 month from now)
+                const expiryDate = new Date();
+                expiryDate.setMonth(expiryDate.getMonth() + 1);
                 
-                // Store registration data
-                registrationData = {
-                    uid: user.uid,
-                    email: user.email,
-                    storeName: storeName,
+                // Create user document
+                await db.collection('users').doc(googleUserData.uid).set({
+                    uid: googleUserData.uid,
+                    email: googleUserData.email,
+                    storeName: companyName,
                     phone: phone,
-                    timestamp: new Date().toISOString()
-                };
-                
-                // Create user document with pending status
-                await db.collection('users').doc(user.uid).set({
-                    uid: user.uid,
-                    email: user.email,
-                    storeName: storeName,
-                    phone: phone,
-                    status: 'pending',
+                    status: 'active',
                     plan: 'monthly',
-                    isActive: false,
+                    isActive: true,
                     configCompleted: false,
-                    paymentConfirmed: false,
+                    paymentConfirmed: true, // First month free
+                    freeMonthUsed: true,
                     createdAt: new Date().toISOString(),
-                    lastActivity: new Date().toISOString()
+                    lastActivity: new Date().toISOString(),
+                    lastLogin: new Date().toISOString(),
+                    expiryDate: expiryDate.toISOString(),
+                    authProvider: 'google'
                 });
                 
-                // Go to payment step
-                currentStep = 2;
-                updateProgressSteps();
-                showCurrentStep();
-                saveRegistrationProgress();
+                // Store user data
+                localStorage.setItem('currentUser', JSON.stringify({
+                    uid: googleUserData.uid,
+                    email: googleUserData.email,
+                    storeName: companyName,
+                    phone: phone,
+                    isAdmin: true,
+                    expiryDate: expiryDate.toISOString()
+                }));
                 
-                showNotification('Conta criada com sucesso! Continue com o pagamento.', 'success');
+                showNotification('Cadastro concluído com sucesso!', 'success');
+                
+                // Redirect to app after delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
                 
             } catch (error) {
                 console.error('Registration error:', error);
@@ -2024,546 +1083,15 @@
             }
         }
 
-        // Função para calcular tamanho de string base64 em bytes
-        function calcularTamanhoBase64(base64String) {
-            if (!base64String) return 0;
-            
-            try {
-                const stringBase64 = base64String.split(',')[1] || base64String;
-                const tamanhoString = stringBase64.length;
-                const tamanhoBytes = (tamanhoString * 3) / 4;
-                const padding = (stringBase64.match(/=/g) || []).length;
-                
-                return tamanhoBytes - padding;
-            } catch (error) {
-                console.error('Erro ao calcular tamanho base64:', error);
-                return 0;
+        // Reset registration form
+        function resetRegistrationForm() {
+            if (document.getElementById('companyName')) {
+                document.getElementById('companyName').value = '';
             }
-        }
-
-        // Função para processar imagem - otimizar sem mostrar detalhes técnicos
-        function processarImagem(file, callback) {
-            // Se for PDF ou imagem pequena, converte direto
-            if (file.type === 'application/pdf' || file.size <= TAMANHO_MAXIMO_BYTES) {
-                converterParaBase64(file, callback);
-                return;
+            if (userPhone) {
+                userPhone.value = '';
             }
-            
-            const img = new Image();
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                img.src = e.target.result;
-                
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    let qualidade = QUALIDADE_INICIAL;
-                    let largura = img.width;
-                    let altura = img.height;
-                    let base64Otimizada = '';
-                    let tentativas = 0;
-                    
-                    function tentarOtimizar() {
-                        tentativas++;
-                        
-                        if (tentativas > 1) {
-                            const fatorReducao = 0.8;
-                            largura = Math.floor(largura * fatorReducao);
-                            altura = Math.floor(altura * fatorReducao);
-                            qualidade = Math.max(0.4, qualidade - 0.1);
-                        }
-                        
-                        if (largura > LARGURA_MAXIMA || altura > ALTURA_MAXIMA) {
-                            const ratio = Math.min(LARGURA_MAXIMA / largura, ALTURA_MAXIMA / altura);
-                            largura = Math.floor(largura * ratio);
-                            altura = Math.floor(altura * ratio);
-                        }
-                        
-                        canvas.width = largura;
-                        canvas.height = altura;
-                        
-                        ctx.drawImage(img, 0, 0, largura, altura);
-                        
-                        base64Otimizada = canvas.toDataURL('image/jpeg', qualidade);
-                        const tamanhoAtual = calcularTamanhoBase64(base64Otimizada);
-                        
-                        if (tamanhoAtual <= TAMANHO_MAXIMO_BYTES || tentativas >= MAX_TENTATIVAS) {
-                            callback(base64Otimizada);
-                        } else {
-                            setTimeout(tentarOtimizar, 100);
-                        }
-                    }
-                    
-                    tentarOtimizar();
-                };
-                
-                img.onerror = function() {
-                    converterParaBase64(file, callback);
-                };
-            };
-            
-            reader.onerror = function() {
-                showNotification('Erro ao processar arquivo.', 'error');
-                callback(null);
-            };
-            
-            reader.readAsDataURL(file);
-        }
-
-        // Função para converter arquivo para base64
-        function converterParaBase64(file, callback) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                callback(e.target.result);
-            };
-            
-            reader.onerror = function() {
-                showNotification('Erro ao converter arquivo.', 'error');
-                callback(null);
-            };
-            
-            reader.readAsDataURL(file);
-        }
-
-        // Handle receipt upload
-        function handleReceiptUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            // Check file size (max 10MB)
-            if (file.size > 10 * 1024 * 1024) {
-                showNotification('O arquivo deve ter no máximo 10MB.', 'error');
-                receiptUpload.value = '';
-                return;
-            }
-            
-            // Check file type
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-            if (!validTypes.includes(file.type)) {
-                showNotification('Tipo de arquivo inválido. Use JPG, PNG ou PDF.', 'error');
-                receiptUpload.value = '';
-                return;
-            }
-            
-            // Show loading
-            receiptUploadArea.classList.add('uploading');
-            receiptUploadArea.innerHTML = `
-                <div class="upload-icon">
-                    <i class="fas fa-spinner fa-spin"></i>
-                </div>
-                <div class="upload-text">Processando arquivo...</div>
-            `;
-            
-            // Processar arquivo sem mostrar detalhes técnicos
-            if (file.type === 'application/pdf') {
-                converterParaBase64(file, function(base64) {
-                    if (base64) {
-                        processarArquivoComprovante(file, base64);
-                    }
-                });
-            } else {
-                processarImagem(file, function(base64) {
-                    if (base64) {
-                        processarArquivoComprovante(file, base64);
-                    }
-                });
-            }
-        }
-
-        // Função auxiliar para processar o comprovante
-        function processarArquivoComprovante(file, base64Data) {
-            receiptBase64 = base64Data;
-            receiptType = file.type.includes('pdf') ? 'pdf' : 'image';
-            receiptFileName = file.name;
-            
-            // Show preview
-            if (receiptType === 'pdf') {
-                receiptPdfPreview.style.display = 'flex';
-                pdfFileName.textContent = file.name;
-                receiptImagePreview.style.display = 'none';
-            } else {
-                receiptImagePreview.src = receiptBase64;
-                receiptImagePreview.style.display = 'block';
-                receiptPdfPreview.style.display = 'none';
-                
-                // Mostrar apenas o nome do arquivo, sem detalhes técnicos
-                receiptImagePreview.alt = file.name;
-            }
-            
-            // Reset upload area com mensagem simplificada
-            receiptUploadArea.classList.remove('uploading');
-            
-            if (receiptType === 'pdf') {
-                receiptUploadArea.innerHTML = `
-                    <div class="upload-icon">
-                        <i class="fas fa-file-pdf" style="color: #f44336;"></i>
-                    </div>
-                    <div class="upload-text">PDF carregado</div>
-                    <div class="upload-info">Clique para alterar</div>
-                `;
-            } else {
-                // Mensagem simplificada sem detalhes técnicos
-                receiptUploadArea.innerHTML = `
-                    <div class="upload-icon">
-                        <i class="fas fa-check-circle" style="color: #4caf50;"></i>
-                    </div>
-                    <div class="upload-text">Imagem carregada</div>
-                    <div class="upload-info">Clique para alterar</div>
-                `;
-            }
-            
-            // Save to localStorage
-            saveRegistrationProgress();
-            showNotification('Comprovante carregado com sucesso!', 'success');
-        }
-
-        // Generate and send WhatsApp message
-        function sendWhatsAppMessage(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            const amount = systemConfig.monthlyPlanPrice || 99.00;
-            const paymentNotes = document.getElementById('paymentNotes')?.value || '';
-            
-            // Format WhatsApp message
-            whatsappMessage = `✅ *NOVO CADASTRO VENDA+ - SOLICITAÇÃO DE LIBERAÇÃO* ✅\n\n`;
-            whatsappMessage += `🏪 *LOJA:* ${registrationData.storeName}\n`;
-            whatsappMessage += `📧 *E-MAIL:* ${registrationData.email}\n`;
-            whatsappMessage += `📱 *WHATSAPP:* ${registrationData.phone}\n`;
-            whatsappMessage += `💰 *VALOR PAGO:* R$ ${amount.toFixed(2).replace('.', ',')}\n`;
-            whatsappMessage += `📅 *DATA DO CADASTRO:* ${new Date().toLocaleDateString('pt-BR')}\n`;
-            whatsappMessage += `⏰ *HORA:* ${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}\n`;
-            
-            // Adicionar observações apenas se houver
-            if (paymentNotes && paymentNotes.trim() !== '') {
-                whatsappMessage += `📝 *OBSERVAÇÕES:* ${paymentNotes}\n`;
-            }
-            
-            whatsappMessage += `\n📋 *STATUS:* Comprovante enviado - Aguardando liberação\n`;
-            whatsappMessage += `🆔 *ID DO PAGAMENTO:* ${paymentRecordId}\n\n`;
-            whatsappMessage += `⚠️ *POR FAVOR, LIBERAR O ACESSO DESTA CONTA* ⚠️\n\n`;
-            whatsappMessage += `_Mensagem enviada automaticamente pelo sistema Venda+_`;
-            
-            const encodedMessage = encodeURIComponent(whatsappMessage);
-            whatsappUrl = `https://wa.me/${supportPhone}?text=${encodedMessage}`;
-            
-            const link = document.createElement('a');
-            link.href = whatsappUrl;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer nofollow';
-            link.style.cssText = 'position: fixed; left: -9999px; top: -9999px; width: 1px; height: 1px; opacity: 0;';
-            
-            document.body.appendChild(link);
-            
-            setTimeout(() => {
-                try {
-                    link.click();
-                    
-                    setTimeout(() => {
-                        if (link.parentNode) {
-                            document.body.removeChild(link);
-                        }
-                    }, 8000);
-                } catch (error) {
-                    console.error('Erro ao abrir WhatsApp:', error);
-                    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-                    
-                    if (link.parentNode) {
-                        document.body.removeChild(link);
-                    }
-                }
-            }, 100);
-            
-            // Update payment record to mark WhatsApp as sent
-            updateWhatsAppStatus();
-            
-            // Show second modal after a delay
-            setTimeout(() => {
-                alertModal1.classList.remove('active');
-                alertModal2.classList.add('active');
-                
-                // Update registration status
-                localStorage.setItem('registrationStatus', 'whatsapp_sent');
-            }, 500);
-            
-            return false;
-        }
-
-        // Update WhatsApp sent status in Firestore
-        async function updateWhatsAppStatus() {
-            try {
-                if (paymentRecordId) {
-                    await db.collection('payments').doc(paymentRecordId).update({
-                        whatsappSent: true,
-                        whatsappSentAt: new Date().toISOString()
-                    });
-                }
-            } catch (error) {
-                console.error('Error updating WhatsApp status:', error);
-            }
-        }
-
-        // Submit payment and show WhatsApp alert
-        async function submitPayment() {
-            try {
-                showLoader('Salvando informações...');
-                isProcessing = true;
-                disableButton(submitPaymentBtn);
-                
-                // Validate receipt
-                if (!receiptBase64) {
-                    throw new Error('Por favor, envie o comprovante de pagamento.');
-                }
-                
-                const paymentNotes = document.getElementById('paymentNotes').value;
-                const amount = systemConfig.monthlyPlanPrice || 99.00;
-                
-                // Create payment record
-                const paymentRef = await db.collection('payments').add({
-                    userId: registrationData.uid,
-                    userEmail: registrationData.email,
-                    userName: registrationData.storeName,
-                    userPhone: registrationData.phone,
-                    storeName: registrationData.storeName,
-                    plan: 'monthly',
-                    amount: amount,
-                    status: 'pending',
-                    receiptBase64: receiptBase64,
-                    receiptType: receiptType,
-                    receiptFileName: receiptFileName,
-                    notes: paymentNotes,
-                    createdAt: new Date().toISOString(),
-                    type: 'initial',
-                    whatsappSent: false
-                });
-                
-                paymentRecordId = paymentRef.id;
-                
-                // Update user document with payment info
-                await db.collection('users').doc(registrationData.uid).update({
-                    paymentId: paymentRecordId,
-                    paymentStatus: 'pending',
-                    lastActivity: new Date().toISOString()
-                });
-                
-                // Show WhatsApp alert modal
-                setTimeout(() => {
-                    alertModal1.classList.add('active');
-                    // Save status
-                    localStorage.setItem('registrationStatus', 'whatsapp_pending');
-                    saveRegistrationProgress();
-                }, 300);
-                
-                showNotification('Cadastro salvo! Agora envie a mensagem no WhatsApp.', 'success');
-                
-            } catch (error) {
-                console.error('Error submitting payment:', error);
-                showNotification(getErrorMessage(error), 'error');
-            } finally {
-                hideLoader();
-                isProcessing = false;
-                enableButton(submitPaymentBtn);
-            }
-        }
-
-        // Finish registration - MODIFICADO para resetar completamente
-        function finishRegistration() {
-            // Sign out the user
-            auth.signOut();
-            
-            // Reset all forms and state
-            resetRegistration();
-            
-            // Show login
-            loginContainer.style.display = 'block';
-            registrationContainer.style.display = 'none';
-            progressSteps.classList.remove('visible');
-            
-            // Reset to step 1
-            currentStep = 1;
-            updateProgressSteps();
-            
-            showNotification('Processo concluído! Aguarde a liberação do acesso.', 'success');
-        }
-
-        // Copy PIX key to clipboard
-        function copyPixKey() {
-            const pixKey = pixKeyDisplay.textContent;
-            
-            navigator.clipboard.writeText(pixKey).then(() => {
-                pixKeyCopied.classList.add('show');
-                setTimeout(() => {
-                    pixKeyCopied.classList.remove('show');
-                }, 2000);
-                showNotification('Chave PIX copiada!', 'success');
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-                showNotification('Erro ao copiar chave PIX.', 'error');
-            });
-        }
-
-        // Save registration progress to localStorage
-        function saveRegistrationProgress() {
-            const progress = {
-                currentStep: currentStep,
-                registrationData: registrationData,
-                receiptBase64: receiptBase64,
-                receiptType: receiptType,
-                receiptFileName: receiptFileName,
-                paymentNotes: document.getElementById('paymentNotes')?.value || '',
-                timestamp: new Date().toISOString()
-            };
-            
-            localStorage.setItem('vendaPlusRegistration', JSON.stringify(progress));
-        }
-
-        // Restore registration progress from localStorage
-        function restoreRegistrationProgress() {
-            const saved = localStorage.getItem('vendaPlusRegistration');
-            const registrationStatus = localStorage.getItem('registrationStatus');
-            
-            if (saved) {
-                try {
-                    const progress = JSON.parse(saved);
-                    
-                    // Check if saved progress is recent (last 24 hours)
-                    const savedTime = new Date(progress.timestamp);
-                    const now = new Date();
-                    const hoursDiff = (now - savedTime) / (1000 * 60 * 60);
-                    
-                    if (hoursDiff < 24) {
-                        // Restore progress
-                        currentStep = progress.currentStep;
-                        registrationData = progress.registrationData || {};
-                        
-                        if (progress.receiptBase64) {
-                            receiptBase64 = progress.receiptBase64;
-                            receiptType = progress.receiptType;
-                            receiptFileName = progress.receiptFileName;
-                            
-                            // Restore receipt preview
-                            if (receiptType === 'pdf') {
-                                receiptPdfPreview.style.display = 'flex';
-                                pdfFileName.textContent = receiptFileName;
-                            } else {
-                                receiptImagePreview.src = receiptBase64;
-                                receiptImagePreview.style.display = 'block';
-                            }
-                        }
-                        
-                        if (progress.paymentNotes && document.getElementById('paymentNotes')) {
-                            document.getElementById('paymentNotes').value = progress.paymentNotes;
-                        }
-                        
-                        // Show registration container if not on login
-                        if (currentStep > 1) {
-                            loginContainer.style.display = 'none';
-                            registrationContainer.style.display = 'block';
-                            progressSteps.classList.add('visible');
-                            updateProgressSteps();
-                            showCurrentStep();
-                            
-                            // Check status and show appropriate modal
-                            if (registrationStatus === 'whatsapp_pending') {
-                                // User needs to send WhatsApp
-                                setTimeout(() => {
-                                    alertModal1.classList.add('active');
-                                }, 500);
-                            } else if (registrationStatus === 'whatsapp_sent' || registrationStatus === 'waiting_approval') {
-                                // User already sent WhatsApp, show waiting modal
-                                setTimeout(() => {
-                                    alertModal2.classList.add('active');
-                                }, 500);
-                            }
-                        }
-                    } else {
-                        // Progress is too old, clear it
-                        clearRegistrationProgress();
-                    }
-                } catch (error) {
-                    console.error('Error restoring progress:', error);
-                    clearRegistrationProgress();
-                }
-            }
-        }
-
-        // Clear registration progress
-        function clearRegistrationProgress() {
-            localStorage.removeItem('vendaPlusRegistration');
-            localStorage.removeItem('registrationStatus');
-        }
-
-        // Reset registration - MODIFICADO para resetar completamente
-        function resetRegistration() {
-            currentStep = 1;
-            registrationData = {};
-            receiptBase64 = '';
-            receiptType = '';
-            receiptFileName = '';
-            paymentRecordId = null;
-            whatsappMessage = '';
-            whatsappUrl = '';
-            
-            // Clear all forms
-            if (document.getElementById('storeName')) document.getElementById('storeName').value = '';
-            if (document.getElementById('regEmail')) document.getElementById('regEmail').value = '';
-            if (document.getElementById('regPassword')) document.getElementById('regPassword').value = '';
-            if (document.getElementById('userPhone')) document.getElementById('userPhone').value = '';
-            if (document.getElementById('paymentNotes')) document.getElementById('paymentNotes').value = '';
-            if (document.getElementById('email')) document.getElementById('email').value = '';
-            if (document.getElementById('password')) document.getElementById('password').value = '';
-            
-            // Reset previews
-            receiptImagePreview.style.display = 'none';
-            receiptPdfPreview.style.display = 'none';
-            receiptImagePreview.src = '';
-            
-            // Reset upload area
-            receiptUploadArea.innerHTML = `
-                <div class="upload-icon">
-                    <i class="fas fa-file-upload"></i>
-                </div>
-                <div class="upload-text">Clique para fazer upload</div>
-                <div class="upload-info">Aceitamos imagens (JPG, PNG) ou PDF</div>
-                <div class="file-types">
-                    <span class="file-type-badge">JPG</span>
-                    <span class="file-type-badge">PNG</span>
-                    <span class="file-type-badge">PDF</span>
-                </div>
-            `;
-            receiptUploadArea.classList.remove('uploading');
-            
-            // Reset file input
-            if (receiptUpload) receiptUpload.value = '';
-            
-            // Clear status monitoring
-            if (statusCheckInterval) {
-                clearInterval(statusCheckInterval);
-                statusCheckInterval = null;
-            }
-            
-            // Clear all modals
-            alertModal1.classList.remove('active');
-            alertModal2.classList.remove('active');
-            pendingModal.classList.remove('active');
-            
-            // Clear progress steps
-            steps.forEach(step => {
-                step.classList.remove('active', 'completed');
-            });
-            
-            // Show step 1
-            document.querySelectorAll('.form-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            if (step1) step1.classList.add('active');
-            
-            clearRegistrationProgress();
+            googleUserData = null;
         }
 
         // Helper Functions
@@ -2606,7 +1134,6 @@
             
             document.body.appendChild(notification);
             
-            // MODIFICAÇÃO 1: Reduzir tempo de exibição de 5 segundos para 3 segundos
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.style.animation = 'fadeOutScale 0.3s ease';
@@ -2614,7 +1141,7 @@
                         if (notification.parentNode) notification.remove();
                     }, 300);
                 }
-            }, 3000); // Alterado de 5000 para 3000 ms (5s → 3s)
+            }, 3000);
         }
 
         function getErrorMessage(error) {
@@ -2631,26 +1158,17 @@
                     return 'Senha incorreta.';
                 case 'auth/too-many-requests':
                     return 'Muitas tentativas. Tente novamente mais tarde.';
+                case 'auth/popup-closed-by-user':
+                    return 'Login com Google cancelado.';
+                case 'auth/cancelled-popup-request':
+                    return 'Login com Google cancelado.';
                 case 'Sua conta está bloqueada. Entre em contato com o suporte.':
                 case 'Seu plano expirou. Renove seu plano para continuar.':
-                case 'Seu pagamento está em análise. Aguarde a confirmação.':
+                case 'Seu cadastro está em análise. Aguarde a confirmação.':
                     return error.message;
                 default:
                     return error.message || 'Ocorreu um erro. Tente novamente.';
             }
-        }
-
-        // Debounce function to prevent multiple clicks
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
         }
     </script>
 </body>
