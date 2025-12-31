@@ -1,87 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index | Vendas</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #212121;
-            color: white;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
-        }
-        
-        .loader {
-            text-align: center;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Redirect</title>
+  <script>
+    (function () {
+      const rawUser = localStorage.getItem('currentUser');
+
+      if (rawUser) {
+        try {
+          const user = JSON.parse(rawUser);
+
+          if (user && user.uid && user.email) {
+            location.replace('painelvendas.html');
+            return;
+          }
+        } catch (_) {}
+      }
+
+      location.replace('login.html');
+    })();
+  </script>
 </head>
-<body>
-    <div class="loader">
-        <div class="spinner"></div>
-        <p>Redirecionando...</p>
-    </div>
-
-    <script>
-        // Função que decide para onde redirecionar
-        function decideRedirect() {
-            console.log('Index: Verificando localStorage...');
-            
-            // Verifica se existe usuário salvo no localStorage
-            const storedUser = localStorage.getItem('currentUser');
-            
-            if (storedUser) {
-                try {
-                    const user = JSON.parse(storedUser);
-                    
-                    // Verifica se tem dados mínimos de usuário
-                    if (user.uid && user.email) {
-                        console.log('Index: Usuário encontrado, redirecionando para admin');
-                        window.location.href = 'painelvendas.html';
-                        return;
-                    }
-                } catch (error) {
-                    console.log('Index: Erro ao parsear usuário:', error);
-                }
-            }
-            
-            // Se não tem usuário válido, vai para login
-            console.log('Index: Nenhum usuário válido, redirecionando para login');
-            window.location.href = 'login.html';
-        }
-
-        // Executa imediatamente
-        decideRedirect();
-
-        // Fallback: se ainda estiver aqui após 1 segundo, força redirecionamento
-        setTimeout(() => {
-            if (window.location.pathname.includes('index.html') || 
-                window.location.pathname === '/' || 
-                window.location.pathname === '') {
-                console.log('Index: Timeout, forçando redirecionamento');
-                window.location.href = 'login.html';
-            }
-        }, 1000);
-    </script>
-</body>
+<body></body>
 </html>
