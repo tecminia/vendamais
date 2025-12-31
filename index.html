@@ -1,26 +1,36 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Redirect</title>
-  <script>
-    (function () {
-      const rawUser = localStorage.getItem('currentUser');
+<meta charset="UTF-8">
+<title>Redirect</title>
+<script>
+(function () {
+  let tentativas = 0;
+  const MAX = 20; // ~200ms
 
-      if (rawUser) {
-        try {
-          const user = JSON.parse(rawUser);
+  const check = () => {
+    const raw = localStorage.getItem('currentUser');
 
-          if (user && user.uid && user.email) {
-            location.replace('painelvendas.html');
-            return;
-          }
-        } catch (_) {}
-      }
+    if (raw) {
+      try {
+        const u = JSON.parse(raw);
+        if (u?.uid && u?.email) {
+          location.replace('painelvendas.html');
+          return;
+        }
+      } catch {}
+    }
 
+    if (tentativas++ < MAX) {
+      setTimeout(check, 10);
+    } else {
       location.replace('login.html');
-    })();
-  </script>
+    }
+  };
+
+  check();
+})();
+</script>
 </head>
 <body></body>
 </html>
