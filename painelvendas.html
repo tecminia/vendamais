@@ -41,11 +41,21 @@
         .notification-badge{position:absolute;top:-5px;right:-5px;background-color:#212121;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600}
         .main-content{padding:15px;min-height:calc(100vh - 140px)}
         .section-title{font-size:1.3rem;margin-bottom:15px;color:#212121;border-bottom:2px solid #212121;padding-bottom:5px;display:flex;align-items:center;transition:all 0.3s ease}
-        .user-card{background-color:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 3px 6px rgba(0,0,0,0.08);border:1px solid #e0e0e0;transition:all 0.3s ease}
+        .user-card{background-color:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 3px 6px rgba(0,0,0,0.08);border:1px solid #e0e0e0;transition:all 0.3s ease;cursor:pointer;position:relative}
+        .user-card:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.1)}
         .user-card-header{display:flex;align-items:center;gap:15px;margin-bottom:15px}
         .user-card-avatar{width:60px;height:60px;border-radius:50%;background-color:#212121;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;font-weight:600;transition:all 0.3s ease;background-size:cover;background-position:center;background-repeat:no-repeat;position:relative}
         .user-card-info h3{font-size:1.1rem;margin-bottom:5px;color:#212121;transition:color 0.3s ease}
         .user-card-info p{color:#757575;font-size:0.9rem;transition:color 0.3s ease}
+        .user-card-options{position:absolute;top:15px;right:15px;display:flex;gap:8px}
+        .user-option-btn{width:36px;height:36px;border-radius:8px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.9rem;transition:all 0.3s ease;background-color:rgba(33,33,33,0.1);color:#212121}
+        .user-option-btn:hover{background-color:rgba(33,33,33,0.2)}
+        .change-password-menu{position:absolute;top:60px;right:15px;background-color:#fff;border-radius:12px;padding:10px 0;box-shadow:0 5px 20px rgba(0,0,0,0.15);border:1px solid #e0e0e0;z-index:100;min-width:180px;display:none}
+        .change-password-menu.active{display:block;animation:slideDown 0.2s ease}
+        .change-password-item{padding:12px 15px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.2s ease;color:#212121}
+        .change-password-item:hover{background-color:#f5f5f5}
+        .change-password-item i{color:#2196f3;font-size:1rem}
+        .change-password-item span{font-size:0.9rem;font-weight:500}
         .link-section{background-color:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 3px 6px rgba(0,0,0,0.08);border:1px solid #e0e0e0;transition:all 0.3s ease}
         .link-title{font-size:1.1rem;margin-bottom:10px;color:#212121;transition:color 0.3s ease}
         .link-description{color:#757575;font-size:0.9rem;margin-bottom:15px;line-height:1.5;transition:color 0.3s ease}
@@ -231,6 +241,7 @@
         @keyframes fadeIn{from{opacity:0;transform:translate(-50%,-50%)scale(0.9)}to{opacity:1;transform:translate(-50%,-50%)scale(1)}}
         @keyframes fadeOut{from{opacity:1;transform:translate(-50%,-50%)scale(1)}to{opacity:0;transform:translate(-50%,-50%)scale(0.9)}}
         @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
         .d-none{display:none!important}.d-flex{display:flex!important}.d-block{display:block!important}.flex-1{flex:1}.justify-between{justify-content:space-between}.align-center{align-items:center}.gap-1{gap:8px}.gap-2{gap:12px}.mb-1{margin-bottom:8px}.mb-2{margin-bottom:12px}.mb-3{margin-bottom:16px}.mt-1{margin-top:8px}.mt-2{margin-top:12px}.mt-3{margin-top:16px}.text-center{text-align:center}.text-gray{color:#757575}
     </style>
 </head>
@@ -419,6 +430,54 @@
         </div>
     </div>
 
+    <!-- Modal de Mudar Senha -->
+    <div class="modal" id="changePasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-lock"></i> Mudar Senha</h2>
+                <button class="close-modal" id="closeChangePasswordModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label class="form-label">Senha Atual *</label>
+                        <input type="password" id="currentPassword" class="form-input" required placeholder="Digite sua senha atual">
+                        <div class="password-strength" style="margin-top: 5px; font-size: 0.8rem; display: none;" id="currentPasswordError">
+                            <span style="color: #f44336;">Senha atual incorreta</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nova Senha *</label>
+                        <input type="password" id="newPassword" class="form-input" required placeholder="Digite a nova senha">
+                        <div class="password-strength" style="margin-top: 5px; font-size: 0.8rem;" id="newPasswordStrength">
+                            <span>A senha deve ter pelo menos 6 caracteres</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirmar Nova Senha *</label>
+                        <input type="password" id="confirmPassword" class="form-input" required placeholder="Confirme a nova senha">
+                        <div class="password-match" style="margin-top: 5px; font-size: 0.8rem; display: none;" id="passwordMatchError">
+                            <span style="color: #f44336;">As senhas não coincidem</span>
+                        </div>
+                    </div>
+                    <div class="password-requirements" style="background-color: #f5f5f5; border-radius: 8px; padding: 12px; margin-bottom: 15px; font-size: 0.85rem;">
+                        <strong>Requisitos da senha:</strong>
+                        <ul style="margin: 8px 0 0 20px; padding: 0;">
+                            <li>Mínimo de 6 caracteres</li>
+                            <li>Recomendado usar letras, números e caracteres especiais</li>
+                        </ul>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary flex-1" id="cancelChangePasswordBtn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary flex-1" id="submitChangePasswordBtn">
+                            <i class="fas fa-save"></i> Alterar Senha
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Overlay de Carregamento -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
@@ -468,13 +527,26 @@
                     </button>
                 </div>
                 
-                <div class="user-card">
+                <div class="user-card" id="profileCard">
+                    <div class="user-card-options">
+                        <button class="user-option-btn" id="profileOptionsBtn" title="Opções">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
                     <div class="user-card-header">
                         <div class="user-card-avatar" id="storeAvatar"></div>
                         <div class="user-card-info">
                             <h3 id="storeNameDisplay">Carregando...</h3>
                             <p id="storeEmail">carregando...</p>
                             <p id="storeExpiry" style="color: var(--info-color); font-size: 0.85rem;"></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Menu de opções do perfil -->
+                    <div class="change-password-menu" id="changePasswordMenu">
+                        <div class="change-password-item" id="changePasswordMenuItem">
+                            <i class="fas fa-lock"></i>
+                            <span>Mudar Senha</span>
                         </div>
                     </div>
                 </div>
@@ -1152,6 +1224,22 @@
         const daysLeftModal = document.getElementById('daysLeftModal');
         const daysLeftMessage = document.getElementById('daysLeftMessage');
         const closeDaysLeftBtn = document.getElementById('closeDaysLeftBtn');
+        // Novos elementos para mudar senha
+        const profileCard = document.getElementById('profileCard');
+        const profileOptionsBtn = document.getElementById('profileOptionsBtn');
+        const changePasswordMenu = document.getElementById('changePasswordMenu');
+        const changePasswordMenuItem = document.getElementById('changePasswordMenuItem');
+        const changePasswordModal = document.getElementById('changePasswordModal');
+        const closeChangePasswordModal = document.getElementById('closeChangePasswordModal');
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        const currentPassword = document.getElementById('currentPassword');
+        const newPassword = document.getElementById('newPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const currentPasswordError = document.getElementById('currentPasswordError');
+        const newPasswordStrength = document.getElementById('newPasswordStrength');
+        const passwordMatchError = document.getElementById('passwordMatchError');
+        const cancelChangePasswordBtn = document.getElementById('cancelChangePasswordBtn');
+        const submitChangePasswordBtn = document.getElementById('submitChangePasswordBtn');
 
         // Função de inicialização
         async function init() {
@@ -2178,6 +2266,39 @@
                 document.querySelector('[data-screen="config"]').classList.add('active');
             });
 
+            // Perfil e mudança de senha
+            profileCard.addEventListener('click', (e) => {
+                if (!e.target.closest('.user-option-btn') && !e.target.closest('.change-password-menu')) {
+                    closeChangePasswordMenu();
+                }
+            });
+
+            profileOptionsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleChangePasswordMenu();
+            });
+
+            changePasswordMenuItem.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openChangePasswordModal();
+                closeChangePasswordMenu();
+            });
+
+            changePasswordForm.addEventListener('submit', changeUserPassword);
+            
+            newPassword.addEventListener('input', validateNewPassword);
+            confirmPassword.addEventListener('input', validatePasswordMatch);
+            
+            cancelChangePasswordBtn.addEventListener('click', () => {
+                changePasswordModal.style.display = 'none';
+                resetChangePasswordForm();
+            });
+            
+            closeChangePasswordModal.addEventListener('click', () => {
+                changePasswordModal.style.display = 'none';
+                resetChangePasswordForm();
+            });
+
             // WhatsApp alert modal
             sendWhatsappAlertBtn.addEventListener('click', () => {
                 sendWhatsAppToSupport();
@@ -2527,7 +2648,151 @@
                 if (e.target === daysLeftModal) {
                     daysLeftModal.style.display = 'none';
                 }
+                if (e.target === changePasswordModal) {
+                    changePasswordModal.style.display = 'none';
+                    resetChangePasswordForm();
+                }
+                // Fechar menu de mudar senha ao clicar fora
+                if (!e.target.closest('.user-card') && !e.target.closest('.change-password-menu')) {
+                    closeChangePasswordMenu();
+                }
             });
+        }
+
+        function toggleChangePasswordMenu() {
+            const isActive = changePasswordMenu.classList.contains('active');
+            closeChangePasswordMenu();
+            
+            if (!isActive) {
+                changePasswordMenu.classList.add('active');
+            }
+        }
+
+        function closeChangePasswordMenu() {
+            changePasswordMenu.classList.remove('active');
+        }
+
+        function openChangePasswordModal() {
+            changePasswordModal.style.display = 'flex';
+            resetChangePasswordForm();
+        }
+
+        function resetChangePasswordForm() {
+            changePasswordForm.reset();
+            currentPasswordError.style.display = 'none';
+            passwordMatchError.style.display = 'none';
+            newPasswordStrength.textContent = 'A senha deve ter pelo menos 6 caracteres';
+            newPasswordStrength.style.color = '#757575';
+        }
+
+        function validateNewPassword() {
+            const password = newPassword.value;
+            
+            if (password.length < 6) {
+                newPasswordStrength.textContent = 'A senha deve ter pelo menos 6 caracteres';
+                newPasswordStrength.style.color = '#f44336';
+                return false;
+            } else {
+                newPasswordStrength.textContent = 'Senha forte ✓';
+                newPasswordStrength.style.color = '#4caf50';
+                return true;
+            }
+        }
+
+        function validatePasswordMatch() {
+            const newPass = newPassword.value;
+            const confirmPass = confirmPassword.value;
+            
+            if (newPass && confirmPass && newPass !== confirmPass) {
+                passwordMatchError.style.display = 'block';
+                return false;
+            } else {
+                passwordMatchError.style.display = 'none';
+                return true;
+            }
+        }
+
+        async function changeUserPassword(e) {
+            e.preventDefault();
+            
+            // Validar senhas
+            if (!validateNewPassword() || !validatePasswordMatch()) {
+                showNotification('Por favor, corrija os erros no formulário.', 'error');
+                return;
+            }
+            
+            const currentPass = currentPassword.value;
+            const newPass = newPassword.value;
+            
+            if (!currentPass || !newPass) {
+                showNotification('Por favor, preencha todos os campos.', 'error');
+                return;
+            }
+            
+            try {
+                // Mostrar loading
+                const originalBtnText = submitChangePasswordBtn.innerHTML;
+                submitChangePasswordBtn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>';
+                submitChangePasswordBtn.disabled = true;
+                
+                // Reautenticar o usuário
+                const user = auth.currentUser;
+                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPass);
+                
+                await user.reauthenticateWithCredential(credential);
+                
+                // Atualizar senha
+                await user.updatePassword(newPass);
+                
+                // Registrar a mudança de senha
+                await db.collection('userActivities').add({
+                    userId: currentStoreId,
+                    action: 'password_changed',
+                    timestamp: new Date().toISOString(),
+                    userEmail: currentUser.email,
+                    storeName: currentUser.storeName || 'Minha Loja',
+                    ipAddress: await getIPAddress()
+                });
+                
+                // Mostrar mensagem de sucesso
+                showNotification('Senha alterada com sucesso!', 'success');
+                
+                // Fechar modal
+                changePasswordModal.style.display = 'none';
+                resetChangePasswordForm();
+                
+            } catch (error) {
+                console.error('Error changing password:', error);
+                
+                if (error.code === 'auth/wrong-password') {
+                    currentPasswordError.style.display = 'block';
+                    showNotification('Senha atual incorreta.', 'error');
+                } else if (error.code === 'auth/weak-password') {
+                    showNotification('A nova senha é muito fraca. Use pelo menos 6 caracteres.', 'error');
+                } else if (error.code === 'auth/requires-recent-login') {
+                    showNotification('Sua sessão expirou. Por favor, faça login novamente.', 'error');
+                    setTimeout(() => {
+                        logoutBtn.click();
+                    }, 2000);
+                } else {
+                    showNotification('Erro ao alterar senha: ' + error.message, 'error');
+                }
+            } finally {
+                // Restaurar botão
+                submitChangePasswordBtn.innerHTML = '<i class="fas fa-save"></i> Alterar Senha';
+                submitChangePasswordBtn.disabled = false;
+            }
+        }
+
+        async function getIPAddress() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip || 'unknown';
+            } catch (error) {
+                console.error('Error getting IP address:', error);
+                return 'unknown';
+            }
         }
 
         async function optimizeImage(base64String, maxSizeKB = 600) {

@@ -200,11 +200,14 @@
             color: #212121;
             border: 2px solid #e0e0e0;
             width: 100%;
+            margin-bottom: 15px;
         }
         
         .btn-google:hover:not(:disabled) {
             background-color: #f5f5f5;
             border-color: #212121;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
         .btn-google img {
@@ -485,6 +488,11 @@
         .back-button:hover {
             background-color: #f5f5f5;
         }
+        
+        /* Google login section styling */
+        .google-login-section {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -520,6 +528,14 @@
                 Após o período gratuito: R$ 99,00/mês
             </div>
         </div>
+        
+        <!-- Google Login Button (adicionado na tela de login) -->
+        <button class="btn btn-google" id="googleLoginMainBtn">
+            <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google">
+            Entrar com Google
+        </button>
+        
+        <div class="divider">ou</div>
         
         <!-- Login Form -->
         <form id="loginForm">
@@ -581,7 +597,7 @@
         <!-- Google Login Button -->
         <button class="btn btn-google" id="googleLoginBtn">
             <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google">
-            Entrar com Google
+            Continuar com Google
         </button>
         
         <!-- Simple Registration Form (shown after Google auth) -->
@@ -636,6 +652,7 @@
         const startRegisterBtn = document.getElementById('startRegisterBtn');
         const backToLoginBtn2 = document.getElementById('backToLoginBtn2');
         const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const googleLoginMainBtn = document.getElementById('googleLoginMainBtn');
         const simpleRegisterForm = document.getElementById('simpleRegisterForm');
         const supportLinks = document.querySelectorAll('[id^="supportLink"]');
         const copyProtection = document.getElementById('copyProtection');
@@ -737,8 +754,9 @@
             loginForm.addEventListener('submit', handleLogin);
             registerForm.addEventListener('submit', handleSimpleRegister);
             
-            // Google login
-            googleLoginBtn.addEventListener('click', handleGoogleLogin);
+            // Google login buttons
+            googleLoginMainBtn.addEventListener('click', () => handleGoogleLogin('main'));
+            googleLoginBtn.addEventListener('click', () => handleGoogleLogin('register'));
         }
 
         // Load system configuration
@@ -933,13 +951,19 @@
         }
 
         // Handle Google login
-        async function handleGoogleLogin() {
+        async function handleGoogleLogin(source) {
             if (isProcessing) return;
             
             try {
                 showLoader('Conectando com Google...');
                 isProcessing = true;
-                disableButton(googleLoginBtn);
+                
+                // Disable the appropriate button
+                if (source === 'main') {
+                    disableButton(googleLoginMainBtn);
+                } else {
+                    disableButton(googleLoginBtn);
+                }
                 
                 // Configure Google Auth Provider
                 const provider = new firebase.auth.GoogleAuthProvider();
@@ -976,6 +1000,12 @@
                             expiryDate: userData.expiryDate
                         }));
                         
+                        // Update last login
+                        await db.collection('users').doc(user.uid).update({
+                            lastLogin: new Date().toISOString(),
+                            authProvider: 'google'
+                        });
+                        
                         showNotification('Login realizado com sucesso!', 'success');
                         setTimeout(() => {
                             window.location.href = 'index.html';
@@ -987,17 +1017,34 @@
                         resetRegistrationForm();
                     }
                 } else {
-                    // New user, show simple registration form
-                    googleLoginBtn.style.display = 'none';
-                    simpleRegisterForm.style.display = 'block';
-                    
-                    // Pre-fill company name with user's display name if available
-                    const companyNameInput = document.getElementById('companyName');
-                    if (companyNameInput && googleUserData.displayName) {
-                        companyNameInput.value = googleUserData.displayName;
+                    // New user
+                    if (source === 'main') {
+                        // If logging in from main screen, switch to registration form
+                        loginContainer.style.display = 'none';
+                        registrationContainer.style.display = 'block';
+                        googleLoginBtn.style.display = 'none';
+                        simpleRegisterForm.style.display = 'block';
+                        
+                        // Pre-fill company name with user's display name if available
+                        const companyNameInput = document.getElementById('companyName');
+                        if (companyNameInput && googleUserData.displayName) {
+                            companyNameInput.value = googleUserData.displayName;
+                        }
+                        
+                        showNotification('Conta Google conectada! Complete seu cadastro.', 'success');
+                    } else {
+                        // Already in registration form, show simple registration form
+                        googleLoginBtn.style.display = 'none';
+                        simpleRegisterForm.style.display = 'block';
+                        
+                        // Pre-fill company name with user's display name if available
+                        const companyNameInput = document.getElementById('companyName');
+                        if (companyNameInput && googleUserData.displayName) {
+                            companyNameInput.value = googleUserData.displayName;
+                        }
+                        
+                        showNotification('Conta Google conectada! Complete seu cadastro.', 'success');
                     }
-                    
-                    showNotification('Conta Google conectada! Complete seu cadastro.', 'success');
                 }
                 
             } catch (error) {
@@ -1006,7 +1053,13 @@
             } finally {
                 hideLoader();
                 isProcessing = false;
-                enableButton(googleLoginBtn);
+                
+                // Re-enable the appropriate button
+                if (source === 'main') {
+                    enableButton(googleLoginMainBtn);
+                } else {
+                    enableButton(googleLoginBtn);
+                }
             }
         }
 
