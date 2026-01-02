@@ -189,6 +189,8 @@
         
         // Inputs
         const userPhone = document.getElementById('userPhone');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
         
         // Loader
         const fullscreenLoader = document.getElementById('fullscreenLoader');
@@ -206,11 +208,19 @@
         let configLoaded = false;
 
         // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             loadSystemConfig();
             setupPhoneMask();
             setupEventListeners();
             setupCopyProtection();
+            
+            // Verificar se há um email salvo localmente para continuar o cadastro
+            const savedEmail = localStorage.getItem('pendingEmail');
+            if (savedEmail) {
+                emailInput.value = savedEmail;
+                // Tentar verificar automaticamente se o email foi confirmado
+                await checkForPendingVerification(savedEmail);
+            }
             
             // Monitor authentication state
             auth.onAuthStateChanged(async (user) => {
@@ -221,8 +231,8 @@
                         
                         // IMPORTANTE: Não salvar login se email não foi verificado
                         if (!user.emailVerified) {
-                            await auth.signOut();
-                            localStorage.removeItem('currentUser');
+                            // Mostrar mensagem de verificação
+                            showVerificationMessage(user.email);
                             return;
                         }
                         
@@ -255,26 +265,57 @@
                                 emailVerified: user.emailVerified
                             }));
                             window.location.href = 'index.html';
-                        } else if (userData.status === 'pending' && !userData.configCompleted) {
-                            // Se email não verificado, não permite continuar
-                            if (!user.emailVerified) {
-                                await auth.signOut();
-                                localStorage.removeItem('currentUser');
-                                return;
-                            }
-                            showRegistrationForm();
+                        } else if (userData.status === 'pending' && !userData.configCompleted && user.emailVerified) {
+                            // Email verificado, mostrar formulário de cadastro
+                            showRegistrationForm(user);
+                        } else if (!user.emailVerified) {
+                            // Email não verificado, mostrar mensagem
+                            showVerificationMessage(user.email);
                         }
                     } else {
                         // User authenticated but doesn't exist in Firestore
-                        await auth.signOut();
-                        localStorage.removeItem('currentUser');
+                        if (user.emailVerified) {
+                            // Email verificado mas não tem registro, mostrar cadastro
+                            showRegistrationForm(user);
+                        } else {
+                            // Email não verificado, mostrar mensagem
+                            showVerificationMessage(user.email);
+                        }
                     }
                 } else {
-                    // User logged out, clear localStorage
+                    // User logged out, clear localStorage (exceto pendingEmail)
                     localStorage.removeItem('currentUser');
                 }
             });
         });
+
+        // Verificar se há verificação pendente
+        async function checkForPendingVerification(email) {
+            try {
+                showLoader('Verificando status do email...');
+                
+                // Tentar fazer login com o email
+                const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+                
+                if (signInMethods.length > 0) {
+                    // Usuário existe, verificar se está logado
+                    const user = auth.currentUser;
+                    if (user && user.email === email) {
+                        if (user.emailVerified) {
+                            // Email verificado, mostrar formulário de cadastro
+                            showRegistrationForm(user);
+                        } else {
+                            // Email não verificado, mostrar mensagem
+                            showVerificationMessage(email);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking pending verification:', error);
+            } finally {
+                hideLoader();
+            }
+        }
 
         // Load system configuration
         async function loadSystemConfig() {
@@ -381,13 +422,28 @@
             });
         }
 
+        // Show verification message
+        function showVerificationMessage(email) {
+            // Salvar email para continuar depois da verificação
+            localStorage.setItem('pendingEmail', email);
+            
+            // Mostrar mensagem
+            verificationMessage.classList.add('active');
+            loginForm.style.display = 'none';
+            simpleRegisterForm.style.display = 'none';
+            googleLoginBtn.style.display = 'none';
+            document.querySelector('.divider').style.display = 'none';
+            
+            showNotification('Por favor, verifique seu email antes de continuar.', 'info');
+        }
+
         // Handle login
         async function handleLogin(e) {
             e.preventDefault();
             if (isProcessing) return;
             
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const email = emailInput.value;
+            const password = passwordInput.value;
             
             try {
                 showLoader('Realizando login...');
@@ -399,14 +455,7 @@
                 
                 // VERIFICAÇÃO CRÍTICA: Não permitir login sem email verificado
                 if (!user.emailVerified) {
-                    await auth.signOut();
-                    localStorage.removeItem('currentUser');
-                    showNotification('Por favor, verifique seu e-mail antes de fazer login.', 'warning');
-                    verificationMessage.classList.add('active');
-                    loginForm.style.display = 'none';
-                    simpleRegisterForm.style.display = 'none';
-                    googleLoginBtn.style.display = 'none';
-                    document.querySelector('.divider').style.display = 'none';
+                    showVerificationMessage(email);
                     return;
                 }
                 
@@ -426,7 +475,7 @@
                     
                     if (userData.status === 'pending') {
                         if (!userData.configCompleted) {
-                            showRegistrationForm();
+                            showRegistrationForm(user);
                             return;
                         } else {
                             throw new Error('Seu cadastro está em análise. Aguarde a confirmação.');
@@ -462,6 +511,9 @@
                             emailVerified: user.emailVerified
                         }));
                         
+                        // Limpar email pendente
+                        localStorage.removeItem('pendingEmail');
+                        
                         // Atualizar último login
                         await db.collection('users').doc(user.uid).update({
                             lastLogin: new Date().toISOString()
@@ -471,7 +523,12 @@
                         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
                     }
                 } else {
-                    throw new Error('Usuário não encontrado. Por favor, registre-se primeiro.');
+                    // Usuário não existe no Firestore, mas email foi verificado
+                    if (user.emailVerified) {
+                        showRegistrationForm(user);
+                    } else {
+                        showVerificationMessage(email);
+                    }
                 }
                 
             } catch (error) {
@@ -489,8 +546,8 @@
             e.preventDefault();
             if (isProcessing) return;
             
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const email = emailInput.value;
+            const password = passwordInput.value;
             
             if (!email || !password) {
                 showNotification('Por favor, preencha e-mail e senha.', 'error');
@@ -506,6 +563,9 @@
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
+                // Salvar email localmente para continuar depois da verificação
+                localStorage.setItem('pendingEmail', email);
+                
                 // Enviar email de verificação
                 await user.sendEmailVerification({
                     url: window.location.href,
@@ -517,11 +577,7 @@
                 pendingUserId = user.uid;
                 
                 // Mostrar mensagem de verificação
-                verificationMessage.classList.add('active');
-                loginForm.style.display = 'none';
-                simpleRegisterForm.style.display = 'none';
-                googleLoginBtn.style.display = 'none';
-                document.querySelector('.divider').style.display = 'none';
+                showVerificationMessage(email);
                 
                 showNotification('Email de verificação enviado! Por favor, verifique sua caixa de entrada.', 'success');
                 
@@ -540,43 +596,69 @@
 
         // Resend verification email
         async function resendVerificationEmail() {
-            if (!pendingUserCredential) return;
+            const pendingEmail = localStorage.getItem('pendingEmail');
+            if (!pendingEmail) {
+                showNotification('Nenhum email pendente encontrado.', 'error');
+                return;
+            }
             
             try {
                 showLoader('Reenviando verificação...');
-                disableButton(resendVerificationLink);
                 
-                await pendingUserCredential.user.sendEmailVerification({
-                    url: window.location.href,
-                    handleCodeInApp: true
-                });
+                // Tentar encontrar o usuário
+                const signInMethods = await auth.fetchSignInMethodsForEmail(pendingEmail);
+                if (signInMethods.length === 0) {
+                    throw new Error('Usuário não encontrado.');
+                }
                 
-                showNotification('Email de verificação reenviado!', 'success');
+                // Tentar fazer login (se senha disponível)
+                try {
+                    const password = passwordInput.value;
+                    if (password) {
+                        const userCredential = await auth.signInWithEmailAndPassword(pendingEmail, password);
+                        await userCredential.user.sendEmailVerification({
+                            url: window.location.href,
+                            handleCodeInApp: true
+                        });
+                        pendingUserCredential = userCredential;
+                        pendingUserId = userCredential.user.uid;
+                    }
+                } catch (loginError) {
+                    // Não conseguiu fazer login, apenas informar
+                    console.log('Não foi possível reenviar automaticamente. O usuário precisa verificar o email.');
+                }
+                
+                showNotification('Se você criou uma conta, o email de verificação já foi enviado. Verifique sua caixa de entrada ou spam.', 'success');
             } catch (error) {
                 console.error('Resend verification error:', error);
-                showNotification(getErrorMessage(error), 'error');
+                showNotification('Erro ao reenviar verificação. Tente fazer login novamente.', 'error');
             } finally {
                 hideLoader();
-                enableButton(resendVerificationLink);
             }
         }
 
         // Verificar periodicamente se o email foi verificado
         function startEmailVerificationCheck() {
             const checkInterval = setInterval(async () => {
-                if (!pendingUserCredential) {
+                const pendingEmail = localStorage.getItem('pendingEmail');
+                if (!pendingEmail) {
                     clearInterval(checkInterval);
                     return;
                 }
                 
                 try {
-                    // Recarregar o usuário para verificar o status
-                    await pendingUserCredential.user.reload();
-                    
-                    if (pendingUserCredential.user.emailVerified) {
-                        clearInterval(checkInterval);
-                        showNotification('Email verificado com sucesso!', 'success');
-                        showRegistrationForm();
+                    // Verificar se há usuário logado
+                    const user = auth.currentUser;
+                    if (user && user.email === pendingEmail) {
+                        await user.reload();
+                        
+                        if (user.emailVerified) {
+                            clearInterval(checkInterval);
+                            showNotification('Email verificado com sucesso!', 'success');
+                            // Limpar email pendente
+                            localStorage.removeItem('pendingEmail');
+                            showRegistrationForm(user);
+                        }
                     }
                 } catch (error) {
                     console.error('Verification check error:', error);
@@ -585,7 +667,7 @@
         }
 
         // Show registration form after email verification
-        function showRegistrationForm() {
+        function showRegistrationForm(user) {
             verificationMessage.classList.remove('active');
             loginForm.style.display = 'none';
             simpleRegisterForm.style.display = 'block';
@@ -593,15 +675,23 @@
             googleLoginBtn.style.display = 'none';
             document.querySelector('.divider').style.display = 'none';
             
-            // Preencher email se disponível
-            if (pendingUserCredential?.user?.email) {
-                const email = pendingUserCredential.user.email;
-                const companyNameInput = document.getElementById('companyName');
-                if (companyNameInput) {
-                    const nameFromEmail = email.split('@')[0];
+            // Guardar dados do usuário
+            pendingUserCredential = { user };
+            pendingUserId = user.uid;
+            
+            // Preencher dados automaticamente
+            const companyNameInput = document.getElementById('companyName');
+            if (companyNameInput) {
+                if (user.displayName) {
+                    companyNameInput.value = user.displayName;
+                } else if (user.email) {
+                    const nameFromEmail = user.email.split('@')[0];
                     companyNameInput.value = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
                 }
             }
+            
+            // Mostrar instrução
+            showNotification('Complete seu cadastro para continuar.', 'info');
         }
 
         // Handle Google login
@@ -619,6 +709,9 @@
                 
                 const result = await auth.signInWithPopup(provider);
                 const user = result.user;
+                
+                // Limpar email pendente
+                localStorage.removeItem('pendingEmail');
                 
                 // Verificar se o usuário já existe
                 const userDoc = await db.collection('users').doc(user.uid).get();
@@ -689,6 +782,8 @@
             // Armazenar dados do usuário Google
             pendingUserCredential = { user };
             pendingUserId = user.uid;
+            
+            showNotification('Complete seu cadastro para continuar.', 'info');
         }
 
         // Handle complete registration (for both email/password and Google)
@@ -714,16 +809,24 @@
                 isProcessing = true;
                 disableButton(completeRegisterBtn);
                 
-                const userId = pendingUserId || pendingUserCredential?.user?.uid;
-                const userEmail = pendingUserCredential?.user?.email;
+                const userId = pendingUserId;
                 const user = pendingUserCredential?.user;
                 
-                if (!userId || !userEmail) {
-                    throw new Error('Dados do usuário não encontrados. Tente novamente.');
+                if (!userId || !user) {
+                    // Tentar obter o usuário atual
+                    const currentUser = auth.currentUser;
+                    if (!currentUser) {
+                        throw new Error('Usuário não encontrado. Faça login novamente.');
+                    }
+                    pendingUserId = currentUser.uid;
+                    pendingUserCredential = { user: currentUser };
                 }
                 
+                const finalUserId = pendingUserId;
+                const finalUser = pendingUserCredential.user;
+                
                 // VERIFICAÇÃO FINAL: Confirmar que o email foi verificado
-                if (user && !user.emailVerified) {
+                if (!finalUser.emailVerified) {
                     throw new Error('Por favor, verifique seu e-mail antes de completar o cadastro.');
                 }
                 
@@ -732,9 +835,9 @@
                 expiryDate.setMonth(expiryDate.getMonth() + 1);
                 
                 // Criar documento do usuário
-                await db.collection('users').doc(userId).set({
-                    uid: userId,
-                    email: userEmail,
+                await db.collection('users').doc(finalUserId).set({
+                    uid: finalUserId,
+                    email: finalUser.email,
                     storeName: companyName,
                     phone: phone,
                     status: 'active',
@@ -747,20 +850,25 @@
                     lastActivity: new Date().toISOString(),
                     lastLogin: new Date().toISOString(),
                     expiryDate: expiryDate.toISOString(),
-                    authProvider: user?.providerData?.[0]?.providerId || 'password',
-                    emailVerified: user?.emailVerified || true
+                    authProvider: finalUser?.providerData?.[0]?.providerId || 'password',
+                    emailVerified: finalUser.emailVerified
                 });
                 
                 // SÓ SALVA SE EMAIL VERIFICADO
                 localStorage.setItem('currentUser', JSON.stringify({
-                    uid: userId,
-                    email: userEmail,
+                    uid: finalUserId,
+                    email: finalUser.email,
                     storeName: companyName,
                     phone: phone,
                     isAdmin: true,
                     expiryDate: expiryDate.toISOString(),
-                    emailVerified: user?.emailVerified || true
+                    emailVerified: finalUser.emailVerified
                 }));
+                
+                // Limpar dados pendentes
+                localStorage.removeItem('pendingEmail');
+                pendingUserCredential = null;
+                pendingUserId = null;
                 
                 showNotification('Cadastro concluído com sucesso!', 'success');
                 
