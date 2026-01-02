@@ -237,6 +237,13 @@
         .days-left-icon{font-size:2.5rem;color:#ff9800;margin-bottom:15px}
         .days-left-title{font-size:1.2rem;margin-bottom:10px;color:#212121;font-weight:600}
         .days-left-message{color:#757575;margin-bottom:20px;line-height:1.5;font-size:0.9rem}
+        /* Estilos para múltiplas imagens */
+        .multiple-images-container{margin-top:15px}
+        .images-preview-container{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+        .image-preview-item{position:relative;width:100%;height:100px;border-radius:8px;overflow:hidden;background-color:#f5f5f5;border:1px solid #e0e0e0}
+        .image-preview-item img{width:100%;height:100%;object-fit:cover}
+        .remove-image-btn{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:50%;background-color:rgba(244,67,54,0.9);color:#fff;border:none;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+        .image-counter{font-size:0.8rem;color:#757575;margin-top:5px;text-align:center}
         @keyframes modalFadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
         @keyframes fadeIn{from{opacity:0;transform:translate(-50%,-50%)scale(0.9)}to{opacity:1;transform:translate(-50%,-50%)scale(1)}}
         @keyframes fadeOut{from{opacity:1;transform:translate(-50%,-50%)scale(1)}to{opacity:0;transform:translate(-50%,-50%)scale(0.9)}}
@@ -434,28 +441,28 @@
     <div class="modal" id="changePasswordModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title"><i class="fas fa-lock"></i> Mudar Senha</h2>
+                <h2 class="modal-title"><i class="fas fa-lock"></i> Segurança da Conta</h2>
                 <button class="close-modal" id="closeChangePasswordModal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="changePasswordForm">
                     <div class="form-group">
                         <label class="form-label">Senha Atual *</label>
-                        <input type="password" id="currentPassword" class="form-input" required placeholder="Digite sua senha atual">
+                        <input type="password" id="currentPassword" class="form-input" placeholder="Digite sua senha atual">
                         <div class="password-strength" style="margin-top: 5px; font-size: 0.8rem; display: none;" id="currentPasswordError">
                             <span style="color: #f44336;">Senha atual incorreta</span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nova Senha *</label>
-                        <input type="password" id="newPassword" class="form-input" required placeholder="Digite a nova senha">
+                        <input type="password" id="newPassword" class="form-input" placeholder="Digite a nova senha">
                         <div class="password-strength" style="margin-top: 5px; font-size: 0.8rem;" id="newPasswordStrength">
                             <span>A senha deve ter pelo menos 6 caracteres</span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Confirmar Nova Senha *</label>
-                        <input type="password" id="confirmPassword" class="form-input" required placeholder="Confirme a nova senha">
+                        <input type="password" id="confirmPassword" class="form-input" placeholder="Confirme a nova senha">
                         <div class="password-match" style="margin-top: 5px; font-size: 0.8rem; display: none;" id="passwordMatchError">
                             <span style="color: #f44336;">As senhas não coincidem</span>
                         </div>
@@ -474,6 +481,12 @@
                         </button>
                     </div>
                 </form>
+                <div class="text-center mt-3" style="border-top: 1px solid #e0e0e0; padding-top: 15px;">
+                    <p class="text-gray mb-2">Se você fez login com Google e não tem senha, ou esqueceu sua senha:</p>
+                    <button type="button" class="btn btn-success btn-block" id="sendResetLinkBtn">
+                        <i class="fas fa-envelope"></i> Enviar Link de Recuperação por E-mail
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -546,7 +559,7 @@
                     <div class="change-password-menu" id="changePasswordMenu">
                         <div class="change-password-item" id="changePasswordMenuItem">
                             <i class="fas fa-lock"></i>
-                            <span>Mudar Senha</span>
+                            <span>Segurança da Conta</span>
                         </div>
                     </div>
                 </div>
@@ -920,14 +933,19 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Imagem do Produto</label>
+                        <label class="form-label">Imagens do Produto (Máximo 3)</label>
                         <div class="upload-area" id="productImageUploadArea">
                             <div class="upload-icon"><i class="fas fa-image"></i></div>
-                            <div class="upload-text">Clique para fazer upload</div>
-                            <div class="upload-info">Tamanho máximo: 8MB</div>
-                            <input type="file" id="productImageUpload" accept="image/*" style="display:none">
+                            <div class="upload-text">Clique para adicionar imagens</div>
+                            <div class="upload-info">Máximo 3 imagens - Tamanho máximo: 8MB cada</div>
+                            <input type="file" id="productImageUpload" accept="image/*" multiple style="display:none">
                         </div>
-                        <img id="productImagePreview" class="image-preview" alt="Produto">
+                        <div class="image-counter" id="imageCounter">0/3 imagens selecionadas</div>
+                        <div class="multiple-images-container">
+                            <div class="images-preview-container" id="productImagesPreview">
+                                <!-- As imagens serão adicionadas aqui dinamicamente -->
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Status</label>
@@ -1068,7 +1086,7 @@
         let selectedProduct = null;
         let statusFilter = 'all';
         let logoBase64 = '';
-        let productImageBase64 = '';
+        let productImagesBase64 = []; // Alterado para array de imagens
         let ordersListener = null;
         let customerLink = '';
         let preparingOrdersCount = 0;
@@ -1096,6 +1114,7 @@
         let expiryWarningModalShown = false;
         let isSystemBlocked = false;
         let temporaryModalTimeout = null;
+        let userHasPassword = false; // Nova variável para verificar se usuário tem senha
 
         // Elementos do DOM
         const welcomeModal = document.getElementById('welcomeModal');
@@ -1192,7 +1211,8 @@
         const productCategory = document.getElementById('productCategory');
         const productImageUploadArea = document.getElementById('productImageUploadArea');
         const productImageUpload = document.getElementById('productImageUpload');
-        const productImagePreview = document.getElementById('productImagePreview');
+        const productImagesPreview = document.getElementById('productImagesPreview');
+        const imageCounter = document.getElementById('imageCounter');
         const productActive = document.getElementById('productActive');
         const cancelProductBtn = document.getElementById('cancelProductBtn');
         const renewPaymentModal = document.getElementById('renewPaymentModal');
@@ -1240,6 +1260,7 @@
         const passwordMatchError = document.getElementById('passwordMatchError');
         const cancelChangePasswordBtn = document.getElementById('cancelChangePasswordBtn');
         const submitChangePasswordBtn = document.getElementById('submitChangePasswordBtn');
+        const sendResetLinkBtn = document.getElementById('sendResetLinkBtn');
 
         // Função de inicialização
         async function init() {
@@ -1260,6 +1281,36 @@
             checkWelcomeModal();
             await checkExpiryStatus();
             await checkRenewalStatus();
+            await checkIfUserHasPassword();
+        }
+
+        async function checkIfUserHasPassword() {
+            try {
+                // Verifica se o usuário tem senha cadastrada
+                // Firebase não tem uma forma direta de verificar isso,
+                // então vamos verificar se o usuário tem provedores de login
+                const user = auth.currentUser;
+                if (user) {
+                    const providers = user.providerData || [];
+                    // Se o usuário só tem provider do Google, assumimos que não tem senha
+                    const hasGoogleOnly = providers.length === 1 && providers[0].providerId === 'google.com';
+                    const hasPasswordProvider = providers.some(provider => 
+                        provider.providerId === 'password' || provider.providerId === 'email'
+                    );
+                    
+                    userHasPassword = hasPasswordProvider || !hasGoogleOnly;
+                    
+                    // Se o usuário não tem senha, ajustamos o formulário
+                    if (!userHasPassword) {
+                        currentPassword.placeholder = "Você não tem senha cadastrada";
+                        currentPassword.disabled = true;
+                        currentPassword.style.opacity = "0.7";
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking user password:', error);
+                userHasPassword = true; // Assume que tem senha por padrão
+            }
         }
 
         async function loadSystemConfig() {
@@ -2299,6 +2350,9 @@
                 resetChangePasswordForm();
             });
 
+            // Botão para enviar link de recuperação
+            sendResetLinkBtn.addEventListener('click', sendPasswordResetEmail);
+
             // WhatsApp alert modal
             sendWhatsappAlertBtn.addEventListener('click', () => {
                 sendWhatsAppToSupport();
@@ -2539,23 +2593,13 @@
                 });
             });
 
-            // Upload de imagem do produto
+            // Upload de múltiplas imagens do produto
             productImageUploadArea.addEventListener('click', () => {
                 productImageUpload.click();
             });
             
             productImageUpload.addEventListener('change', async (e) => {
-                await handleImageUpload(e, (base64) => {
-                    productImageBase64 = base64;
-                    productImagePreview.src = base64;
-                    productImagePreview.style.display = 'block';
-                });
-            });
-            
-            productImagePreview.addEventListener('click', () => {
-                if (productImagePreview.src) {
-                    openImageZoom(productImagePreview.src, 'Imagem do Produto');
-                }
+                await handleMultipleImagesUpload(e);
             });
 
             // Produtos
@@ -2659,6 +2703,131 @@
             });
         }
 
+        async function handleMultipleImagesUpload(e) {
+            const files = Array.from(e.target.files);
+            
+            // Limitar a 3 imagens
+            if (files.length > 3) {
+                showNotification('Máximo de 3 imagens permitidas.', 'error');
+                return;
+            }
+            
+            // Verificar se já temos 3 imagens
+            const currentImagesCount = productImagesBase64.length;
+            const availableSlots = 3 - currentImagesCount;
+            
+            if (files.length > availableSlots) {
+                showNotification(`Você já tem ${currentImagesCount} imagens. Pode adicionar apenas mais ${availableSlots}.`, 'error');
+                return;
+            }
+            
+            const uploadArea = productImageUploadArea;
+            const originalHtml = uploadArea.innerHTML;
+            
+            uploadArea.classList.add('uploading');
+            uploadArea.innerHTML = `
+                <div class="upload-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                <div class="upload-text">Processando ${files.length} imagem(ns)...</div>
+            `;
+            
+            try {
+                for (const file of files) {
+                    if (file.size > 8 * 1024 * 1024) {
+                        showNotification(`A imagem ${file.name} excede 8MB.`, 'error');
+                        continue;
+                    }
+                    
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    if (!validTypes.includes(file.type)) {
+                        showNotification(`Tipo inválido para ${file.name}. Use JPG ou PNG.`, 'error');
+                        continue;
+                    }
+                    
+                    const base64 = await readFileAsBase64(file);
+                    const optimizedBase64 = await optimizeImage(base64, 600);
+                    productImagesBase64.push(optimizedBase64);
+                }
+                
+                updateProductImagesPreview();
+                updateImageCounter();
+                
+                showNotification(`${files.length} imagem(ns) adicionada(s)!`, 'success');
+                
+            } catch (error) {
+                console.error('Error uploading multiple images:', error);
+                showNotification('Erro ao processar imagens.', 'error');
+            } finally {
+                uploadArea.classList.remove('uploading');
+                uploadArea.innerHTML = originalHtml;
+                productImageUpload.value = ''; // Reset input
+            }
+        }
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = (e) => reject(e);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function updateProductImagesPreview() {
+            productImagesPreview.innerHTML = '';
+            
+            productImagesBase64.forEach((base64, index) => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-preview-item';
+                imageItem.innerHTML = `
+                    <img src="${base64}" alt="Imagem ${index + 1}" style="cursor:pointer;">
+                    <button class="remove-image-btn" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                productImagesPreview.appendChild(imageItem);
+                
+                // Adicionar evento para remover imagem
+                imageItem.querySelector('.remove-image-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const indexToRemove = parseInt(e.currentTarget.getAttribute('data-index'));
+                    removeProductImage(indexToRemove);
+                });
+                
+                // Adicionar evento para visualizar imagem
+                imageItem.querySelector('img').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openImageZoom(base64, `Imagem ${index + 1} do produto`);
+                });
+            });
+        }
+
+        function updateImageCounter() {
+            const count = productImagesBase64.length;
+            imageCounter.textContent = `${count}/3 imagens selecionadas`;
+            
+            if (count >= 3) {
+                productImageUploadArea.style.opacity = '0.5';
+                productImageUploadArea.style.cursor = 'not-allowed';
+                productImageUploadArea.onclick = null;
+                productImageUploadArea.style.pointerEvents = 'none';
+                imageCounter.style.color = '#4caf50';
+                imageCounter.innerHTML += ' <i class="fas fa-check"></i>';
+            } else {
+                productImageUploadArea.style.opacity = '1';
+                productImageUploadArea.style.cursor = 'pointer';
+                productImageUploadArea.onclick = () => productImageUpload.click();
+                productImageUploadArea.style.pointerEvents = 'auto';
+                imageCounter.style.color = '#757575';
+            }
+        }
+
+        function removeProductImage(index) {
+            productImagesBase64.splice(index, 1);
+            updateProductImagesPreview();
+            updateImageCounter();
+            showNotification('Imagem removida.', 'info');
+        }
+
         function toggleChangePasswordMenu() {
             const isActive = changePasswordMenu.classList.contains('active');
             closeChangePasswordMenu();
@@ -2683,6 +2852,17 @@
             passwordMatchError.style.display = 'none';
             newPasswordStrength.textContent = 'A senha deve ter pelo menos 6 caracteres';
             newPasswordStrength.style.color = '#757575';
+            
+            // Restaurar estado do campo de senha atual
+            if (!userHasPassword) {
+                currentPassword.placeholder = "Você não tem senha cadastrada";
+                currentPassword.disabled = true;
+                currentPassword.style.opacity = "0.7";
+            } else {
+                currentPassword.placeholder = "Digite sua senha atual";
+                currentPassword.disabled = false;
+                currentPassword.style.opacity = "1";
+            }
         }
 
         function validateNewPassword() {
@@ -2715,17 +2895,35 @@
         async function changeUserPassword(e) {
             e.preventDefault();
             
-            // Validar senhas
+            // Se o usuário não tem senha cadastrada, criar uma nova
+            if (!userHasPassword) {
+                await createNewPassword();
+                return;
+            }
+            
+            // Caso contrário, validar senha atual
+            const currentPass = currentPassword.value;
+            const newPass = newPassword.value;
+            
+            if (!userHasPassword && currentPass) {
+                // Usuário sem senha tentando usar senha atual
+                showNotification('Você não tem senha cadastrada. Deixe o campo "Senha Atual" em branco.', 'error');
+                return;
+            }
+            
+            // Validar novas senhas
             if (!validateNewPassword() || !validatePasswordMatch()) {
                 showNotification('Por favor, corrija os erros no formulário.', 'error');
                 return;
             }
             
-            const currentPass = currentPassword.value;
-            const newPass = newPassword.value;
+            if (userHasPassword && !currentPass) {
+                showNotification('Por favor, informe sua senha atual.', 'error');
+                return;
+            }
             
-            if (!currentPass || !newPass) {
-                showNotification('Por favor, preencha todos os campos.', 'error');
+            if (!newPass) {
+                showNotification('Por favor, preencha a nova senha.', 'error');
                 return;
             }
             
@@ -2735,27 +2933,32 @@
                 submitChangePasswordBtn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>';
                 submitChangePasswordBtn.disabled = true;
                 
-                // Reautenticar o usuário
-                const user = auth.currentUser;
-                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPass);
-                
-                await user.reauthenticateWithCredential(credential);
+                if (userHasPassword) {
+                    // Reautenticar o usuário
+                    const user = auth.currentUser;
+                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPass);
+                    await user.reauthenticateWithCredential(credential);
+                }
                 
                 // Atualizar senha
+                const user = auth.currentUser;
                 await user.updatePassword(newPass);
                 
                 // Registrar a mudança de senha
                 await db.collection('userActivities').add({
                     userId: currentStoreId,
-                    action: 'password_changed',
+                    action: userHasPassword ? 'password_changed' : 'password_created',
                     timestamp: new Date().toISOString(),
                     userEmail: currentUser.email,
                     storeName: currentUser.storeName || 'Minha Loja',
                     ipAddress: await getIPAddress()
                 });
                 
+                // Atualizar estado
+                userHasPassword = true;
+                
                 // Mostrar mensagem de sucesso
-                showNotification('Senha alterada com sucesso!', 'success');
+                showNotification(userHasPassword ? 'Senha alterada com sucesso!' : 'Senha criada com sucesso!', 'success');
                 
                 // Fechar modal
                 changePasswordModal.style.display = 'none';
@@ -2781,6 +2984,121 @@
                 // Restaurar botão
                 submitChangePasswordBtn.innerHTML = '<i class="fas fa-save"></i> Alterar Senha';
                 submitChangePasswordBtn.disabled = false;
+            }
+        }
+
+        async function createNewPassword() {
+            const newPass = newPassword.value;
+            const confirmPass = confirmPassword.value;
+            
+            if (!validateNewPassword() || !validatePasswordMatch()) {
+                showNotification('Por favor, corrija os erros no formulário.', 'error');
+                return;
+            }
+            
+            if (newPass !== confirmPass) {
+                showNotification('As senhas não coincidem.', 'error');
+                return;
+            }
+            
+            try {
+                // Mostrar loading
+                const originalBtnText = submitChangePasswordBtn.innerHTML;
+                submitChangePasswordBtn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>';
+                submitChangePasswordBtn.disabled = true;
+                
+                // Criar nova senha para usuário sem senha
+                const user = auth.currentUser;
+                await user.updatePassword(newPass);
+                
+                // Registrar a criação de senha
+                await db.collection('userActivities').add({
+                    userId: currentStoreId,
+                    action: 'password_created',
+                    timestamp: new Date().toISOString(),
+                    userEmail: currentUser.email,
+                    storeName: currentUser.storeName || 'Minha Loja',
+                    ipAddress: await getIPAddress()
+                });
+                
+                // Atualizar estado
+                userHasPassword = true;
+                
+                // Mostrar mensagem de sucesso
+                showNotification('Senha criada com sucesso! Agora você pode fazer login com e-mail e senha.', 'success');
+                
+                // Fechar modal
+                changePasswordModal.style.display = 'none';
+                resetChangePasswordForm();
+                
+            } catch (error) {
+                console.error('Error creating password:', error);
+                
+                if (error.code === 'auth/weak-password') {
+                    showNotification('A senha é muito fraca. Use pelo menos 6 caracteres.', 'error');
+                } else if (error.code === 'auth/requires-recent-login') {
+                    showNotification('Sua sessão expirou. Por favor, faça login novamente.', 'error');
+                    setTimeout(() => {
+                        logoutBtn.click();
+                    }, 2000);
+                } else {
+                    showNotification('Erro ao criar senha: ' + error.message, 'error');
+                }
+            } finally {
+                // Restaurar botão
+                submitChangePasswordBtn.innerHTML = '<i class="fas fa-save"></i> Alterar Senha';
+                submitChangePasswordBtn.disabled = false;
+            }
+        }
+
+        async function sendPasswordResetEmail() {
+            try {
+                const user = auth.currentUser;
+                if (!user || !user.email) {
+                    showNotification('E-mail não encontrado.', 'error');
+                    return;
+                }
+                
+                // Mostrar loading
+                const originalBtnText = sendResetLinkBtn.innerHTML;
+                sendResetLinkBtn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>';
+                sendResetLinkBtn.disabled = true;
+                
+                // Enviar email de redefinição de senha
+                await auth.sendPasswordResetEmail(user.email);
+                
+                showNotification('Link de recuperação enviado para seu e-mail!', 'success');
+                
+                // Registrar a solicitação
+                await db.collection('userActivities').add({
+                    userId: currentStoreId,
+                    action: 'password_reset_requested',
+                    timestamp: new Date().toISOString(),
+                    userEmail: currentUser.email,
+                    storeName: currentUser.storeName || 'Minha Loja',
+                    ipAddress: await getIPAddress()
+                });
+                
+                // Fechar modal após 2 segundos
+                setTimeout(() => {
+                    changePasswordModal.style.display = 'none';
+                    resetChangePasswordForm();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error sending reset email:', error);
+                
+                if (error.code === 'auth/user-not-found') {
+                    showNotification('Usuário não encontrado.', 'error');
+                } else if (error.code === 'auth/too-many-requests') {
+                    showNotification('Muitas tentativas. Tente novamente mais tarde.', 'error');
+                } else {
+                    showNotification('Erro ao enviar link de recuperação: ' + error.message, 'error');
+                }
+            } finally {
+                // Restaurar botão
+                sendResetLinkBtn.innerHTML = '<i class="fas fa-envelope"></i> Enviar Link de Recuperação por E-mail';
+                sendResetLinkBtn.disabled = false;
             }
         }
 
@@ -3485,11 +3803,21 @@
             products.forEach(product => {
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
+                
+                // Verificar se há imagens múltiplas
+                const images = product.imagesBase64 || [];
+                const hasMultipleImages = images.length > 0;
+                const firstImage = hasMultipleImages ? images[0] : product.imageBase64;
+                
                 productCard.innerHTML = `
                     <div class="product-image">
-                        ${product.imageBase64 ? 
-                            `<img src="${product.imageBase64}" alt="${product.name}" style="cursor:pointer;">` : 
+                        ${firstImage ? 
+                            `<img src="${firstImage}" alt="${product.name}" style="cursor:pointer;">` : 
                             `<i class="fas ${product.icon || 'fa-box'}"></i>`
+                        }
+                        ${hasMultipleImages && images.length > 1 ? 
+                            `<span class="notification-badge" style="position:absolute;bottom:-5px;right:-5px;background-color:#2196f3;font-size:0.6rem;">+${images.length-1}</span>` : 
+                            ''
                         }
                     </div>
                     <div class="product-info">
@@ -3527,8 +3855,14 @@
                     e.stopPropagation();
                     const productId = e.target.closest('.product-card').querySelector('.view-btn').getAttribute('data-id');
                     const product = products.find(p => p.id === productId);
-                    if (product && product.imageBase64) {
-                        openImageZoom(product.imageBase64, product.name);
+                    if (product) {
+                        const images = product.imagesBase64 || [];
+                        if (images.length > 0) {
+                            // Se houver múltiplas imagens, mostrar a primeira
+                            openImageZoom(images[0], product.name);
+                        } else if (product.imageBase64) {
+                            openImageZoom(product.imageBase64, product.name);
+                        }
                     }
                 });
             });
@@ -3771,8 +4105,9 @@
             productModalTitle.textContent = 'Novo Produto';
             productForm.reset();
             productIdInput.value = '';
-            productImagePreview.style.display = 'none';
-            productImageBase64 = '';
+            productImagesPreview.innerHTML = '';
+            productImagesBase64 = [];
+            updateImageCounter();
             productActive.checked = true;
             updateProductCategorySelect();
             productFormModal.style.display = 'block';
@@ -3789,15 +4124,18 @@
             productPrice.value = selectedProduct.price;
             productCategory.value = selectedProduct.category || '';
             productActive.checked = selectedProduct.active !== false;
-            productImageBase64 = selectedProduct.imageBase64 || '';
             
-            if (selectedProduct.imageBase64) {
-                productImagePreview.src = selectedProduct.imageBase64;
-                productImagePreview.style.display = 'block';
+            // Carregar imagens múltiplas ou imagem única
+            if (selectedProduct.imagesBase64 && selectedProduct.imagesBase64.length > 0) {
+                productImagesBase64 = [...selectedProduct.imagesBase64];
+            } else if (selectedProduct.imageBase64) {
+                productImagesBase64 = [selectedProduct.imageBase64];
             } else {
-                productImagePreview.style.display = 'none';
+                productImagesBase64 = [];
             }
             
+            updateProductImagesPreview();
+            updateImageCounter();
             updateProductCategorySelect();
             productFormModal.style.display = 'block';
         }
@@ -3805,7 +4143,7 @@
         function closeProductForm() {
             productFormModal.style.display = 'none';
             selectedProduct = null;
-            productImageBase64 = '';
+            productImagesBase64 = [];
         }
 
         async function saveProduct(e) {
@@ -3821,8 +4159,11 @@
                 storeId: currentStoreId
             };
             
-            if (productImageBase64) {
-                productData.imageBase64 = productImageBase64;
+            // Salvar imagens múltiplas
+            if (productImagesBase64.length > 0) {
+                productData.imagesBase64 = productImagesBase64;
+                // Manter compatibilidade com versão antiga
+                productData.imageBase64 = productImagesBase64[0];
             }
             
             try {
