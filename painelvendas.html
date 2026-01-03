@@ -13,6 +13,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
+        /* Bloquear seleção de texto não editáveis */
+        body {
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE10+/Edge */
+            user-select: none; /* Standard */
+        }
+        
+        /* Permitir seleção apenas em inputs e textareas */
+        input, textarea, .form-input, [contenteditable="true"] {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+        
+        /* Estilos existentes mantidos */
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;overflow-x:hidden;background-color:#ffffff;transition:background-color 0.3s ease}
         body{color:#212121;font-size:14px;padding-bottom:70px;transition:all 0.3s ease}
@@ -244,6 +261,24 @@
         .image-preview-item img{width:100%;height:100%;object-fit:cover}
         .remove-image-btn{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:50%;background-color:rgba(244,67,54,0.9);color:#fff;border:none;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
         .image-counter{font-size:0.8rem;color:#757575;margin-top:5px;text-align:center}
+        /* Botão flutuante para produtos */
+        .floating-action-btn{position:fixed;bottom:80px;right:15px;width:56px;height:56px;border-radius:50%;background-color:#212121;color:#fff;border:none;box-shadow:0 4px 12px rgba(0,0,0,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;z-index:99;transition:all 0.3s ease}
+        .floating-action-btn:hover{transform:scale(1.05);box-shadow:0 6px 16px rgba(0,0,0,0.2)}
+        .floating-action-btn:active{transform:scale(0.95)}
+        /* Estilo para logo centralizada e área de upload */
+        .logo-preview-container{display:flex;flex-direction:column;align-items:center;justify-content:center}
+        .logo-upload-area{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:150px}
+        .logo-upload-area.hidden{display:none}
+        .logo-center-preview{width:150px;height:150px;border-radius:50%;object-fit:cover;margin:10px auto;display:none;cursor:pointer;border:3px solid #e0e0e0}
+        .remove-logo-btn{position:absolute;top:-5px;right:-5px;width:28px;height:28px;border-radius:50%;background-color:#f44336;color:#fff;border:none;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
+        .logo-preview-wrapper{position:relative;display:inline-block}
+        /* Botões minimalistas de link */
+        .link-actions-minimal{display:flex;gap:8px;justify-content:center}
+        .link-btn-minimal{width:40px;height:40px;border-radius:10px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:all 0.3s ease}
+        .link-btn-minimal.copy{background-color:#2196f3;color:#fff}
+        .link-btn-minimal.open{background-color:#4caf50;color:#fff}
+        .link-btn-minimal.share{background-color:#ff9800;color:#fff}
+        .link-btn-minimal:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.15)}
         @keyframes modalFadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
         @keyframes fadeIn{from{opacity:0;transform:translate(-50%,-50%)scale(0.9)}to{opacity:1;transform:translate(-50%,-50%)scale(1)}}
         @keyframes fadeOut{from{opacity:1;transform:translate(-50%,-50%)scale(1)}to{opacity:0;transform:translate(-50%,-50%)scale(0.9)}}
@@ -253,49 +288,6 @@
     </style>
 </head>
 <body>
-    <!-- Modal de Boas-Vindas -->
-    <div class="welcome-modal" id="welcomeModal">
-        <div class="welcome-content">
-            <div class="welcome-icon"><i class="fas fa-store"></i></div>
-            <h2 class="welcome-title">Bem-vindo ao Venda+!</h2>
-            <p class="welcome-message">Para começar a usar todas as funcionalidades do sistema, é importante configurar sua loja corretamente.</p>
-            <div class="welcome-steps">
-                <div class="welcome-step">
-                    <div class="step-icon">1</div>
-                    <div class="step-text">
-                        <h4>Nome do Negócio</h4>
-                        <p>Defina o nome da sua empresa ou loja.</p>
-                    </div>
-                </div>
-                <div class="welcome-step">
-                    <div class="step-icon">2</div>
-                    <div class="step-text">
-                        <h4>Contato WhatsApp</h4>
-                        <p>Informe seu número do WhatsApp.</p>
-                    </div>
-                </div>
-                <div class="welcome-step">
-                    <div class="step-icon">3</div>
-                    <div class="step-text">
-                        <h4>Chave PIX</h4>
-                        <p>Configure sua chave PIX.</p>
-                    </div>
-                </div>
-                <div class="welcome-step">
-                    <div class="step-icon">4</div>
-                    <div class="step-text">
-                        <h4>Logo e Tema</h4>
-                        <p>Personalize sua loja.</p>
-                    </div>
-                </div>
-            </div>
-            <p class="text-gray mb-3"><i class="fas fa-info-circle"></i> Você pode alterar essas configurações.</p>
-            <button class="btn btn-primary btn-block" id="goToConfigBtn">
-                <i class="fas fa-cog"></i> Começar Configuração
-            </button>
-        </div>
-    </div>
-
     <!-- Modal de Conta Bloqueada -->
     <div class="block-modal" id="blockModal">
         <div class="block-content">
@@ -658,9 +650,6 @@
             <div id="productsScreen" class="screen" style="display:none">
                 <div class="d-flex justify-between align-center mb-3">
                     <h2 class="section-title">Produtos</h2>
-                    <button class="btn btn-primary btn-sm" id="addProductBtn">
-                        <i class="fas fa-plus"></i> Novo
-                    </button>
                 </div>
                 <div class="products-list" id="productsList"></div>
                 <div class="empty-state" id="productsEmpty" style="display:none">
@@ -669,6 +658,11 @@
                     <p>Adicione produtos para vender.</p>
                 </div>
             </div>
+            
+            <!-- Botão flutuante para adicionar produtos -->
+            <button class="floating-action-btn d-none" id="floatingAddProductBtn" title="Novo Produto">
+                <i class="fas fa-plus"></i>
+            </button>
 
             <!-- Tela Financeiro -->
             <div id="financeScreen" class="screen" style="display:none">
@@ -762,13 +756,20 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Logo da Loja</label>
-                        <div class="upload-area" id="logoUploadArea">
-                            <div class="upload-icon"><i class="fas fa-image"></i></div>
-                            <div class="upload-text">Clique para fazer upload</div>
-                            <div class="upload-info">Tamanho máximo: 8MB</div>
-                            <input type="file" id="configLogoUpload" accept="image/*" style="display:none">
+                        <div class="logo-preview-container">
+                            <div class="logo-upload-area upload-area" id="logoUploadArea">
+                                <div class="upload-icon"><i class="fas fa-image"></i></div>
+                                <div class="upload-text">Clique para fazer upload</div>
+                                <div class="upload-info">Tamanho máximo: 8MB</div>
+                                <input type="file" id="configLogoUpload" accept="image/*" style="display:none">
+                            </div>
+                            <div class="logo-preview-wrapper">
+                                <img id="configLogoPreview" class="logo-center-preview" alt="Logo">
+                                <button class="remove-logo-btn d-none" id="removeLogoBtn" type="button">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                         </div>
-                        <img id="configLogoPreview" class="image-preview" alt="Logo">
                     </div>
                     <div class="form-group">
                         <label class="form-label">WhatsApp *</label>
@@ -779,10 +780,6 @@
                         <input type="text" id="configPixKey" class="form-input" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Telefone para Contato *</label>
-                        <input type="text" id="configContactPhone" class="form-input" required placeholder="(11) 99999-9999">
-                    </div>
-                    <div class="form-group">
                         <label class="form-label">Título dos Produtos *</label>
                         <input type="text" id="configProductsTitle" class="form-input" required placeholder="Nossos Produtos">
                     </div>
@@ -791,37 +788,23 @@
                         <input type="number" id="configDeliveryFee" class="form-input" step="0.01" min="0" value="0" placeholder="0.00">
                     </div>
                     <div class="link-section">
-                        <h3 class="link-title">Gerenciar Categorias</h3>
-                        <p class="link-description">Adicione, edite ou remova categorias:</p>
-                        <div id="categoriesList" class="mb-3"></div>
-                        <div class="form-group">
-                            <label class="form-label">Nova Categoria</label>
-                            <div class="d-flex gap-2">
-                                <input type="text" id="newCategoryName" class="form-input" placeholder="Nome da categoria">
-                                <button type="button" class="btn btn-primary" id="addCategoryBtn">
-                                    <i class="fas fa-plus"></i> Adicionar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="link-section">
                         <h3 class="link-title">Link para Clientes</h3>
                         <p class="link-description">Compartilhe este link com seus clientes:</p>
                         <div class="link-container" id="customerLinkContainer">
                             <strong>Carregando link...</strong>
                         </div>
-                        <div class="link-actions">
-                            <button class="btn btn-primary flex-1" id="copyLinkBtn">
-                                <i class="fas fa-copy"></i> Copiar Link
+                        <div class="link-actions-minimal">
+                            <button class="link-btn-minimal copy" id="copyLinkBtn" title="Copiar Link">
+                                <i class="fas fa-copy"></i>
                             </button>
-                            <button class="btn btn-success flex-1" id="openLinkBtn">
-                                <i class="fas fa-external-link-alt"></i> Abrir Link
+                            <button class="link-btn-minimal open" id="openLinkBtn" title="Abrir Link">
+                                <i class="fas fa-external-link-alt"></i>
                             </button>
-                            <button class="btn btn-secondary flex-1" id="shareLinkBtn">
-                                <i class="fas fa-share-alt"></i> Compartilhar
+                            <button class="link-btn-minimal share" id="shareLinkBtn" title="Compartilhar">
+                                <i class="fas fa-share-alt"></i>
                             </button>
                         </div>
-                        <div class="mt-2">
+                        <div class="mt-2 text-center">
                             <small><strong>Acessos totais:</strong> <span id="totalVisitsConfig">0</span></small>
                         </div>
                     </div>
@@ -928,9 +911,15 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Categoria *</label>
-                        <select id="productCategory" class="form-input" required>
-                            <option value="">Selecione...</option>
-                        </select>
+                        <div class="d-flex gap-2 align-center">
+                            <select id="productCategory" class="form-input flex-1" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                            <button type="button" class="btn btn-primary btn-sm" id="addCategoryCompactBtn" title="Adicionar Categoria">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="compact-categories mt-2" id="compactCategoriesList"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Imagens do Produto (Máximo 3)</label>
@@ -1086,7 +1075,7 @@
         let selectedProduct = null;
         let statusFilter = 'all';
         let logoBase64 = '';
-        let productImagesBase64 = []; // Alterado para array de imagens
+        let productImagesBase64 = [];
         let ordersListener = null;
         let customerLink = '';
         let preparingOrdersCount = 0;
@@ -1114,7 +1103,7 @@
         let expiryWarningModalShown = false;
         let isSystemBlocked = false;
         let temporaryModalTimeout = null;
-        let userHasPassword = false; // Nova variável para verificar se usuário tem senha
+        let userHasPassword = false;
 
         // Elementos do DOM
         const welcomeModal = document.getElementById('welcomeModal');
@@ -1186,15 +1175,15 @@
         const ordersBadge = document.getElementById('ordersBadge');
         const productsList = document.getElementById('productsList');
         const productsEmpty = document.getElementById('productsEmpty');
-        const addProductBtn = document.getElementById('addProductBtn');
+        const floatingAddProductBtn = document.getElementById('floatingAddProductBtn');
         const configForm = document.getElementById('configForm');
         const configBusinessName = document.getElementById('configBusinessName');
         const logoUploadArea = document.getElementById('logoUploadArea');
         const configLogoUpload = document.getElementById('configLogoUpload');
         const configLogoPreview = document.getElementById('configLogoPreview');
+        const removeLogoBtn = document.getElementById('removeLogoBtn');
         const configWhatsApp = document.getElementById('configWhatsApp');
         const configPixKey = document.getElementById('configPixKey');
-        const configContactPhone = document.getElementById('configContactPhone');
         const configProductsTitle = document.getElementById('configProductsTitle');
         const configDeliveryFee = document.getElementById('configDeliveryFee');
         const configTheme = document.getElementById('configTheme');
@@ -1209,6 +1198,8 @@
         const productDescription = document.getElementById('productDescription');
         const productPrice = document.getElementById('productPrice');
         const productCategory = document.getElementById('productCategory');
+        const addCategoryCompactBtn = document.getElementById('addCategoryCompactBtn');
+        const compactCategoriesList = document.getElementById('compactCategoriesList');
         const productImageUploadArea = document.getElementById('productImageUploadArea');
         const productImageUpload = document.getElementById('productImageUpload');
         const productImagesPreview = document.getElementById('productImagesPreview');
@@ -1244,7 +1235,6 @@
         const daysLeftModal = document.getElementById('daysLeftModal');
         const daysLeftMessage = document.getElementById('daysLeftMessage');
         const closeDaysLeftBtn = document.getElementById('closeDaysLeftBtn');
-        // Novos elementos para mudar senha
         const profileCard = document.getElementById('profileCard');
         const profileOptionsBtn = document.getElementById('profileOptionsBtn');
         const changePasswordMenu = document.getElementById('changePasswordMenu');
@@ -1278,7 +1268,6 @@
             updateCustomerLink();
             showScreen('dashboard');
             await loadStoreVisits();
-            checkWelcomeModal();
             await checkExpiryStatus();
             await checkRenewalStatus();
             await checkIfUserHasPassword();
@@ -1286,13 +1275,9 @@
 
         async function checkIfUserHasPassword() {
             try {
-                // Verifica se o usuário tem senha cadastrada
-                // Firebase não tem uma forma direta de verificar isso,
-                // então vamos verificar se o usuário tem provedores de login
                 const user = auth.currentUser;
                 if (user) {
                     const providers = user.providerData || [];
-                    // Se o usuário só tem provider do Google, assumimos que não tem senha
                     const hasGoogleOnly = providers.length === 1 && providers[0].providerId === 'google.com';
                     const hasPasswordProvider = providers.some(provider => 
                         provider.providerId === 'password' || provider.providerId === 'email'
@@ -1300,7 +1285,6 @@
                     
                     userHasPassword = hasPasswordProvider || !hasGoogleOnly;
                     
-                    // Se o usuário não tem senha, ajustamos o formulário
                     if (!userHasPassword) {
                         currentPassword.placeholder = "Você não tem senha cadastrada";
                         currentPassword.disabled = true;
@@ -1309,7 +1293,7 @@
                 }
             } catch (error) {
                 console.error('Error checking user password:', error);
-                userHasPassword = true; // Assume que tem senha por padrão
+                userHasPassword = true;
             }
         }
 
@@ -1337,10 +1321,6 @@
             if (configWhatsApp) {
                 phoneMask = new IMask(configWhatsApp, phoneMaskOptions);
             }
-            
-            if (configContactPhone) {
-                new IMask(configContactPhone, phoneMaskOptions);
-            }
         }
 
         async function checkUserStatus() {
@@ -1366,7 +1346,6 @@
             blockMessage.textContent = message;
             blockModal.style.display = 'flex';
             
-            // Desabilitar navegação e interação
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.disabled = true;
                 btn.style.opacity = '0.5';
@@ -1422,21 +1401,18 @@
                 
                 const daysUntilExpiry = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
                 
-                // Verificar se está expirado
                 if (daysUntilExpiry <= 0) {
                     isSystemBlocked = true;
                     expiredBanner.classList.remove('d-none');
                     expiryWarningBanner.classList.add('d-none');
                     storeExpiry.innerHTML = `<span style="color:var(--danger-color);"><i class="fas fa-exclamation-circle"></i> Expirado em ${formatDate(expiryDate)}</span>`;
                     
-                    // Bloquear sistema
                     setTimeout(() => {
                         blockSystem();
                     }, 1000);
                     return;
                 }
                 
-                // Verificar aviso de vencimento (7 dias antes)
                 const warningDays = 7;
                 if (daysUntilExpiry <= warningDays && daysUntilExpiry > 0) {
                     const bannerMessage = daysUntilExpiry === 1 ? 
@@ -1448,7 +1424,6 @@
                     
                     storeExpiry.innerHTML = `<span style="color:var(--warning-color);"><i class="fas fa-clock"></i> Vence em ${daysUntilExpiry} dia${daysUntilExpiry === 1 ? '' : 's'}</span>`;
                     
-                    // Mostrar modal de aviso somente uma vez por dia e apenas para 3 dias ou menos
                     if (daysUntilExpiry <= 3 && !expiryWarningModalShown) {
                         const modalMessage = daysUntilExpiry === 1 ? 
                             'Seu plano vence AMANHÃ!' : 
@@ -1458,11 +1433,9 @@
                         expiryWarningModal.style.display = 'flex';
                         expiryWarningModalShown = true;
                         
-                        // Marcar como mostrado hoje
                         localStorage.setItem('expiryWarningShown', new Date().toDateString());
                     }
                     
-                    // Mostrar modal discreto de dias restantes
                     if (daysUntilExpiry <= 5) {
                         showDaysLeftModal(daysUntilExpiry);
                     }
@@ -1486,54 +1459,44 @@
         }
 
         function blockSystem() {
-            // Desabilitar navegação
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.disabled = true;
                 btn.style.opacity = '0.5';
                 btn.style.pointerEvents = 'none';
             });
             
-            // Desabilitar botão de logout
             logoutBtn.disabled = true;
             
-            // Ocultar todas as telas
             document.querySelectorAll('.screen').forEach(screen => {
                 screen.style.display = 'none';
             });
             
-            // Mostrar modal de bloqueio
             blockSystemModal.style.display = 'flex';
         }
 
         function unblockSystem() {
             isSystemBlocked = false;
             
-            // Reabilitar navegação
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 btn.style.pointerEvents = 'auto';
             });
             
-            // Reabilitar botão de logout
             logoutBtn.disabled = false;
             
-            // Mostrar tela atual
             showScreen(currentScreen);
             
-            // Ocultar modal de bloqueio
             blockSystemModal.style.display = 'none';
             expiredBanner.classList.add('d-none');
         }
 
         function showTemporaryRenewalModal() {
-            // Remover qualquer modal temporário existente
             const existingModal = document.querySelector('.temporary-modal');
             if (existingModal) {
                 existingModal.remove();
             }
             
-            // Criar modal temporário
             const temporaryModal = document.createElement('div');
             temporaryModal.className = 'temporary-modal';
             temporaryModal.innerHTML = `
@@ -1547,7 +1510,6 @@
             
             document.body.appendChild(temporaryModal);
             
-            // Remover após 5 segundos
             if (temporaryModalTimeout) {
                 clearTimeout(temporaryModalTimeout);
             }
@@ -1611,7 +1573,6 @@
                     renewalStatus = userData.renewalStatus || 'none';
                     expiryDate = userData.expiryDate || null;
                     
-                    // Verificar se o aviso já foi mostrado hoje
                     const lastWarningDate = localStorage.getItem('expiryWarningShown');
                     expiryWarningModalShown = lastWarningDate === new Date().toDateString();
                     
@@ -1703,7 +1664,6 @@
                         logoBase64: '',
                         whatsappNumber: '',
                         pixKey: '',
-                        contactPhone: '',
                         productsTitle: 'Nossos Produtos',
                         deliveryFee: 0,
                         theme: 'black',
@@ -1729,7 +1689,7 @@
                         ...doc.data()
                     });
                 });
-                updateCategoriesList();
+                updateCompactCategories();
                 updateProductCategorySelect();
             } catch (error) {
                 console.error('Error loading categories:', error);
@@ -1758,32 +1718,27 @@
             }
         }
 
-        function updateCategoriesList() {
-            categoriesList.innerHTML = '';
+        function updateCompactCategories() {
+            compactCategoriesList.innerHTML = '';
             
             if (categories.length === 0) {
-                categoriesList.innerHTML = `
-                    <div class="empty-state" style="padding:20px">
-                        <div class="empty-icon"><i class="fas fa-tags"></i></div>
-                        <p>Nenhuma categoria cadastrada</p>
-                    </div>
-                `;
+                compactCategoriesList.innerHTML = '<small class="text-gray">Nenhuma categoria criada ainda</small>';
                 return;
             }
             
             categories.forEach(category => {
                 const categoryElement = document.createElement('div');
-                categoryElement.className = 'd-flex justify-between align-center mb-2 p-2 border rounded';
+                categoryElement.className = 'compact-category-tag';
                 categoryElement.innerHTML = `
                     <span>${category.name}</span>
-                    <button class="btn btn-danger btn-sm delete-category-btn" data-id="${category.id}">
-                        <i class="fas fa-trash"></i>
+                    <button class="delete-category-btn" data-id="${category.id}">
+                        <i class="fas fa-times"></i>
                     </button>
                 `;
-                categoriesList.appendChild(categoryElement);
+                compactCategoriesList.appendChild(categoryElement);
             });
             
-            document.querySelectorAll('.delete-category-btn').forEach(btn => {
+            document.querySelectorAll('.compact-category-tag .delete-category-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     const categoryId = e.currentTarget.getAttribute('data-id');
                     await deleteCategory(categoryId);
@@ -1804,21 +1759,20 @@
             });
         }
 
-        async function addCategory() {
-            const name = newCategoryName.value.trim();
-            if (!name) {
-                showNotification('Digite um nome para a categoria.', 'error');
+        async function addCategoryCompact() {
+            const categoryName = prompt('Digite o nome da nova categoria:');
+            if (!categoryName || !categoryName.trim()) {
+                showNotification('Nome da categoria é obrigatório.', 'error');
                 return;
             }
             
             try {
                 await db.collection('stores').doc(currentStoreId).collection('categories').add({
-                    name: name,
+                    name: categoryName.trim(),
                     storeId: currentStoreId,
                     createdAt: new Date().toISOString()
                 });
                 
-                newCategoryName.value = '';
                 await loadCategories();
                 showNotification('Categoria adicionada com sucesso!', 'success');
             } catch (error) {
@@ -2040,7 +1994,6 @@
             configBusinessName.value = storeConfig.businessName || '';
             configWhatsApp.value = storeConfig.whatsappNumber || '';
             configPixKey.value = storeConfig.pixKey || '';
-            configContactPhone.value = storeConfig.contactPhone || '';
             configProductsTitle.value = storeConfig.productsTitle || 'Nossos Produtos';
             configDeliveryFee.value = storeConfig.deliveryFee || 0;
             configTheme.value = storeConfig.theme || 'black';
@@ -2055,7 +2008,14 @@
             if (storeConfig.logoBase64) {
                 configLogoPreview.src = storeConfig.logoBase64;
                 configLogoPreview.style.display = 'block';
+                logoUploadArea.classList.add('hidden');
+                removeLogoBtn.classList.remove('d-none');
                 logoBase64 = storeConfig.logoBase64;
+            } else {
+                configLogoPreview.style.display = 'none';
+                logoUploadArea.classList.remove('hidden');
+                removeLogoBtn.classList.add('d-none');
+                logoBase64 = '';
             }
             
             deliveryFeeStat.textContent = `R$ ${(storeConfig.deliveryFee || 0).toFixed(2)}`;
@@ -2309,14 +2269,6 @@
         }
 
         function setupEventListeners() {
-            // Configuração do modal de boas-vindas
-            goToConfigBtn.addEventListener('click', () => {
-                welcomeModal.style.display = 'none';
-                showScreen('config');
-                navBtns.forEach(b => b.classList.remove('active'));
-                document.querySelector('[data-screen="config"]').classList.add('active');
-            });
-
             // Perfil e mudança de senha
             profileCard.addEventListener('click', (e) => {
                 if (!e.target.closest('.user-option-btn') && !e.target.closest('.change-password-menu')) {
@@ -2386,13 +2338,12 @@
                 daysLeftModal.style.display = 'none';
             });
 
-            // Categorias
-            addCategoryBtn.addEventListener('click', addCategory);
-            newCategoryName.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addCategory();
-                }
+            // Categorias compactadas
+            addCategoryCompactBtn.addEventListener('click', addCategoryCompact);
+
+            // Botão flutuante
+            floatingAddProductBtn.addEventListener('click', () => {
+                openProductForm();
             });
 
             // Logout
@@ -2460,6 +2411,12 @@
                         ordersBadge.classList.add('d-none');
                     }
                     
+                    if (screen === 'products') {
+                        floatingAddProductBtn.classList.remove('d-none');
+                    } else {
+                        floatingAddProductBtn.classList.add('d-none');
+                    }
+                    
                     if (screen === 'finance') {
                         updateFinanceUI();
                         updateFinanceCharts();
@@ -2471,7 +2428,7 @@
                 });
             });
 
-            // Link para clientes
+            // Link para clientes (botões minimalistas)
             copyLinkBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(customerLink).then(() => {
                     showNotification('Link copiado!', 'success');
@@ -2570,19 +2527,17 @@
             });
             
             configLogoUpload.addEventListener('change', async (e) => {
-                await handleImageUpload(e, (base64) => {
-                    logoBase64 = base64;
-                    configLogoPreview.src = base64;
-                    configLogoPreview.style.display = 'block';
-                    updateUserAvatar();
-                    updateStoreAvatar();
-                });
+                await handleLogoUpload(e);
             });
             
             configLogoPreview.addEventListener('click', () => {
                 if (configLogoPreview.src) {
                     openImageZoom(configLogoPreview.src, 'Logo da Loja');
                 }
+            });
+            
+            removeLogoBtn.addEventListener('click', () => {
+                removeLogo();
             });
             
             themeOptions.forEach(option => {
@@ -2603,10 +2558,6 @@
             });
 
             // Produtos
-            addProductBtn.addEventListener('click', () => {
-                openProductForm();
-            });
-            
             productForm.addEventListener('submit', saveProduct);
             cancelProductBtn.addEventListener('click', () => {
                 closeProductForm();
@@ -2703,12 +2654,132 @@
             });
         }
 
+        async function handleLogoUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 8 * 1024 * 1024) {
+                showNotification('A imagem deve ter no máximo 8MB.', 'error');
+                e.target.value = '';
+                return;
+            }
+            
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                showNotification('Tipo de arquivo inválido. Use JPG ou PNG.', 'error');
+                e.target.value = '';
+                return;
+            }
+            
+            const uploadArea = logoUploadArea;
+            const originalHtml = uploadArea.innerHTML;
+            
+            uploadArea.classList.add('uploading');
+            uploadArea.innerHTML = `
+                <div class="upload-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                <div class="upload-text">Carregando imagem...</div>
+            `;
+            
+            try {
+                const reader = new FileReader();
+                reader.onload = async function(event) {
+                    try {
+                        const originalBase64 = event.target.result;
+                        const croppedBase64 = await autoCropImageToSquare(originalBase64);
+                        
+                        logoBase64 = croppedBase64;
+                        configLogoPreview.src = croppedBase64;
+                        configLogoPreview.style.display = 'block';
+                        logoUploadArea.classList.add('hidden');
+                        removeLogoBtn.classList.remove('d-none');
+                        
+                        updateUserAvatar();
+                        updateStoreAvatar();
+                        
+                        showNotification('Logo ajustada e salva automaticamente!', 'success');
+                    } catch (error) {
+                        console.error('Error processing logo:', error);
+                        showNotification('Erro ao processar logo.', 'error');
+                    }
+                    
+                    uploadArea.classList.remove('uploading');
+                    uploadArea.innerHTML = originalHtml;
+                    e.target.value = '';
+                };
+                
+                reader.onerror = function() {
+                    showNotification('Erro ao carregar imagem.', 'error');
+                    uploadArea.classList.remove('uploading');
+                    uploadArea.innerHTML = originalHtml;
+                    e.target.value = '';
+                };
+                
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Error in handleLogoUpload:', error);
+                showNotification('Erro ao processar imagem.', 'error');
+                uploadArea.classList.remove('uploading');
+                uploadArea.innerHTML = originalHtml;
+                e.target.value = '';
+            }
+        }
+
+        async function autoCropImageToSquare(imageSrc) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = function() {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        const size = Math.min(img.width, img.height);
+                        canvas.width = 500;
+                        canvas.height = 500;
+                        
+                        const sourceX = (img.width - size) / 2;
+                        const sourceY = (img.height - size) / 2;
+                        
+                        ctx.drawImage(
+                            img, 
+                            sourceX, sourceY, size, size,
+                            0, 0, 500, 500
+                        );
+                        
+                        const croppedBase64 = canvas.toDataURL('image/jpeg', 0.9);
+                        resolve(croppedBase64);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                img.onerror = function(error) {
+                    reject(error);
+                };
+                
+                img.src = imageSrc;
+            });
+        }
+
+        function removeLogo() {
+            logoBase64 = '';
+            configLogoPreview.style.display = 'none';
+            logoUploadArea.classList.remove('hidden');
+            removeLogoBtn.classList.add('d-none');
+            configLogoUpload.value = '';
+            
+            updateUserAvatar();
+            updateStoreAvatar();
+            
+            showNotification('Logo removida.', 'info');
+        }
+
         async function handleMultipleImagesUpload(e) {
             const files = Array.from(e.target.files);
             
             // Limitar a 3 imagens
             if (files.length > 3) {
                 showNotification('Máximo de 3 imagens permitidas.', 'error');
+                productImageUpload.value = '';
                 return;
             }
             
@@ -2718,6 +2789,7 @@
             
             if (files.length > availableSlots) {
                 showNotification(`Você já tem ${currentImagesCount} imagens. Pode adicionar apenas mais ${availableSlots}.`, 'error');
+                productImageUpload.value = '';
                 return;
             }
             
@@ -2743,15 +2815,22 @@
                         continue;
                     }
                     
+                    // Processar automaticamente no formato quadrado 1:1
                     const base64 = await readFileAsBase64(file);
-                    const optimizedBase64 = await optimizeImage(base64, 600);
-                    productImagesBase64.push(optimizedBase64);
+                    const croppedBase64 = await autoCropImageToSquare(base64);
+                    productImagesBase64.push(croppedBase64);
                 }
                 
+                // Atualizar interface após todas as imagens serem processadas
                 updateProductImagesPreview();
                 updateImageCounter();
                 
-                showNotification(`${files.length} imagem(ns) adicionada(s)!`, 'success');
+                // Se atingiu 3 imagens, ocultar área de upload
+                if (productImagesBase64.length >= 3) {
+                    productImageUploadArea.classList.add('hidden');
+                }
+                
+                showNotification(`${files.length} imagem(ns) adicionada(s) automaticamente no formato 1:1!`, 'success');
                 
             } catch (error) {
                 console.error('Error uploading multiple images:', error);
@@ -2759,7 +2838,7 @@
             } finally {
                 uploadArea.classList.remove('uploading');
                 uploadArea.innerHTML = originalHtml;
-                productImageUpload.value = ''; // Reset input
+                productImageUpload.value = '';
             }
         }
 
@@ -2786,14 +2865,12 @@
                 `;
                 productImagesPreview.appendChild(imageItem);
                 
-                // Adicionar evento para remover imagem
                 imageItem.querySelector('.remove-image-btn').addEventListener('click', (e) => {
                     e.stopPropagation();
                     const indexToRemove = parseInt(e.currentTarget.getAttribute('data-index'));
                     removeProductImage(indexToRemove);
                 });
                 
-                // Adicionar evento para visualizar imagem
                 imageItem.querySelector('img').addEventListener('click', (e) => {
                     e.stopPropagation();
                     openImageZoom(base64, `Imagem ${index + 1} do produto`);
@@ -2806,17 +2883,9 @@
             imageCounter.textContent = `${count}/3 imagens selecionadas`;
             
             if (count >= 3) {
-                productImageUploadArea.style.opacity = '0.5';
-                productImageUploadArea.style.cursor = 'not-allowed';
-                productImageUploadArea.onclick = null;
-                productImageUploadArea.style.pointerEvents = 'none';
                 imageCounter.style.color = '#4caf50';
                 imageCounter.innerHTML += ' <i class="fas fa-check"></i>';
             } else {
-                productImageUploadArea.style.opacity = '1';
-                productImageUploadArea.style.cursor = 'pointer';
-                productImageUploadArea.onclick = () => productImageUpload.click();
-                productImageUploadArea.style.pointerEvents = 'auto';
                 imageCounter.style.color = '#757575';
             }
         }
@@ -2825,6 +2894,12 @@
             productImagesBase64.splice(index, 1);
             updateProductImagesPreview();
             updateImageCounter();
+            
+            // Mostrar área de upload novamente se tiver menos de 3 imagens
+            if (productImagesBase64.length < 3) {
+                productImageUploadArea.classList.remove('hidden');
+            }
+            
             showNotification('Imagem removida.', 'info');
         }
 
@@ -2853,7 +2928,6 @@
             newPasswordStrength.textContent = 'A senha deve ter pelo menos 6 caracteres';
             newPasswordStrength.style.color = '#757575';
             
-            // Restaurar estado do campo de senha atual
             if (!userHasPassword) {
                 currentPassword.placeholder = "Você não tem senha cadastrada";
                 currentPassword.disabled = true;
@@ -2895,23 +2969,19 @@
         async function changeUserPassword(e) {
             e.preventDefault();
             
-            // Se o usuário não tem senha cadastrada, criar uma nova
             if (!userHasPassword) {
                 await createNewPassword();
                 return;
             }
             
-            // Caso contrário, validar senha atual
             const currentPass = currentPassword.value;
             const newPass = newPassword.value;
             
             if (!userHasPassword && currentPass) {
-                // Usuário sem senha tentando usar senha atual
                 showNotification('Você não tem senha cadastrada. Deixe o campo "Senha Atual" em branco.', 'error');
                 return;
             }
             
-            // Validar novas senhas
             if (!validateNewPassword() || !validatePasswordMatch()) {
                 showNotification('Por favor, corrija os erros no formulário.', 'error');
                 return;
@@ -2928,23 +2998,19 @@
             }
             
             try {
-                // Mostrar loading
                 const originalBtnText = submitChangePasswordBtn.innerHTML;
                 submitChangePasswordBtn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>';
                 submitChangePasswordBtn.disabled = true;
                 
                 if (userHasPassword) {
-                    // Reautenticar o usuário
                     const user = auth.currentUser;
                     const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPass);
                     await user.reauthenticateWithCredential(credential);
                 }
                 
-                // Atualizar senha
                 const user = auth.currentUser;
                 await user.updatePassword(newPass);
                 
-                // Registrar a mudança de senha
                 await db.collection('userActivities').add({
                     userId: currentStoreId,
                     action: userHasPassword ? 'password_changed' : 'password_created',
@@ -2954,13 +3020,10 @@
                     ipAddress: await getIPAddress()
                 });
                 
-                // Atualizar estado
                 userHasPassword = true;
                 
-                // Mostrar mensagem de sucesso
                 showNotification(userHasPassword ? 'Senha alterada com sucesso!' : 'Senha criada com sucesso!', 'success');
                 
-                // Fechar modal
                 changePasswordModal.style.display = 'none';
                 resetChangePasswordForm();
                 
@@ -2981,7 +3044,6 @@
                     showNotification('Erro ao alterar senha: ' + error.message, 'error');
                 }
             } finally {
-                // Restaurar botão
                 submitChangePasswordBtn.innerHTML = '<i class="fas fa-save"></i> Alterar Senha';
                 submitChangePasswordBtn.disabled = false;
             }
@@ -3002,16 +3064,13 @@
             }
             
             try {
-                // Mostrar loading
                 const originalBtnText = submitChangePasswordBtn.innerHTML;
                 submitChangePasswordBtn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>';
                 submitChangePasswordBtn.disabled = true;
                 
-                // Criar nova senha para usuário sem senha
                 const user = auth.currentUser;
                 await user.updatePassword(newPass);
                 
-                // Registrar a criação de senha
                 await db.collection('userActivities').add({
                     userId: currentStoreId,
                     action: 'password_created',
@@ -3021,13 +3080,10 @@
                     ipAddress: await getIPAddress()
                 });
                 
-                // Atualizar estado
                 userHasPassword = true;
                 
-                // Mostrar mensagem de sucesso
                 showNotification('Senha criada com sucesso! Agora você pode fazer login com e-mail e senha.', 'success');
                 
-                // Fechar modal
                 changePasswordModal.style.display = 'none';
                 resetChangePasswordForm();
                 
@@ -3045,7 +3101,6 @@
                     showNotification('Erro ao criar senha: ' + error.message, 'error');
                 }
             } finally {
-                // Restaurar botão
                 submitChangePasswordBtn.innerHTML = '<i class="fas fa-save"></i> Alterar Senha';
                 submitChangePasswordBtn.disabled = false;
             }
@@ -3059,17 +3114,14 @@
                     return;
                 }
                 
-                // Mostrar loading
                 const originalBtnText = sendResetLinkBtn.innerHTML;
                 sendResetLinkBtn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>';
                 sendResetLinkBtn.disabled = true;
                 
-                // Enviar email de redefinição de senha
                 await auth.sendPasswordResetEmail(user.email);
                 
                 showNotification('Link de recuperação enviado para seu e-mail!', 'success');
                 
-                // Registrar a solicitação
                 await db.collection('userActivities').add({
                     userId: currentStoreId,
                     action: 'password_reset_requested',
@@ -3079,7 +3131,6 @@
                     ipAddress: await getIPAddress()
                 });
                 
-                // Fechar modal após 2 segundos
                 setTimeout(() => {
                     changePasswordModal.style.display = 'none';
                     resetChangePasswordForm();
@@ -3096,7 +3147,6 @@
                     showNotification('Erro ao enviar link de recuperação: ' + error.message, 'error');
                 }
             } finally {
-                // Restaurar botão
                 sendResetLinkBtn.innerHTML = '<i class="fas fa-envelope"></i> Enviar Link de Recuperação por E-mail';
                 sendResetLinkBtn.disabled = false;
             }
@@ -3110,123 +3160,6 @@
             } catch (error) {
                 console.error('Error getting IP address:', error);
                 return 'unknown';
-            }
-        }
-
-        async function optimizeImage(base64String, maxSizeKB = 600) {
-            return new Promise((resolve) => {
-                const base64Data = base64String.split(',')[1] || base64String;
-                const currentSizeKB = (base64Data.length * 0.75) / 1024;
-                
-                if (currentSizeKB <= maxSizeKB) {
-                    resolve(base64String);
-                    return;
-                }
-                
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    let quality = 0.8;
-                    const maxDimension = 1200;
-                    
-                    if (width > maxDimension || height > maxDimension) {
-                        if (width > height) {
-                            height = (maxDimension / width) * height;
-                            width = maxDimension;
-                        } else {
-                            width = (maxDimension / height) * width;
-                            height = maxDimension;
-                        }
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    const tryCompression = (currentQuality) => {
-                        const compressedBase64 = canvas.toDataURL('image/jpeg', currentQuality);
-                        const compressedData = compressedBase64.split(',')[1];
-                        const compressedSizeKB = (compressedData.length * 0.75) / 1024;
-                        
-                        if (compressedSizeKB <= maxSizeKB || currentQuality <= 0.3) {
-                            resolve(compressedBase64);
-                        } else {
-                            setTimeout(() => {
-                                tryCompression(currentQuality * 0.8);
-                            }, 0);
-                        }
-                    };
-                    
-                    tryCompression(quality);
-                };
-                
-                img.onerror = function() {
-                    resolve(base64String);
-                };
-                
-                img.src = base64String;
-            });
-        }
-
-        async function handleImageUpload(e, callback) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            if (file.size > 8 * 1024 * 1024) {
-                showNotification('A imagem deve ter no máximo 8MB.', 'error');
-                e.target.value = '';
-                return;
-            }
-            
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-            if (!validTypes.includes(file.type)) {
-                showNotification('Tipo de arquivo inválido. Use JPG ou PNG.', 'error');
-                e.target.value = '';
-                return;
-            }
-            
-            const uploadArea = e.target.closest('.upload-area');
-            const originalHtml = uploadArea.innerHTML;
-            
-            uploadArea.classList.add('uploading');
-            uploadArea.innerHTML = `
-                <div class="upload-icon"><i class="fas fa-spinner fa-spin"></i></div>
-                <div class="upload-text">Otimizando imagem...</div>
-            `;
-            
-            try {
-                const reader = new FileReader();
-                reader.onload = async function(event) {
-                    try {
-                        const originalBase64 = event.target.result;
-                        const optimizedBase64 = await optimizeImage(originalBase64, 600);
-                        callback(optimizedBase64);
-                        showNotification('Imagem otimizada com sucesso!', 'success');
-                    } catch (error) {
-                        console.error('Error optimizing image:', error);
-                        callback(event.target.result);
-                        showNotification('Imagem carregada', 'info');
-                    }
-                    
-                    uploadArea.classList.remove('uploading');
-                    uploadArea.innerHTML = originalHtml;
-                };
-                
-                reader.onerror = function() {
-                    showNotification('Erro ao carregar imagem.', 'error');
-                    uploadArea.classList.remove('uploading');
-                    uploadArea.innerHTML = originalHtml;
-                };
-                
-                reader.readAsDataURL(file);
-            } catch (error) {
-                console.error('Error in handleImageUpload:', error);
-                showNotification('Erro ao processar imagem.', 'error');
-                uploadArea.classList.remove('uploading');
-                uploadArea.innerHTML = originalHtml;
             }
         }
 
@@ -3257,7 +3190,6 @@
             renewReceiptUpload.value = '';
             renewPaymentNotes.value = '';
             
-            // Restaurar HTML original
             const originalHtml = `
                 <div class="upload-icon"><i class="fas fa-file-upload"></i></div>
                 <div class="upload-text">Clique para fazer upload</div>
@@ -3289,7 +3221,6 @@
                 return;
             }
             
-            // Salvar HTML original
             const originalHtml = renewReceiptUploadArea.innerHTML;
             
             renewReceiptUploadArea.classList.add('uploading');
@@ -3307,18 +3238,15 @@
                     renewReceiptFileName = file.name;
                     renewReceiptBase64 = base64;
                     
-                    // Restaurar HTML original
                     renewReceiptUploadArea.innerHTML = originalHtml;
                     renewReceiptUploadArea.classList.remove('uploading');
                     
-                    // Mostrar pré-visualização apropriada
                     if (renewReceiptType === 'pdf') {
                         renewReceiptPdfPreview.style.display = 'flex';
                         renewPdfFileName.textContent = file.name;
                         renewReceiptImagePreview.style.display = 'none';
                         showNotification('PDF carregado com sucesso!', 'success');
                     } else {
-                        // Para imagens, otimizar
                         const img = new Image();
                         img.onload = async function() {
                             try {
@@ -3326,7 +3254,6 @@
                                 let width = img.width;
                                 let height = img.height;
                                 
-                                // Redimensionar se for muito grande
                                 const maxDimension = 1200;
                                 if (width > maxDimension || height > maxDimension) {
                                     if (width > height) {
@@ -3351,7 +3278,6 @@
                                 showNotification('Comprovante carregado com sucesso!', 'success');
                             } catch (error) {
                                 console.error('Error optimizing image:', error);
-                                // Usar imagem original se houver erro
                                 renewReceiptImagePreview.src = renewReceiptBase64;
                                 renewReceiptImagePreview.style.display = 'block';
                                 renewReceiptPdfPreview.style.display = 'none';
@@ -3391,7 +3317,7 @@
             currentPaymentRecord = paymentData;
             alertStoreName.textContent = paymentData.storeName || currentUser.storeName || 'Minha Loja';
             alertUserEmail.textContent = currentUser.email;
-            alertUserPhone.textContent = storeConfig.contactPhone || currentUser.phone || 'Não informado';
+            alertUserPhone.textContent = storeConfig.whatsappNumber || currentUser.phone || 'Não informado';
             alertPaymentAmount.textContent = `R$ ${paymentData.amount.toFixed(2).replace('.', ',')}`;
             alertRegistrationDate.textContent = formatDate(paymentData.createdAt || new Date().toISOString());
             whatsappAlertModal.style.display = 'flex';
@@ -3403,7 +3329,7 @@
             try {
                 paymentRecordId = currentPaymentRecord.id || `PAG-${Date.now()}`;
                 
-                const message = `🔄 *SOLICITAÇÃO DE RENOVAÇÃO* 🔄\n\n📋 *ID do Pagamento:* ${paymentRecordId}\n🏪 *Nome da Loja:* ${currentPaymentRecord.storeName || currentUser.storeName}\n📧 *E-mail Cadastrado:* ${currentUser.email}\n📱 *WhatsApp:* ${storeConfig.contactPhone || currentUser.phone || 'Não informado'}\n💰 *Valor do Pagamento:* R$ ${currentPaymentRecord.amount.toFixed(2)}\n📅 *Data do Cadastro:* ${formatDate(currentPaymentRecord.createdAt || new Date().toISOString())}\n⏰ *Hora:* ${formatTime(currentPaymentRecord.createdAt || new Date().toISOString())}\n📝 *Observações:* ${currentPaymentRecord.notes || 'Nenhuma'}\n\n📊 *Status:* Comprovante enviado - Aguardando liberação\n\n⚠️ *POR FAVOR, LIBERAR O ACESSO DESTA CONTA* ⚠️\n\n_Este é um pedido automático gerado pelo sistema Venda+._`;
+                const message = `🔄 *SOLICITAÇÃO DE RENOVAÇÃO* 🔄\n\n📋 *ID do Pagamento:* ${paymentRecordId}\n🏪 *Nome da Loja:* ${currentPaymentRecord.storeName || currentUser.storeName}\n📧 *E-mail Cadastrado:* ${currentUser.email}\n📱 *WhatsApp:* ${storeConfig.whatsappNumber || currentUser.phone || 'Não informado'}\n💰 *Valor do Pagamento:* R$ ${currentPaymentRecord.amount.toFixed(2)}\n📅 *Data do Cadastro:* ${formatDate(currentPaymentRecord.createdAt || new Date().toISOString())}\n⏰ *Hora:* ${formatTime(currentPaymentRecord.createdAt || new Date().toISOString())}\n📝 *Observações:* ${currentPaymentRecord.notes || 'Nenhuma'}\n\n📊 *Status:* Comprovante enviado - Aguardando liberação\n\n⚠️ *POR FAVOR, LIBERAR O ACESSO DESTA CONTA* ⚠️\n\n_Este é um pedido automático gerado pelo sistema Venda+._`;
                 
                 if (!supportPhone) {
                     showNotification('Número de suporte não configurado no sistema.', 'error');
@@ -3416,10 +3342,8 @@
                 await updatePaymentWhatsAppSent();
                 whatsappAlertModal.style.display = 'none';
                 
-                // Mostrar modal temporário
                 showTemporaryRenewalModal();
                 
-                // Mostrar modal de aprovação após 1 segundo
                 setTimeout(() => {
                     showWaitingApprovalModal();
                 }, 1000);
@@ -3510,7 +3434,6 @@
                     expiredBanner.classList.add('d-none');
                     expiryWarningModalShown = false;
                     
-                    // Desbloquear sistema se estava bloqueado
                     if (isSystemBlocked) {
                         unblockSystem();
                     }
@@ -3535,7 +3458,6 @@
             }
             
             try {
-                // Mostrar loading
                 const originalBtnText = submitRenewBtn.innerHTML;
                 submitRenewBtn.innerHTML = '<div class="loading-spinner" style="width:20px;height:20px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>';
                 submitRenewBtn.disabled = true;
@@ -3552,7 +3474,7 @@
                     userName: currentUser.storeName,
                     storeName: currentUser.storeName,
                     userEmail: currentUser.email,
-                    userPhone: storeConfig.contactPhone || currentUser.phone || '',
+                    userPhone: storeConfig.whatsappNumber || currentUser.phone || '',
                     status: 'pending',
                     plan: 'monthly',
                     planDays: 30,
@@ -3581,10 +3503,8 @@
                 renewPaymentModal.style.display = 'none';
                 resetRenewReceipt();
                 
-                // Fechar modal de aviso de vencimento se estiver aberto
                 expiryWarningModal.style.display = 'none';
                 
-                // Mostrar modal de alerta do WhatsApp
                 showWhatsAppAlertModal(paymentData);
                 await checkRenewalStatus();
                 
@@ -3592,7 +3512,6 @@
                 console.error('Error submitting renewal payment:', error);
                 showNotification('Erro ao enviar comprovante: ' + error.message, 'error');
             } finally {
-                // Restaurar botão
                 submitRenewBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Concluir Renovação';
                 submitRenewBtn.disabled = false;
             }
@@ -3804,7 +3723,6 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 
-                // Verificar se há imagens múltiplas
                 const images = product.imagesBase64 || [];
                 const hasMultipleImages = images.length > 0;
                 const firstImage = hasMultipleImages ? images[0] : product.imageBase64;
@@ -3858,7 +3776,6 @@
                     if (product) {
                         const images = product.imagesBase64 || [];
                         if (images.length > 0) {
-                            // Se houver múltiplas imagens, mostrar a primeira
                             openImageZoom(images[0], product.name);
                         } else if (product.imageBase64) {
                             openImageZoom(product.imageBase64, product.name);
@@ -4110,6 +4027,11 @@
             updateImageCounter();
             productActive.checked = true;
             updateProductCategorySelect();
+            loadCategories();
+            
+            // Mostrar área de upload
+            productImageUploadArea.classList.remove('hidden');
+            
             productFormModal.style.display = 'block';
         }
 
@@ -4125,7 +4047,6 @@
             productCategory.value = selectedProduct.category || '';
             productActive.checked = selectedProduct.active !== false;
             
-            // Carregar imagens múltiplas ou imagem única
             if (selectedProduct.imagesBase64 && selectedProduct.imagesBase64.length > 0) {
                 productImagesBase64 = [...selectedProduct.imagesBase64];
             } else if (selectedProduct.imageBase64) {
@@ -4137,6 +4058,15 @@
             updateProductImagesPreview();
             updateImageCounter();
             updateProductCategorySelect();
+            loadCategories();
+            
+            // Mostrar/ocultar área de upload conforme número de imagens
+            if (productImagesBase64.length >= 3) {
+                productImageUploadArea.classList.add('hidden');
+            } else {
+                productImageUploadArea.classList.remove('hidden');
+            }
+            
             productFormModal.style.display = 'block';
         }
 
@@ -4162,7 +4092,6 @@
             // Salvar imagens múltiplas
             if (productImagesBase64.length > 0) {
                 productData.imagesBase64 = productImagesBase64;
-                // Manter compatibilidade com versão antiga
                 productData.imageBase64 = productImagesBase64[0];
             }
             
@@ -4201,14 +4130,12 @@
             e.preventDefault();
             
             const whatsappNumber = configWhatsApp.value;
-            const contactPhone = configContactPhone.value;
             const deliveryFee = parseFloat(configDeliveryFee.value) || 0;
             
             const configData = {
                 businessName: configBusinessName.value,
                 whatsappNumber: whatsappNumber,
                 pixKey: configPixKey.value,
-                contactPhone: contactPhone,
                 productsTitle: configProductsTitle.value,
                 deliveryFee: deliveryFee,
                 theme: configTheme.value,
@@ -4239,7 +4166,6 @@
                 deliveryFeeStat.textContent = `R$ ${deliveryFee.toFixed(2)}`;
                 
                 showNotification('Configurações salvas!', 'success');
-                welcomeModal.style.display = 'none';
             } catch (error) {
                 console.error('Error saving store config:', error);
                 showNotification('Erro ao salvar configurações.', 'error');
@@ -4322,12 +4248,6 @@
 
         function hideLoading() {
             loadingOverlay.style.display = 'none';
-        }
-
-        function checkWelcomeModal() {
-            if (!userConfigCompleted) {
-                welcomeModal.style.display = 'flex';
-            }
         }
 
         // Inicialização
