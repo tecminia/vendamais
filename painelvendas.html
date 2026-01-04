@@ -254,12 +254,17 @@
         .days-left-icon{font-size:2.5rem;color:#ff9800;margin-bottom:15px}
         .days-left-title{font-size:1.2rem;margin-bottom:10px;color:#212121;font-weight:600}
         .days-left-message{color:#757575;margin-bottom:20px;line-height:1.5;font-size:0.9rem}
-        /* Estilos para múltiplas imagens */
-        .multiple-images-container{margin-top:15px}
-        .images-preview-container{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
-        .image-preview-item{position:relative;width:100%;height:100px;border-radius:8px;overflow:hidden;background-color:#f5f5f5;border:1px solid #e0e0e0}
-        .image-preview-item img{width:100%;height:100%;object-fit:cover}
-        .remove-image-btn{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:50%;background-color:rgba(244,67,54,0.9);color:#fff;border:none;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+        /* Estilos para múltiplas imagens - NOVO SISTEMA */
+        .multiple-images-container{margin-top:15px;display:none}
+        .images-preview-container{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+        .image-preview-item{position:relative;width:100%;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background-color:#f5f5f5;border:1px solid #e0e0e0}
+        .image-preview-item img{width:100%;height:100%;object-fit:cover;cursor:pointer}
+        .remove-image-btn{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:50%;background-color:rgba(244,67,54,0.9);color:#fff;border:none;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+        .add-image-card{width:100%;aspect-ratio:1/1;border-radius:8px;background-color:#f5f5f5;border:2px dashed #e0e0e0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s ease;color:#757575}
+        .add-image-card:hover{background-color:#e8f5e9;border-color:#4caf50;color:#4caf50}
+        .add-image-card:active{transform:scale(0.98)}
+        .add-image-icon{font-size:1.5rem;margin-bottom:5px}
+        .add-image-text{font-size:0.8rem;text-align:center}
         .image-counter{font-size:0.8rem;color:#757575;margin-top:5px;text-align:center}
         /* Botão flutuante para produtos */
         .floating-action-btn{position:fixed;bottom:80px;right:15px;width:56px;height:56px;border-radius:50%;background-color:#212121;color:#fff;border:none;box-shadow:0 4px 12px rgba(0,0,0,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;z-index:99;transition:all 0.3s ease}
@@ -279,7 +284,49 @@
         .link-btn-minimal.open{background-color:#4caf50;color:#fff}
         .link-btn-minimal.share{background-color:#ff9800;color:#fff}
         .link-btn-minimal:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.15)}
-        @keyframes modalFadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+        /* Modal Gerenciador de Categorias - ATUALIZADO */
+        .categories-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .categories-modal{
+            background-color:#fff;
+            border-radius:15px;
+            padding:20px;
+            max-width:400px;
+            width:90%;
+            box-shadow:0 10px 30px rgba(0,0,0,0.2);
+            z-index:1002;
+            animation:modalFadeIn 0.3s ease;
+            position: relative;
+        }
+        .categories-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid #e0e0e0}
+        .categories-title{font-size:1.2rem;font-weight:600;color:#212121}
+        .close-categories{background:none;border:none;font-size:1.5rem;color:#757575;cursor:pointer;padding:5px}
+        .categories-list{max-height:300px;overflow-y:auto;margin-bottom:15px}
+        .category-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #f5f5f5;transition:background-color 0.3s ease}
+        .category-item:hover{background-color:#f9f9f9}
+        .category-item:last-child{border-bottom:none}
+        .category-name{flex:1;color:#212121;font-weight:500}
+        .category-actions{display:flex;gap:5px}
+        .category-action-btn{width:30px;height:30px;border-radius:6px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.8rem;transition:all 0.3s ease}
+        .category-edit-btn{background-color:rgba(33,150,243,0.1);color:#2196f3}
+        .category-delete-btn{background-color:rgba(244,67,54,0.1);color:#f44336}
+        .category-empty{text-align:center;padding:20px;color:#757575}
+        .categories-form{display:flex;gap:10px;margin-top:15px;padding-top:15px;border-top:1px solid #e0e0e0}
+        .category-input{flex:1;padding:10px;border:1px solid #e0e0e0;border-radius:8px;font-size:0.9rem}
+        .category-input:focus{outline:none;border-color:#212121}
+        .add-category-btn{padding:10px 15px;background-color:#212121;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+        @keyframes modalFadeIn{from{opacity:0;transform:translateY(-20px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
         @keyframes fadeIn{from{opacity:0;transform:translate(-50%,-50%)scale(0.9)}to{opacity:1;transform:translate(-50%,-50%)scale(1)}}
         @keyframes fadeOut{from{opacity:1;transform:translate(-50%,-50%)scale(1)}to{opacity:0;transform:translate(-50%,-50%)scale(0.9)}}
         @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
@@ -479,6 +526,26 @@
                         <i class="fas fa-envelope"></i> Enviar Link de Recuperação por E-mail
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Gerenciador de Categorias - ATUALIZADO -->
+    <div class="categories-modal-overlay" id="categoriesModal">
+        <div class="categories-modal">
+            <div class="categories-header">
+                <h3 class="categories-title">Gerenciar Categorias</h3>
+                <button class="close-categories" id="closeCategoriesModal">&times;</button>
+            </div>
+            <div class="categories-list" id="categoriesListContent">
+                <div class="category-empty">
+                    <i class="fas fa-tags" style="font-size:2rem;margin-bottom:10px;color:#e0e0e0"></i>
+                    <p>Nenhuma categoria criada ainda</p>
+                </div>
+            </div>
+            <div class="categories-form">
+                <input type="text" id="newCategoryInput" class="category-input" placeholder="Nome da nova categoria">
+                <button class="add-category-btn" id="addCategoryBtn"><i class="fas fa-plus"></i></button>
             </div>
         </div>
     </div>
@@ -915,25 +982,27 @@
                             <select id="productCategory" class="form-input flex-1" required>
                                 <option value="">Selecione...</option>
                             </select>
-                            <button type="button" class="btn btn-primary btn-sm" id="addCategoryCompactBtn" title="Adicionar Categoria">
-                                <i class="fas fa-plus"></i>
+                            <button type="button" class="btn btn-primary btn-sm" id="manageCategoriesBtn" title="Gerenciar Categorias">
+                                <i class="fas fa-edit"></i>
                             </button>
                         </div>
-                        <div class="compact-categories mt-2" id="compactCategoriesList"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Imagens do Produto (Máximo 3)</label>
-                        <div class="upload-area" id="productImageUploadArea">
+                        <!-- Card grande de upload (estado inicial) -->
+                        <div class="upload-area" id="mainUploadArea">
                             <div class="upload-icon"><i class="fas fa-image"></i></div>
                             <div class="upload-text">Clique para adicionar imagens</div>
                             <div class="upload-info">Máximo 3 imagens - Tamanho máximo: 8MB cada</div>
                             <input type="file" id="productImageUpload" accept="image/*" multiple style="display:none">
                         </div>
-                        <div class="image-counter" id="imageCounter">0/3 imagens selecionadas</div>
-                        <div class="multiple-images-container">
+                        
+                        <!-- Container de múltiplas imagens (inicialmente oculto) -->
+                        <div class="multiple-images-container" id="multipleImagesContainer">
                             <div class="images-preview-container" id="productImagesPreview">
                                 <!-- As imagens serão adicionadas aqui dinamicamente -->
                             </div>
+                            <div class="image-counter" id="imageCounter">0/3 imagens selecionadas</div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -1104,6 +1173,7 @@
         let isSystemBlocked = false;
         let temporaryModalTimeout = null;
         let userHasPassword = false;
+        let editingCategoryId = null;
 
         // Elementos do DOM
         const welcomeModal = document.getElementById('welcomeModal');
@@ -1188,9 +1258,11 @@
         const configDeliveryFee = document.getElementById('configDeliveryFee');
         const configTheme = document.getElementById('configTheme');
         const themeOptions = document.querySelectorAll('.theme-option');
-        const categoriesList = document.getElementById('categoriesList');
-        const newCategoryName = document.getElementById('newCategoryName');
-        const addCategoryBtn = document.getElementById('addCategoryBtn');
+        const categoriesModal = document.getElementById('categoriesModal'); // Agora é o overlay
+        const closeCategoriesModal = document.getElementById('closeCategoriesModal');
+        const categoriesListContent = document.getElementById('categoriesListContent');
+        const newCategoryInput = document.getElementById('newCategoryInput');
+        const addCategoryModalBtn = document.getElementById('addCategoryBtn');
         const productForm = document.getElementById('productForm');
         const productIdInput = document.getElementById('productId');
         const productModalTitle = document.getElementById('productModalTitle');
@@ -1198,10 +1270,10 @@
         const productDescription = document.getElementById('productDescription');
         const productPrice = document.getElementById('productPrice');
         const productCategory = document.getElementById('productCategory');
-        const addCategoryCompactBtn = document.getElementById('addCategoryCompactBtn');
-        const compactCategoriesList = document.getElementById('compactCategoriesList');
-        const productImageUploadArea = document.getElementById('productImageUploadArea');
+        const manageCategoriesBtn = document.getElementById('manageCategoriesBtn');
+        const mainUploadArea = document.getElementById('mainUploadArea');
         const productImageUpload = document.getElementById('productImageUpload');
+        const multipleImagesContainer = document.getElementById('multipleImagesContainer');
         const productImagesPreview = document.getElementById('productImagesPreview');
         const imageCounter = document.getElementById('imageCounter');
         const productActive = document.getElementById('productActive');
@@ -1689,7 +1761,6 @@
                         ...doc.data()
                     });
                 });
-                updateCompactCategories();
                 updateProductCategorySelect();
             } catch (error) {
                 console.error('Error loading categories:', error);
@@ -1718,34 +1789,6 @@
             }
         }
 
-        function updateCompactCategories() {
-            compactCategoriesList.innerHTML = '';
-            
-            if (categories.length === 0) {
-                compactCategoriesList.innerHTML = '<small class="text-gray">Nenhuma categoria criada ainda</small>';
-                return;
-            }
-            
-            categories.forEach(category => {
-                const categoryElement = document.createElement('div');
-                categoryElement.className = 'compact-category-tag';
-                categoryElement.innerHTML = `
-                    <span>${category.name}</span>
-                    <button class="delete-category-btn" data-id="${category.id}">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-                compactCategoriesList.appendChild(categoryElement);
-            });
-            
-            document.querySelectorAll('.compact-category-tag .delete-category-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const categoryId = e.currentTarget.getAttribute('data-id');
-                    await deleteCategory(categoryId);
-                });
-            });
-        }
-
         function updateProductCategorySelect() {
             const select = document.getElementById('productCategory');
             if (!select) return;
@@ -1759,25 +1802,105 @@
             });
         }
 
-        async function addCategoryCompact() {
-            const categoryName = prompt('Digite o nome da nova categoria:');
-            if (!categoryName || !categoryName.trim()) {
+        function showCategoriesModal() {
+            editingCategoryId = null;
+            newCategoryInput.value = '';
+            newCategoryInput.placeholder = 'Nome da nova categoria';
+            updateCategoriesModalList();
+            categoriesModal.style.display = 'flex'; // Agora usa flex para centralizar
+        }
+
+        function updateCategoriesModalList() {
+            categoriesListContent.innerHTML = '';
+            
+            if (categories.length === 0) {
+                categoriesListContent.innerHTML = `
+                    <div class="category-empty">
+                        <i class="fas fa-tags" style="font-size:2rem;margin-bottom:10px;color:#e0e0e0"></i>
+                        <p>Nenhuma categoria criada ainda</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            categories.forEach(category => {
+                const categoryItem = document.createElement('div');
+                categoryItem.className = 'category-item';
+                categoryItem.innerHTML = `
+                    <div class="category-name">${category.name}</div>
+                    <div class="category-actions">
+                        <button class="category-action-btn category-edit-btn" data-id="${category.id}" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="category-action-btn category-delete-btn" data-id="${category.id}" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                categoriesListContent.appendChild(categoryItem);
+            });
+            
+            // Adicionar event listeners para os botões
+            document.querySelectorAll('.category-edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const categoryId = e.currentTarget.getAttribute('data-id');
+                    editCategory(categoryId);
+                });
+            });
+            
+            document.querySelectorAll('.category-delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const categoryId = e.currentTarget.getAttribute('data-id');
+                    deleteCategory(categoryId);
+                });
+            });
+        }
+
+        async function editCategory(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+            
+            editingCategoryId = categoryId;
+            newCategoryInput.value = category.name;
+            newCategoryInput.placeholder = 'Editar nome da categoria';
+            newCategoryInput.focus();
+        }
+
+        async function addOrUpdateCategory() {
+            const categoryName = newCategoryInput.value.trim();
+            if (!categoryName) {
                 showNotification('Nome da categoria é obrigatório.', 'error');
                 return;
             }
             
             try {
-                await db.collection('stores').doc(currentStoreId).collection('categories').add({
-                    name: categoryName.trim(),
-                    storeId: currentStoreId,
-                    createdAt: new Date().toISOString()
-                });
+                if (editingCategoryId) {
+                    // Atualizar categoria existente
+                    await db.collection('stores').doc(currentStoreId).collection('categories').doc(editingCategoryId).update({
+                        name: categoryName,
+                        updatedAt: new Date().toISOString()
+                    });
+                    showNotification('Categoria atualizada com sucesso!', 'success');
+                } else {
+                    // Adicionar nova categoria
+                    await db.collection('stores').doc(currentStoreId).collection('categories').add({
+                        name: categoryName,
+                        storeId: currentStoreId,
+                        createdAt: new Date().toISOString()
+                    });
+                    showNotification('Categoria adicionada com sucesso!', 'success');
+                }
                 
+                // Limpar e recarregar
+                newCategoryInput.value = '';
+                editingCategoryId = null;
+                newCategoryInput.placeholder = 'Nome da nova categoria';
                 await loadCategories();
-                showNotification('Categoria adicionada com sucesso!', 'success');
+                updateCategoriesModalList();
+                
             } catch (error) {
-                console.error('Error adding category:', error);
-                showNotification('Erro ao adicionar categoria.', 'error');
+                console.error('Error saving category:', error);
+                showNotification('Erro ao salvar categoria.', 'error');
             }
         }
 
@@ -1785,6 +1908,7 @@
             if (!confirm('Tem certeza que deseja excluir esta categoria?')) return;
             
             try {
+                // Verificar se há produtos usando esta categoria
                 const productsSnapshot = await db.collection('stores').doc(currentStoreId).collection('products')
                     .where('category', '==', categoryId).get();
                 
@@ -1794,7 +1918,9 @@
                 }
                 
                 await db.collection('stores').doc(currentStoreId).collection('categories').doc(categoryId).delete();
+                
                 await loadCategories();
+                updateCategoriesModalList();
                 showNotification('Categoria excluída com sucesso!', 'success');
             } catch (error) {
                 console.error('Error deleting category:', error);
@@ -2338,8 +2464,17 @@
                 daysLeftModal.style.display = 'none';
             });
 
-            // Categorias compactadas
-            addCategoryCompactBtn.addEventListener('click', addCategoryCompact);
+            // Modal de categorias - ATUALIZADO
+            manageCategoriesBtn.addEventListener('click', showCategoriesModal);
+            closeCategoriesModal.addEventListener('click', () => {
+                categoriesModal.style.display = 'none';
+            });
+            addCategoryModalBtn.addEventListener('click', addOrUpdateCategory);
+            newCategoryInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addOrUpdateCategory();
+                }
+            });
 
             // Botão flutuante
             floatingAddProductBtn.addEventListener('click', () => {
@@ -2548,8 +2683,8 @@
                 });
             });
 
-            // Upload de múltiplas imagens do produto
-            productImageUploadArea.addEventListener('click', () => {
+            // Sistema de upload de múltiplas imagens
+            mainUploadArea.addEventListener('click', () => {
                 productImageUpload.click();
             });
             
@@ -2604,7 +2739,7 @@
                 resetZoom();
             });
 
-            // Fechar modais ao clicar fora
+            // Fechar modais ao clicar fora - ATUALIZADO
             window.addEventListener('click', (e) => {
                 if (e.target === orderDetailsModal) {
                     orderDetailsModal.style.display = 'none';
@@ -2646,6 +2781,10 @@
                 if (e.target === changePasswordModal) {
                     changePasswordModal.style.display = 'none';
                     resetChangePasswordForm();
+                }
+                // Fechar modal de categorias ao clicar fora - ATUALIZADO
+                if (e.target === categoriesModal) {
+                    categoriesModal.style.display = 'none';
                 }
                 // Fechar menu de mudar senha ao clicar fora
                 if (!e.target.closest('.user-card') && !e.target.closest('.change-password-menu')) {
@@ -2776,34 +2915,29 @@
         async function handleMultipleImagesUpload(e) {
             const files = Array.from(e.target.files);
             
-            // Limitar a 3 imagens
-            if (files.length > 3) {
-                showNotification('Máximo de 3 imagens permitidas.', 'error');
-                productImageUpload.value = '';
-                return;
-            }
-            
-            // Verificar se já temos 3 imagens
-            const currentImagesCount = productImagesBase64.length;
-            const availableSlots = 3 - currentImagesCount;
+            // Verificar limite de 3 imagens
+            const availableSlots = 3 - productImagesBase64.length;
+            const filesToProcess = Math.min(files.length, availableSlots);
             
             if (files.length > availableSlots) {
-                showNotification(`Você já tem ${currentImagesCount} imagens. Pode adicionar apenas mais ${availableSlots}.`, 'error');
-                productImageUpload.value = '';
-                return;
+                showNotification(`Você pode adicionar apenas mais ${availableSlots} imagem(ns).`, 'error');
             }
             
-            const uploadArea = productImageUploadArea;
+            if (filesToProcess === 0) return;
+            
+            const uploadArea = mainUploadArea;
             const originalHtml = uploadArea.innerHTML;
             
             uploadArea.classList.add('uploading');
             uploadArea.innerHTML = `
                 <div class="upload-icon"><i class="fas fa-spinner fa-spin"></i></div>
-                <div class="upload-text">Processando ${files.length} imagem(ns)...</div>
+                <div class="upload-text">Processando ${filesToProcess} imagem(ns)...</div>
             `;
             
             try {
-                for (const file of files) {
+                for (let i = 0; i < filesToProcess; i++) {
+                    const file = files[i];
+                    
                     if (file.size > 8 * 1024 * 1024) {
                         showNotification(`A imagem ${file.name} excede 8MB.`, 'error');
                         continue;
@@ -2823,14 +2957,8 @@
                 
                 // Atualizar interface após todas as imagens serem processadas
                 updateProductImagesPreview();
-                updateImageCounter();
                 
-                // Se atingiu 3 imagens, ocultar área de upload
-                if (productImagesBase64.length >= 3) {
-                    productImageUploadArea.classList.add('hidden');
-                }
-                
-                showNotification(`${files.length} imagem(ns) adicionada(s) automaticamente no formato 1:1!`, 'success');
+                showNotification(`${filesToProcess} imagem(ns) adicionada(s) automaticamente no formato 1:1!`, 'success');
                 
             } catch (error) {
                 console.error('Error uploading multiple images:', error);
@@ -2852,8 +2980,31 @@
         }
 
         function updateProductImagesPreview() {
+            // Atualizar contador
+            const count = productImagesBase64.length;
+            imageCounter.textContent = `${count}/3 imagens selecionadas`;
+            
+            if (count >= 3) {
+                imageCounter.style.color = '#4caf50';
+                imageCounter.innerHTML += ' <i class="fas fa-check"></i>';
+            } else {
+                imageCounter.style.color = '#757575';
+            }
+            
+            // Estado inicial: 0 imagens
+            if (count === 0) {
+                mainUploadArea.style.display = 'block';
+                multipleImagesContainer.style.display = 'none';
+                productImagesPreview.innerHTML = '';
+                return;
+            }
+            
+            // Se tem 1 ou mais imagens
+            mainUploadArea.style.display = 'none';
+            multipleImagesContainer.style.display = 'block';
             productImagesPreview.innerHTML = '';
             
+            // Adicionar imagens existentes
             productImagesBase64.forEach((base64, index) => {
                 const imageItem = document.createElement('div');
                 imageItem.className = 'image-preview-item';
@@ -2876,30 +3027,26 @@
                     openImageZoom(base64, `Imagem ${index + 1} do produto`);
                 });
             });
-        }
-
-        function updateImageCounter() {
-            const count = productImagesBase64.length;
-            imageCounter.textContent = `${count}/3 imagens selecionadas`;
             
-            if (count >= 3) {
-                imageCounter.style.color = '#4caf50';
-                imageCounter.innerHTML += ' <i class="fas fa-check"></i>';
-            } else {
-                imageCounter.style.color = '#757575';
+            // Adicionar card "+" se ainda não atingiu o limite
+            if (count < 3) {
+                const addCard = document.createElement('div');
+                addCard.className = 'add-image-card';
+                addCard.innerHTML = `
+                    <div class="add-image-icon"><i class="fas fa-plus"></i></div>
+                    <div class="add-image-text">Adicionar imagem</div>
+                `;
+                productImagesPreview.appendChild(addCard);
+                
+                addCard.addEventListener('click', () => {
+                    productImageUpload.click();
+                });
             }
         }
 
         function removeProductImage(index) {
             productImagesBase64.splice(index, 1);
             updateProductImagesPreview();
-            updateImageCounter();
-            
-            // Mostrar área de upload novamente se tiver menos de 3 imagens
-            if (productImagesBase64.length < 3) {
-                productImageUploadArea.classList.remove('hidden');
-            }
-            
             showNotification('Imagem removida.', 'info');
         }
 
@@ -4022,15 +4169,11 @@
             productModalTitle.textContent = 'Novo Produto';
             productForm.reset();
             productIdInput.value = '';
-            productImagesPreview.innerHTML = '';
             productImagesBase64 = [];
-            updateImageCounter();
+            updateProductImagesPreview();
             productActive.checked = true;
             updateProductCategorySelect();
             loadCategories();
-            
-            // Mostrar área de upload
-            productImageUploadArea.classList.remove('hidden');
             
             productFormModal.style.display = 'block';
         }
@@ -4056,16 +4199,8 @@
             }
             
             updateProductImagesPreview();
-            updateImageCounter();
             updateProductCategorySelect();
             loadCategories();
-            
-            // Mostrar/ocultar área de upload conforme número de imagens
-            if (productImagesBase64.length >= 3) {
-                productImageUploadArea.classList.add('hidden');
-            } else {
-                productImageUploadArea.classList.remove('hidden');
-            }
             
             productFormModal.style.display = 'block';
         }
