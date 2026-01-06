@@ -77,18 +77,6 @@
         .back-button{background:none;border:none;color:#757575;font-size:1rem;cursor:pointer;display:flex;align-items:center;gap:5px;margin-bottom:20px;padding:5px;border-radius:5px}
         .back-button:hover{background-color:#f5f5f5}
     </style>
-        <!-- Manifesto PWA -->
-    <link rel="manifest" href="./manifest.json">
-    
-    <!-- Meta tags PWA -->
-    <meta name="theme-color" content="#212121">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Venda+">
-    <link rel="apple-touch-icon" href="./icon-192x192.png">
-    
-    <!-- Script de registro do Service Worker -->
-    <script src="./register-sw.js"></script>
 </head>
 <body>
     <div class="copy-protection-overlay" id="copyProtection"></div>
@@ -958,28 +946,6 @@
                 default: return error.message || 'Ocorreu um erro. Tente novamente.';
             }
         }
-    </script>
-    <script>
-        // Integrar com sistema existente
-        document.addEventListener('DOMContentLoaded', function() {
-            // Opcional: Botão para gerenciar cache
-            if (window.swManager) {
-                // Adicionar botão de limpar cache (apenas para admin)
-                if (window.currentUser && currentUser.isAdmin) {
-                    const cacheBtn = document.createElement('button');
-                    cacheBtn.innerHTML = '<i class="fas fa-broom"></i> Limpar Cache';
-                    cacheBtn.style.cssText = 'position: fixed; bottom: 80px; right: 15px; z-index: 9999;';
-                    cacheBtn.addEventListener('click', function() {
-                        window.swManager.clearCache().then(result => {
-                            if (result.success) {
-                                showNotification('Cache limpo com sucesso!', 'success');
-                            }
-                        });
-                    });
-                    document.body.appendChild(cacheBtn);
-                }
-            }
-        });
     </script>
 </body>
 </html>
