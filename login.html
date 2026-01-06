@@ -77,6 +77,19 @@
         .back-button{background:none;border:none;color:#757575;font-size:1rem;cursor:pointer;display:flex;align-items:center;gap:5px;margin-bottom:20px;padding:5px;border-radius:5px}
         .back-button:hover{background-color:#f5f5f5}
     </style>
+    
+    <meta name="application-name" content="Venda+">
+<meta name="apple-mobile-web-app-title" content="Venda+">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#212121">
+
+<link rel="apple-touch-icon" sizes="152x152" href="/vendamais/icons/icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/vendamais/icons/icon-180x180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="/vendamais/icons/icon-167x167.png">
+
+<link rel="manifest" href="/vendamais/pwa/manifest.json">
 </head>
 <body>
     <div class="copy-protection-overlay" id="copyProtection"></div>
@@ -947,5 +960,43 @@
             }
         }
     </script>
+    <script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/vendamais/pwa/sw.js')
+      .then(function (registration) {
+        console.log('Service Worker registrado:', registration.scope);
+
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              if (confirm('Nova versão disponível. Recarregar?')) {
+                window.location.reload();
+              }
+            }
+          });
+        });
+
+        setInterval(() => {
+          registration.update();
+        }, 3600000);
+      })
+      .catch(function (error) {
+        console.error('Falha no registro do Service Worker:', error);
+      });
+  });
+
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data?.type === 'UPDATE_AVAILABLE' && event.data.forceReload) {
+      window.location.reload();
+    }
+  });
+}
+
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  document.body.classList.add('pwa-mode');
+}
+</script>
 </body>
 </html>
