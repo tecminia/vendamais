@@ -186,11 +186,10 @@
         .status-filter{display:flex;gap:8px;overflow-x:auto;padding:10px 0;margin-bottom:15px}
         .status-filter-btn{padding:8px 12px;border-radius:20px;border:2px solid #e0e0e0;background-color:transparent;color:#757575;cursor:pointer;font-weight:500;font-size:0.8rem;white-space:nowrap;flex-shrink:0;transition:all 0.3s ease}
         .status-filter-btn.active{border-color:#212121;background-color:#212121;color:#fff}
-        .theme-selector{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
-        .theme-option{border:2px solid #e0e0e0;border-radius:10px;padding:15px;cursor:pointer;transition:all 0.3s ease}
-        .theme-option.active{border-color:#212121;background-color:rgba(33,33,33,0.05)}
-        .theme-preview{width:100%;height:60px;border-radius:8px;margin-bottom:8px;border:1px solid #e0e0e0;display:flex;align-items:center;justify-content:center;color:#212121;font-weight:600;background-size:cover;background-position:center}
-        .theme-name{text-align:center;font-weight:600;font-size:0.9rem;color:#212121;transition:color 0.3s ease}
+        .theme-selector{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+        .theme-option{border:none;border-radius:50%;padding:0;cursor:pointer;transition:all 0.3s ease;position:relative;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+        .theme-option.active .theme-preview{border:3px solid #212121;box-shadow:0 0 0 2px #fff, 0 0 0 4px #212121;}
+        .theme-preview{width:50px;height:50px;border-radius:50%;margin-bottom:8px;border:2px solid #e0e0e0;transition:all 0.3s ease}
         .empty-state{text-align:center;padding:40px 20px;color:#757575;transition:color 0.3s ease}
         .empty-icon{font-size:3rem;margin-bottom:15px;color:#e0e0e0;transition:color 0.3s ease}
         .notification{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:15px 25px;border-radius:15px;box-shadow:0 8px 25px rgba(0,0,0,0.2);z-index:10000;animation:fadeIn 0.3s ease;font-weight:600;color:#fff;text-align:center;backdrop-filter:blur(10px);background-color:rgba(0,0,0,0.85);max-width:300px;width:90%;display:flex;align-items:center;justify-content:center;gap:12px}
@@ -879,36 +878,28 @@
                         <label class="form-label">Tema da Loja</label>
                         <div class="theme-selector">
                             <div class="theme-option theme-red" data-theme="red">
-                                <div class="theme-preview" style="background:linear-gradient(135deg,#8B0000 0%,#FF0000 100%);color:#fff">Vermelho</div>
-                                <div class="theme-name">Vermelho</div>
+                                <div class="theme-preview" style="background:linear-gradient(135deg,#8B0000 0%,#FF0000 100%);"></div>
                             </div>
                             <div class="theme-option theme-blue" data-theme="blue">
-                                <div class="theme-preview" style="background:linear-gradient(135deg,#00008B 0%,#4169E1 100%);color:#fff">Azul</div>
-                                <div class="theme-name">Azul</div>
+                                <div class="theme-preview" style="background:linear-gradient(135deg,#00008B 0%,#4169E1 100%);"></div>
                             </div>
                             <div class="theme-option theme-pink" data-theme="pink">
-                                <div class="theme-preview" style="background:linear-gradient(135deg,#F4C2C2 0%,#FFB6C1 100%);color:#212121">Rosa</div>
-                                <div class="theme-name">Rosa</div>
+                                <div class="theme-preview" style="background:linear-gradient(135deg,#F4C2C2 0%,#FFB6C1 100%);"></div>
                             </div>
                             <div class="theme-option theme-yellow" data-theme="yellow">
-                                <div class="theme-preview" style="background:linear-gradient(135deg,#FFD700 0%,#FFEC8B 100%);color:#212121">Amarelo</div>
-                                <div class="theme-name">Amarelo</div>
+                                <div class="theme-preview" style="background:linear-gradient(135deg,#FFD700 0%,#FFEC8B 100%);"></div>
                             </div>
                             <div class="theme-option theme-black active" data-theme="black">
-                                <div class="theme-preview" style="background:linear-gradient(135deg,#212121 0%,#424242 100%);color:#fff">Preto</div>
-                                <div class="theme-name">Preto</div>
+                                <div class="theme-preview" style="background:linear-gradient(135deg,#212121 0%,#424242 100%);"></div>
                             </div>
                             <div class="theme-option theme-purple" data-theme="purple">
-                                <div class="theme-preview" style="background:linear-gradient(135deg,#8A2BE2 0%,#9370DB 100%);color:#fff">Roxo</div>
-                                <div class="theme-name">Roxo</div>
+                                <div class="theme-preview" style="background:linear-gradient(135deg,#8A2BE2 0%,#9370DB 100%);"></div>
                             </div>
                             <div class="theme-option theme-green" data-theme="green">
-                                <div class="theme-preview" style="background:linear-gradient(135deg,#006400 0%,#32CD32 100%);color:#fff">Verde</div>
-                                <div class="theme-name">Verde</div>
+                                <div class="theme-preview" style="background:linear-gradient(135deg,#006400 0%,#32CD32 100%);"></div>
                             </div>
                             <div class="theme-option theme-orange" data-theme="orange">
-                                <div class="theme-preview" style="background:linear-gradient(135deg,#FF8C00 0%,#FFA500 100%);color:#fff">Laranja</div>
-                                <div class="theme-name">Laranja</div>
+                                <div class="theme-preview" style="background:linear-gradient(135deg,#FF8C00 0%,#FFA500 100%);"></div>
                             </div>
                         </div>
                         <input type="hidden" id="configTheme" value="black">
@@ -3743,7 +3734,7 @@
                         <i class="fas fa-check-circle"></i>
                     </button>
                     ` : ''}
-                    <button class="action-btn btn-whatsapp" data-id="${order.id}">
+                    <button class="action-btn btn-whatsapp" data-id="${order.id}" id="whatsappBtn-${order.id}">
                         <i class="fab fa-whatsapp"></i>
                     </button>
                 </div>
@@ -4014,10 +4005,7 @@
                 
                 showNotification(`Status atualizado para: ${getDeliveryStatusText(status)}`, 'success');
                 
-                const order = orders.find(o => o.id === orderId);
-                if (order) {
-                    sendStatusUpdateWhatsApp(orderId, order, status);
-                }
+                // NÃO ENVIA WHATSAPP AUTOMATICAMENTE - APENAS ATUALIZA O FIRESTORE
             } catch (error) {
                 console.error('Error updating order:', error);
                 showNotification('Erro ao atualizar status.', 'error');
@@ -4028,27 +4016,38 @@
             const order = orders.find(o => o.id === orderId);
             if (!order) return;
             
-            const phoneNumber = storeConfig.whatsappNumber || "(11) 99999-9999";
-            const message = generateOrderMessage(order);
-            const whatsappUrl = `https://wa.me/${order.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-
-        function sendStatusUpdateWhatsApp(orderId, order, newStatus) {
-            const phoneNumber = storeConfig.whatsappNumber || "(11) 99999-9999";
-            let message = `📱 *ATUALIZAÇÃO DE STATUS* 📱\n\n*Pedido:* #${orderId.substring(0, 8)}\n*Cliente:* ${order.customerName}\n*Novo Status:* ${getDeliveryStatusText(newStatus)}\n\n`;
+            const status = order.deliveryStatus || 'preparing';
+            const statusText = getDeliveryStatusText(status);
+            const total = order.total || 0;
             
-            if (newStatus === 'delivering') {
-                message += `Seu pedido saiu para entrega! 🛵\nEm breve estará aí.\n\n`;
-            } else if (newStatus === 'delivered') {
-                message += `Seu pedido foi entregue! ✅\nAgradecemos pela preferência!\n\n`;
-            } else if (newStatus === 'confirmed') {
-                message += `Seu pedido foi confirmado! ✅\nEstamos preparando sua entrega.\n\n`;
-            } else if (newStatus === 'preparing') {
-                message += `Seu pedido está sendo preparado! 👨‍🍳\nEm breve atualizaremos o status.\n\n`;
+            let message = `🛍️ *ATUALIZAÇÃO DO SEU PEDIDO* 🛍️\n\n`;
+            message += `Olá, *${order.customerName}*! 👋\n\n`;
+            message += `Espero que esteja tudo bem! 😊\n\n`;
+            message += `*📋 INFORMAÇÕES DO PEDIDO:*\n`;
+            message += `• *Pedido:* #${orderId.substring(0, 8)}\n`;
+            message += `• *Status atual:* ${statusText}\n`;
+            message += `• *Valor total:* R$ ${total.toFixed(2)}\n\n`;
+            
+            if (status === 'preparing') {
+                message += `🍳 *Seu pedido está sendo preparado com todo cuidado!*\n`;
+                message += `Estamos trabalhando para que tudo fique perfeito para você. ⭐\n\n`;
+            } else if (status === 'confirmed') {
+                message += `✅ *Seu pedido foi confirmado e está em preparação!*\n`;
+                message += `Em breve ele estará pronto para seguir para entrega. 🚀\n\n`;
+            } else if (status === 'delivering') {
+                message += `🏍️ *Seu pedido saiu para entrega!*\n`;
+                message += `Nosso entregador está a caminho do seu endereço. 📦\n\n`;
+                message += `*Endereço de entrega:*\n${order.customerAddress}\n\n`;
+            } else if (status === 'delivered') {
+                message += `🎉 *SEU PEDIDO FOI ENTREGUE!*\n\n`;
+                message += `Muito obrigado por confiar em nós! 🙏\n`;
+                message += `Esperamos que esteja satisfeito(a) com sua compra! 😄\n\n`;
+                message += `*Volte sempre!* ❤️\n\n`;
             }
             
-            message += `_Qualquer dúvida, entre em contato._`;
+            message += `*Qualquer dúvida, estamos à disposição!* 🤝\n\n`;
+            message += `Atenciosamente,\n`;
+            message += `*${storeConfig.businessName || 'Nossa Loja'}* 🛒✨`;
             
             const whatsappUrl = `https://wa.me/${order.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
             window.open(whatsappUrl, '_blank');

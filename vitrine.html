@@ -427,7 +427,7 @@
                     </div>
                     
                     <button class="btn btn-primary btn-block" id="checkoutBtn">
-                        <i class="fas fa-check"></i> Finalizar Pedido
+                        <i class="fas fa-check"></i> Continuar
                     </button>
                 </div>
                 
@@ -658,6 +658,7 @@
         let orderBadgeVisible = false;
         let viewedOrders = new Set();
         let activeCategory = 'all';
+        let isCreatingUser = false;
         
         // Variáveis para o carrossel
         let currentSlideIndex = 0;
@@ -1354,6 +1355,8 @@
             deliveryForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 if (validateDeliveryForm()) {
+                    // Criar ou atualizar usuário somente agora, quando clicar em "Continuar"
+                    saveUserDataToFirestore();
                     showCartStep(3);
                 }
             });
@@ -1372,11 +1375,8 @@
             });
             
             // Salvar dados do usuário quando o formulário mudar
-            deliveryForm.addEventListener('input', () => {
-                if (fullNameInput.value && addressInput.value && phoneInput.value) {
-                    saveUserDataToFirestore();
-                }
-            });
+            // Removido: não salva mais automaticamente ao digitar
+            // Só salva quando clicar no botão "Continuar"
             
             // Payment method buttons
             paymentMethodBtns.forEach(btn => {
@@ -2253,42 +2253,44 @@
             if (userData.notes) notesInput.value = userData.notes;
         }
 
-        // Save user data to Firestore
+        // Save user data to Firestore (somente quando clicar em "Continuar")
         async function saveUserDataToFirestore() {
             // If user doesn't exist yet, create a new one
             if (!userData.id) {
-                await createUserData();
-                return;
-            }
-            
-            try {
-                await db.collection('anonymousUsers').doc(userData.id).update({
-                    name: fullNameInput.value.trim(),
-                    phone: phoneInput.value.trim(),
-                    address: addressInput.value.trim(),
-                    notes: notesInput.value.trim(),
-                    updatedAt: new Date().toISOString()
-                });
-                
-                // Update local user data
-                userData.name = fullNameInput.value.trim();
-                userData.phone = phoneInput.value.trim();
-                userData.address = addressInput.value.trim();
-                userData.notes = notesInput.value.trim();
-                userPhone = userData.phone;
-                
-                // Save to localStorage with store ID
-                localStorage.setItem(`userData_${currentStoreId}`, JSON.stringify(userData));
-                
-                updateProfileScreen();
-                
-            } catch (error) {
-                console.error('Error saving user data to Firestore:', error);
+                return await createUserData();
+            } else {
+                // Update existing user
+                try {
+                    await db.collection('anonymousUsers').doc(userData.id).update({
+                        name: fullNameInput.value.trim(),
+                        phone: phoneInput.value.trim(),
+                        address: addressInput.value.trim(),
+                        notes: notesInput.value.trim(),
+                        updatedAt: new Date().toISOString()
+                    });
+                    
+                    // Update local user data
+                    userData.name = fullNameInput.value.trim();
+                    userData.phone = phoneInput.value.trim();
+                    userData.address = addressInput.value.trim();
+                    userData.notes = notesInput.value.trim();
+                    userPhone = userData.phone;
+                    
+                    // Save to localStorage with store ID
+                    localStorage.setItem(`userData_${currentStoreId}`, JSON.stringify(userData));
+                    
+                    updateProfileScreen();
+                    
+                } catch (error) {
+                    console.error('Error saving user data to Firestore:', error);
+                    throw error;
+                }
             }
         }
 
         // Create new user data
         async function createUserData() {
+            isCreatingUser = true;
             try {
                 // Generate access code
                 accessCode = generateAccessCode();
@@ -2322,10 +2324,14 @@
                 updateProfileScreen();
                 
                 showNotification('Cadastro criado com sucesso!', 'success');
+                isCreatingUser = false;
+                return true;
                 
             } catch (error) {
                 console.error('Error creating user data:', error);
                 showNotification('Erro ao criar cadastro.', 'error');
+                isCreatingUser = false;
+                throw error;
             }
         }
 
@@ -2382,9 +2388,6 @@
                 return false;
             }
             
-            // Save/update user data
-            saveUserDataToFirestore();
-            
             const subtotal = calculateSubtotal();
             const total = subtotal + deliveryFee;
             
@@ -2408,7 +2411,7 @@
                 receiptBase64: null,
                 deliveryStatus: 'preparing',
                 storeId: currentStoreId,
-                userId: userData.id,
+                userId: userData.id || null,
                 userAccessCode: accessCode
             };
             
@@ -2509,6 +2512,13 @@
                 receiptError.style.display = 'none';
             }
             
+            // Se ainda não temos um userData.id, significa que o usuário acabou de ser criado
+            // Atualiza o orderData com o userData atualizado
+            if (userData.id) {
+                orderData.userId = userData.id;
+                orderData.userAccessCode = accessCode;
+            }
+            
             const orderDataCopy = {
                 ...orderData,
                 paymentMethod: selectedPaymentMethod,
@@ -2566,9 +2576,6 @@
             successMessage.innerHTML = `
                 Seu pedido foi registrado com sucesso!
             `;
-            
-            // REMOVIDO: Não abrir WhatsApp automaticamente
-            // O WhatsApp só será aberto quando o usuário clicar no botão
         }
 
         // Generate WhatsApp message
@@ -2596,7 +2603,6 @@
             
             if (orderData.paymentMethod === 'pix' && orderData.receiptBase64) {
                 message += `✅ Comprovante PIX enviado pelo cliente\n`;
-                message += `🖼️ Imagem otimizada para envio\n`;
             }
             
             message += `Status: ⏳ Aguardando confirmação`;
@@ -2783,11 +2789,6 @@
                                 <img src="${order.receiptBase64}" class="receipt-preview d-block" style="cursor: pointer;" onclick="openImageZoom('${order.receiptBase64}', 'Comprovante PIX')">
                             </div>
                             ` : ''}
-                            
-                            <a href="https://wa.me/${storeConfig.whatsappNumber?.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá! Gostaria de informações sobre meu pedido #${orderId.substring(0, 8)}`)}" 
-                               class="whatsapp-button btn-block mt-3" target="_blank">
-                                <i class="fab fa-whatsapp"></i> Falar com o estabelecimento
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -2928,10 +2929,18 @@
             
             document.getElementById('editProfileBtn')?.addEventListener('click', showProfileForm);
             
+            // Mostrar status card apenas se houver pedidos e o último não estiver entregue
             if (userOrders.length > 0) {
                 const lastOrder = userOrders[0];
-                profileStatusCard.style.display = 'block';
-                updateStatusCard(profileStatusCard, lastOrder.id, lastOrder);
+                const status = lastOrder.deliveryStatus || 'preparing';
+                
+                // Só mostrar se não estiver entregue
+                if (status !== 'delivered') {
+                    profileStatusCard.style.display = 'block';
+                    updateStatusCard(profileStatusCard, lastOrder.id, lastOrder);
+                } else {
+                    profileStatusCard.style.display = 'none';
+                }
             } else {
                 profileStatusCard.style.display = 'none';
             }
