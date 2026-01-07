@@ -76,6 +76,9 @@
         .clickable{cursor:pointer}
         .back-button{background:none;border:none;color:#757575;font-size:1rem;cursor:pointer;display:flex;align-items:center;gap:5px;margin-bottom:20px;padding:5px;border-radius:5px}
         .back-button:hover{background-color:#f5f5f5}
+        .form-section-title{text-align:center;margin:20px 0;color:#212121;font-weight:600;font-size:1.1rem}
+        .verification-actions{margin-top:20px;display:flex;gap:10px;justify-content:center}
+        .verification-actions .btn{flex:1;max-width:200px}
     </style>
     
     <meta name="application-name" content="Venda+">
@@ -113,10 +116,20 @@
         </div>
         
         <div class="verification-message" id="verificationMessage">
+            <button class="back-button" id="verificationBackBtn">
+                <i class="fas fa-arrow-left"></i> Voltar ao login
+            </button>
             <div class="verification-icon"><i class="fas fa-envelope-circle-check"></i></div>
             <div class="verification-title">Verifique seu e-mail</div>
             <div class="verification-text">Enviamos um link de verificação para o seu e-mail.<br>Por favor, verifique sua caixa de entrada ou spam.</div>
-            <div class="resend-verification">Não recebeu? <a href="#" id="resendVerificationLink">Reenviar verificação</a></div>
+            <div class="verification-actions">
+                <button type="button" class="btn btn-secondary" id="backToLoginBtn">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </button>
+                <button type="button" class="btn btn-primary" id="resendVerificationBtn">
+                    <i class="fas fa-redo"></i> Reenviar
+                </button>
+            </div>
         </div>
         
         <button class="btn btn-google" id="googleLoginBtn">
@@ -144,7 +157,10 @@
         </form>
         
         <div class="simple-register-form" id="simpleRegisterForm">
-            <div class="divider">Complete seu cadastro</div>
+            <button class="back-button" id="registerBackBtn">
+                <i class="fas fa-arrow-left"></i> Voltar ao login
+            </button>
+            <div class="form-section-title">Complete seu cadastro</div>
             
             <form id="completeRegistrationForm">
                 <div class="form-group">
@@ -198,7 +214,12 @@
         const registerBtn = document.getElementById('registerBtn');
         const completeRegisterBtn = document.getElementById('completeRegisterBtn');
         const googleLoginBtn = document.getElementById('googleLoginBtn');
-        const resendVerificationLink = document.getElementById('resendVerificationLink');
+        
+        // Verification elements
+        const verificationBackBtn = document.getElementById('verificationBackBtn');
+        const backToLoginBtn = document.getElementById('backToLoginBtn');
+        const resendVerificationBtn = document.getElementById('resendVerificationBtn');
+        const registerBackBtn = document.getElementById('registerBackBtn');
         
         // Inputs
         const userPhone = document.getElementById('userPhone');
@@ -396,10 +417,13 @@
             registerForm.addEventListener('submit', handleCompleteRegistration);
             googleLoginBtn.addEventListener('click', handleGoogleLogin);
             
-            resendVerificationLink?.addEventListener('click', function(e) {
-                e.preventDefault();
-                resendVerificationEmail();
-            });
+            // Botões de voltar
+            verificationBackBtn.addEventListener('click', resetToLoginView);
+            backToLoginBtn.addEventListener('click', resetToLoginView);
+            registerBackBtn.addEventListener('click', resetToLoginView);
+            
+            // Botão de reenviar verificação
+            resendVerificationBtn.addEventListener('click', resendVerificationEmail);
         }
 
         // Setup phone mask
@@ -435,6 +459,24 @@
             });
         }
 
+        // Reset to login view
+        function resetToLoginView() {
+            verificationMessage.classList.remove('active');
+            simpleRegisterForm.classList.remove('active');
+            loginForm.style.display = 'block';
+            simpleRegisterForm.style.display = 'none';
+            googleLoginBtn.style.display = 'flex';
+            document.querySelector('.divider').style.display = 'block';
+            
+            // Limpar dados pendentes
+            localStorage.removeItem('pendingEmail');
+            pendingUserCredential = null;
+            pendingUserId = null;
+            
+            // Limpar senha
+            passwordInput.value = '';
+        }
+
         // Show verification message
         function showVerificationMessage(email) {
             // Salvar email para continuar depois da verificação
@@ -444,6 +486,7 @@
             verificationMessage.classList.add('active');
             loginForm.style.display = 'none';
             simpleRegisterForm.style.display = 'none';
+            simpleRegisterForm.classList.remove('active');
             googleLoginBtn.style.display = 'none';
             document.querySelector('.divider').style.display = 'none';
             
@@ -617,6 +660,7 @@
             
             try {
                 showLoader('Reenviando verificação...');
+                disableButton(resendVerificationBtn);
                 
                 // Tentar encontrar o usuário
                 const signInMethods = await auth.fetchSignInMethodsForEmail(pendingEmail);
@@ -641,12 +685,13 @@
                     console.log('Não foi possível reenviar automaticamente. O usuário precisa verificar o email.');
                 }
                 
-                showNotification('Se você criou uma conta, o email de verificação já foi enviado. Verifique sua caixa de entrada ou spam.', 'success');
+                showNotification('Email de verificação reenviado! Verifique sua caixa de entrada ou spam.', 'success');
             } catch (error) {
                 console.error('Resend verification error:', error);
                 showNotification('Erro ao reenviar verificação. Tente fazer login novamente.', 'error');
             } finally {
                 hideLoader();
+                enableButton(resendVerificationBtn);
             }
         }
 
