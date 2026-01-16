@@ -77,8 +77,8 @@
         .product-description { color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 10px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.3s ease; }
         .product-rating { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
         .star-rating { display: flex; gap: 2px; }
-        .star { color: var(--border-color); font-size: 0.8rem; }
-        .star.filled { color: var(--star-color); }
+        .star { color: var(--border-color); font-size: 0.8rem; -webkit-text-stroke: 1px var(--border-color); }
+        .star.filled { color: var(--star-color); -webkit-text-stroke: 1px var(--star-color); }
         .rating-count { font-size: 0.75rem; color: var(--text-secondary); }
         .product-footer { display: flex; justify-content: space-between; align-items: center; }
         .product-price { font-size: 1.1rem; font-weight: 700; color: var(--primary-color); transition: color 0.3s ease; }
@@ -196,8 +196,8 @@
         .empty-icon { font-size: 3rem; margin-bottom: 15px; color: var(--border-color); transition: color 0.3s ease; }
         .product-detail-modal { background-color: var(--surface-color); border-radius: 20px 20px 0 0; width: 100%; max-height: 90vh; overflow-y: auto; position: absolute; bottom: 0; animation: slideUp 0.3s ease; padding-bottom: 20px; border: 1px solid var(--border-color); }
         
-        /* CARROSSEL DE IMAGENS DO PRODUTO */
-        .product-images-carousel { position: relative; width: 100%; height: 250px; overflow: hidden; background-color: var(--background-color); border-radius: 10px 10px 0 0; }
+        /* CARROSSEL DE IMAGENS DO PRODUTO - FIXADO NO TOPO */
+        .product-images-carousel { position: sticky; top: 0; z-index: 5; width: 100%; height: 250px; overflow: hidden; background-color: var(--background-color); border-radius: 10px 10px 0 0; }
         .carousel-container { position: relative; width: 100%; height: 100%; }
         .carousel-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.5s ease; display: flex; align-items: center; justify-content: center; }
         .carousel-slide.active { opacity: 1; z-index: 1; }
@@ -230,8 +230,8 @@
         .add-review-section { margin-top: 20px; padding: 20px; background-color: var(--background-color); border-radius: 10px; }
         .add-review-title { font-size: 1.1rem; margin-bottom: 10px; color: var(--text-primary); }
         .review-stars-input { display: flex; gap: 5px; margin-bottom: 15px; }
-        .review-star-input { background: none; border: none; font-size: 1.5rem; color: var(--border-color); cursor: pointer; padding: 0; }
-        .review-star-input.filled { color: var(--star-color); }
+        .review-star-input { background: none; border: none; font-size: 1.5rem; color: var(--border-color); cursor: pointer; padding: 0; -webkit-text-stroke: 2px black; }
+.review-star-input.filled { color: var(--star-color); -webkit-text-stroke: 2px black; }
         .review-comment-input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; resize: vertical; min-height: 80px; margin-bottom: 15px; font-family: inherit; }
         .notification { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 25px; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); z-index: 10000; animation: fadeIn 0.3s ease; font-weight: 600; color: white; text-align: center; backdrop-filter: blur(10px); background-color: rgba(0,0,0,0.85); max-width: 300px; width: 90%; display: flex; align-items: center; justify-content: center; gap: 12px; }
         .notification.success { background-color: rgba(76,175,80,0.95); }
@@ -307,9 +307,6 @@
             <div id="ordersScreen" class="screen" style="display: none;">
                 <div class="section-title">
                     <span>Meus Pedidos</span>
-                    <button class="btn btn-sm btn-secondary" id="showAccessCodeBtn">
-                        <i class="fas fa-key"></i> Meu Código
-                    </button>
                 </div>
                 
                 <div class="orders-list" id="ordersList">
@@ -360,39 +357,6 @@
                 <span>Minha Conta</span>
             </button>
         </nav>
-    </div>
-
-    <!-- Access Code Modal -->
-    <div class="modal" id="accessCodeModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Seu Código de Acesso</h2>
-                <button class="close-modal" id="closeCodeModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="text-center">
-                    <div class="login-icon mb-3">
-                        <i class="fas fa-key"></i>
-                    </div>
-                    <p class="mb-3">Guarde este código para acessar seus dados e pedidos em qualquer dispositivo:</p>
-                    
-                    <div class="pix-key mb-3" id="accessCodeDisplay">
-                        Carregando...
-                    </div>
-                    
-                    <p class="text-center mb-3">Use este código na próxima vez que acessar a loja para recuperar seus dados automaticamente.</p>
-                    
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-secondary flex-1" id="copyCodeBtn">
-                            <i class="fas fa-copy"></i> Copiar Código
-                        </button>
-                        <button class="btn btn-primary flex-1" id="closeCodeBtn">
-                            <i class="fas fa-check"></i> Entendido
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Cart Modal -->
@@ -556,7 +520,7 @@
                 <button class="close-modal" id="closeProductDetail">&times;</button>
             </div>
             <div class="modal-body">
-                <!-- Carrossel de Imagens do Produto -->
+                <!-- Carrossel de Imagens do Produto - FIXADO NO TOPO -->
                 <div class="product-images-carousel" id="productImagesCarousel">
                     <div class="carousel-container" id="carouselContainer">
                         <!-- As imagens serão carregadas dinamicamente aqui -->
@@ -665,6 +629,9 @@
         let productImages = [];
         let carouselInterval = null;
         
+        // Array para controlar quais pedidos estão abertos (não entregues)
+        let openOrderIds = new Set();
+        
         // DOM Elements
         const appContainer = document.querySelector('.app-container');
         const mainContent = document.getElementById('mainContent');
@@ -683,7 +650,6 @@
         const profileStatusCard = document.getElementById('profileStatusCard');
         const loadingOverlay = document.getElementById('loadingOverlay');
         const logoutBtn = document.getElementById('logoutBtn');
-        const showAccessCodeBtn = document.getElementById('showAccessCodeBtn');
         const newOrderBadge = document.getElementById('newOrderBadge');
         const ordersNavBtn = document.getElementById('ordersNavBtn');
         
@@ -757,13 +723,6 @@
         
         // Success elements
         const successMessage = document.getElementById('successMessage');
-        
-        // Access code modal elements
-        const accessCodeModal = document.getElementById('accessCodeModal');
-        const closeCodeModal = document.getElementById('closeCodeModal');
-        const accessCodeDisplay = document.getElementById('accessCodeDisplay');
-        const copyCodeBtn = document.getElementById('copyCodeBtn');
-        const closeCodeBtn = document.getElementById('closeCodeBtn');
         
         // Image zoom elements
         const imageZoomModal = document.getElementById('imageZoomModal');
@@ -916,7 +875,6 @@
             if (storedUser) {
                 userData = JSON.parse(storedUser);
                 userPhone = userData.phone || '';
-                accessCode = userData.accessCode || '';
                 
                 // Load store config first
                 await loadStoreConfig();
@@ -1409,36 +1367,8 @@
                 }
             });
             
-            // Show access code button
-            showAccessCodeBtn?.addEventListener('click', showAccessCodeModal);
-            
             // Logout button
             logoutBtn?.addEventListener('click', handleLogout);
-            
-            // Access code modal
-            closeCodeModal.addEventListener('click', () => {
-                accessCodeModal.style.display = 'none';
-            });
-            
-            copyCodeBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(accessCode)
-                    .then(() => {
-                        showNotification('Código copiado para a área de transferência!', 'success');
-                    })
-                    .catch(() => {
-                        const textArea = document.createElement('textarea');
-                        textArea.value = accessCode;
-                        document.body.appendChild(textArea);
-                        textArea.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(textArea);
-                        showNotification('Código copiado!', 'success');
-                    });
-            });
-            
-            closeCodeBtn.addEventListener('click', () => {
-                accessCodeModal.style.display = 'none';
-            });
             
             // Product detail modal
             closeProductDetail.addEventListener('click', () => {
@@ -1525,6 +1455,8 @@
             // If user data exists, load their orders
             if (userData.id) {
                 await loadUserOrders();
+                // Atualizar o estado dos pedidos abertos
+                updateOpenOrderIds();
             }
             
             // Update profile screen
@@ -1535,6 +1467,9 @@
             
             // Pre-fill delivery form with user data
             loadUserDataToForm();
+            
+            // Setup periodic cleanup
+            setupPeriodicCleanup();
         }
 
         // Apply theme
@@ -1689,6 +1624,10 @@
             try {
                 if (!userData.id) return;
                 
+                // Primeiro, vamos verificar e excluir pedidos expirados
+                await deleteExpiredOrders();
+                
+                // Depois carregar os pedidos válidos
                 const snapshot = await db.collection('orders')
                     .where('storeId', '==', currentStoreId)
                     .where('userId', '==', userData.id)
@@ -1696,9 +1635,21 @@
                 
                 userOrders = [];
                 snapshot.forEach(doc => {
+                    const orderData = doc.data();
+                    const orderId = doc.id;
+                    
+                    // Verificar se o pedido expirou
+                    const expiresAt = orderData.expiresAt;
+                    if (expiresAt && new Date(expiresAt) <= new Date()) {
+                        // Pedido expirado, não incluir na lista
+                        console.log(`Pedido ${orderId} expirado, excluindo...`);
+                        deleteOrder(orderId); // Excluir do Firestore
+                        return; // Não adicionar ao array userOrders
+                    }
+                    
                     userOrders.push({
-                        id: doc.id,
-                        ...doc.data()
+                        id: orderId,
+                        ...orderData
                     });
                 });
                 
@@ -2288,12 +2239,11 @@
             }
         }
 
-        // Create new user data
+        // Create new user data (SEM CÓDIGO DE ACESSO)
         async function createUserData() {
             isCreatingUser = true;
             try {
-                // Generate access code
-                accessCode = generateAccessCode();
+                // NÃO gerar mais código de acesso
                 
                 // Create user document
                 const userDocRef = db.collection('anonymousUsers').doc();
@@ -2302,10 +2252,10 @@
                 const userDataToSave = {
                     id: userId,
                     name: fullNameInput.value.trim(),
-                    phone: phoneInput.value.trim(),
+                    phone: fullNameInput.value.trim(),
                     address: addressInput.value.trim(),
                     notes: notesInput.value.trim(),
-                    accessCode: accessCode,
+                    // REMOVIDO: accessCode
                     storeId: currentStoreId,
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
@@ -2333,16 +2283,6 @@
                 isCreatingUser = false;
                 throw error;
             }
-        }
-
-        // Generate access code
-        function generateAccessCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 6; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
         }
 
         // Validate field
@@ -2411,8 +2351,8 @@
                 receiptBase64: null,
                 deliveryStatus: 'preparing',
                 storeId: currentStoreId,
-                userId: userData.id || null,
-                userAccessCode: accessCode
+                userId: userData.id || null
+                // REMOVIDO: userAccessCode
             };
             
             return true;
@@ -2516,7 +2456,7 @@
             // Atualiza o orderData com o userData atualizado
             if (userData.id) {
                 orderData.userId = userData.id;
-                orderData.userAccessCode = accessCode;
+                // REMOVIDO: orderData.userAccessCode = accessCode;
             }
             
             const orderDataCopy = {
@@ -2526,7 +2466,9 @@
                 deliveryStatus: 'preparing',
                 receiptBase64: receiptBase64 || null,
                 receiptType: orderData.receiptType || null,
-                receiptFileName: orderData.receiptFileName || null
+                receiptFileName: orderData.receiptFileName || null,
+                // ADICIONAR ESTA LINHA: Data de expiração (24 horas após a criação)
+                expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 horas
             };
             
             showLoading('Processando pedido...');
@@ -2541,6 +2483,9 @@
                 orderDataCopy.id = currentOrderId;
                 orderData = orderDataCopy;
                 
+                // Adicionar o pedido à lista de pedidos abertos
+                openOrderIds.add(currentOrderId);
+                
                 // Show success screen with WhatsApp link (SIMPLIFICADA)
                 showCartStep(4);
                 setupWhatsAppLink();
@@ -2550,6 +2495,12 @@
                 
                 // Load user orders
                 await loadUserOrders();
+                
+                // Atualizar o estado dos pedidos abertos
+                updateOpenOrderIds();
+                
+                // Atualizar o badge da aba de pedidos
+                checkForNewOrders();
                 
             } catch (error) {
                 hideLoading();
@@ -2635,12 +2586,23 @@
             ordersList.style.display = 'block';
             
             userOrders.forEach(order => {
+                // Determinar se o pedido está aberto (não entregue)
+                const status = order.deliveryStatus || 'preparing';
+                const isOpenOrder = status !== 'delivered';
+                
+                // Verificar se este pedido está na lista de pedidos abertos
+                const shouldDisplay = openOrderIds.has(order.id) || isOpenOrder;
+                
+                // Se não deve ser exibido (pedido entregue), pular
+                if (!shouldDisplay) {
+                    return;
+                }
+                
                 const hasUpdate = !viewedOrders.has(order.id);
                 
                 const orderCard = document.createElement('div');
                 orderCard.className = `order-card ${hasUpdate ? 'has-update' : ''}`;
                 
-                const status = order.deliveryStatus || 'preparing';
                 const statusText = getDeliveryStatusText(status);
                 const statusClass = getDeliveryStatusClass(status);
                 
@@ -2691,6 +2653,12 @@
                 
                 ordersList.appendChild(orderCard);
             });
+            
+            // Se nenhum card foi adicionado, mostrar estado vazio
+            if (ordersList.children.length === 0) {
+                ordersEmpty.style.display = 'block';
+                ordersList.style.display = 'none';
+            }
             
             addOrderCardEventListeners();
         }
@@ -2856,7 +2824,7 @@
             window.open(whatsappUrl, '_blank');
         }
 
-        // Update profile screen
+        // Update profile screen (SEM CÓDIGO DE ACESSO)
         function updateProfileScreen() {
             if (!userData.name || !userData.phone) {
                 profileCard.innerHTML = `
@@ -2916,10 +2884,7 @@
                         <span class="detail-label">Total de Pedidos:</span>
                         <span class="detail-value">${userOrders.length}</span>
                     </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Código de Acesso:</span>
-                        <span class="detail-value">${accessCode}</span>
-                    </div>
+                    <!-- REMOVIDO: Código de Acesso -->
                 </div>
                 
                 <button class="btn btn-secondary btn-block mt-3" id="editProfileBtn">
@@ -3032,22 +2997,16 @@
             });
         }
 
-        // Show access code modal
-        function showAccessCodeModal() {
-            accessCodeDisplay.textContent = accessCode;
-            accessCodeModal.style.display = 'block';
-        }
-
         // Handle logout
         function handleLogout() {
             if (confirm('Deseja sair da sua conta?')) {
                 localStorage.removeItem(`userData_${currentStoreId}`);
                 userData = {};
                 userPhone = '';
-                accessCode = '';
                 cart = [];
                 userOrders = [];
                 viewedOrders.clear();
+                openOrderIds.clear();
                 
                 updateProfileScreen();
                 updateOrdersUI();
@@ -3124,21 +3083,41 @@
 
         // Check for new orders
         function checkForNewOrders() {
-            let hasNewOrders = false;
+            let hasOpenOrders = false;
             
             userOrders.forEach(order => {
-                if (!viewedOrders.has(order.id)) {
-                    hasNewOrders = true;
+                const status = order.deliveryStatus || 'preparing';
+                const expiresAt = order.expiresAt;
+                const isExpired = expiresAt && new Date(expiresAt) <= new Date();
+                
+                if (status !== 'delivered' && openOrderIds.has(order.id) && !isExpired) {
+                    hasOpenOrders = true;
                 }
             });
             
-            if (hasNewOrders && !orderBadgeVisible) {
+            if (hasOpenOrders) {
                 newOrderBadge.style.display = 'block';
                 orderBadgeVisible = true;
-            } else if (!hasNewOrders) {
+            } else {
                 newOrderBadge.style.display = 'none';
                 orderBadgeVisible = false;
             }
+        }
+
+        // Atualizar a lista de IDs de pedidos abertos
+        function updateOpenOrderIds() {
+            openOrderIds.clear();
+            
+            userOrders.forEach(order => {
+                const status = order.deliveryStatus || 'preparing';
+                const expiresAt = order.expiresAt;
+                const isExpired = expiresAt && new Date(expiresAt) <= new Date();
+                
+                // Só adicionar se não estiver entregue E não estiver expirado
+                if (status !== 'delivered' && !isExpired) {
+                    openOrderIds.add(order.id);
+                }
+            });
         }
 
         // Mark orders as viewed
@@ -3147,10 +3126,8 @@
                 viewedOrders.add(order.id);
             });
             
-            newOrderBadge.style.display = 'none';
-            orderBadgeVisible = false;
-            
             updateOrdersUI();
+            checkForNewOrders();
         }
 
         // Update order card badge
@@ -3236,6 +3213,68 @@
                 }, 300);
             }, 2500);
         }
+
+        // ============== FUNÇÕES ADICIONADAS PARA EXCLUSÃO DE PEDIDOS EXPIRADOS ==============
+
+        // Delete expired orders (older than 24 hours)
+        async function deleteExpiredOrders() {
+            try {
+                const now = new Date().toISOString();
+                
+                // Buscar pedidos expirados para este usuário e loja
+                const expiredOrdersQuery = await db.collection('orders')
+                    .where('storeId', '==', currentStoreId)
+                    .where('userId', '==', userData.id)
+                    .where('expiresAt', '<=', now)
+                    .get();
+                
+                const deletePromises = [];
+                expiredOrdersQuery.forEach(doc => {
+                    console.log(`Excluindo pedido expirado: ${doc.id}`);
+                    deletePromises.push(doc.ref.delete());
+                });
+                
+                await Promise.all(deletePromises);
+                
+                if (deletePromises.length > 0) {
+                    console.log(`${deletePromises.length} pedidos expirados excluídos`);
+                }
+                
+            } catch (error) {
+                console.error('Error deleting expired orders:', error);
+            }
+        }
+
+        // Função auxiliar para excluir um pedido específico
+        async function deleteOrder(orderId) {
+            try {
+                await db.collection('orders').doc(orderId).delete();
+                console.log(`Pedido ${orderId} excluído com sucesso`);
+            } catch (error) {
+                console.error(`Erro ao excluir pedido ${orderId}:`, error);
+            }
+        }
+
+        // Setup periodic cleanup
+        function setupPeriodicCleanup() {
+            // Verificar pedidos expirados a cada hora
+            setInterval(async () => {
+                if (userData.id) {
+                    await deleteExpiredOrders();
+                    // Recarregar pedidos para atualizar a interface
+                    await loadUserOrders();
+                }
+            }, 60 * 60 * 1000); // A cada hora
+            
+            // Também verificar ao carregar a página
+            setTimeout(async () => {
+                if (userData.id) {
+                    await deleteExpiredOrders();
+                }
+            }, 5000); // 5 segundos após carregar
+        }
+
+        // ============== FIM DAS FUNÇÕES ADICIONADAS ==============
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', init);
