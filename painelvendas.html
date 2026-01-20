@@ -1718,11 +1718,9 @@
         }
 
         async function createDefaultCategories() {
+            // ALTERADO: Agora cria apenas a categoria "Diversos"
             const defaultCategories = [
-                { name: 'Alimentos', createdAt: new Date().toISOString() },
-                { name: 'Bebidas', createdAt: new Date().toISOString() },
-                { name: 'Artesanato', createdAt: new Date().toISOString() },
-                { name: 'Outros', createdAt: new Date().toISOString() }
+                { name: 'Diversos', createdAt: new Date().toISOString() }
             ];
             
             try {
