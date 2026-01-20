@@ -46,7 +46,7 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
 .category-btn { flex-shrink: 0; padding: 8px 16px; border-radius: 20px; background-color: var(--surface-color); color: var(--text-secondary); border: 1px solid var(--border-color); font-weight: 500; transition: all 0.3s ease; white-space: nowrap; }
 .category-btn.active { background-color: var(--primary-color); color: var(--text-on-primary); border-color: var(--primary-color); }
 
-/* Scroll Horizontal de Produtos (Usado na aba "Todos") */
+/* Scroll Horizontal de Produtos (Usado na aba "Todos") - ATUALIZADO */
 .category-section { margin-bottom: 25px; }
 .category-section:last-child { margin-bottom: 0; }
 .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-right: 5px; }
@@ -54,14 +54,104 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
 .view-all-btn { color: var(--primary-color); font-size: 0.85rem; font-weight: 500; background: none; border: none; cursor: pointer; }
 .products-horizontal-scroll { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 10px; scrollbar-width: none; -ms-overflow-style: none; }
 .products-horizontal-scroll::-webkit-scrollbar { display: none; }
-.product-card-horizontal { flex: 0 0 auto; width: 160px; background-color: var(--surface-color); border-radius: 12px; overflow: hidden; box-shadow: 0 3px 6px rgba(0,0,0,0.08); border: 1px solid var(--border-color); transition: all 0.3s ease; cursor: pointer; }
+
+/* CARD HORIZONTAL ATUALIZADO - MESMO VISUAL DO CARD DA GRADE */
+.product-card-horizontal {
+    flex: 0 0 auto;
+    width: 180px; /* Aumentado para acomodar mais conteúdo */
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
 .product-card-horizontal:active { transform: scale(0.98); }
-.product-image-horizontal { height: 120px; background-color: var(--background-color); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); overflow: hidden; position: relative; }
-.product-image-horizontal img { width: 100%; height: 100%; object-fit: cover; }
+.product-image-horizontal {
+    height: 110px; /* Reduzido para dar espaço ao conteúdo */
+    background-color: var(--background-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    overflow: hidden;
+    position: relative;
+}
+.product-image-horizontal img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 .product-image-horizontal i { font-size: 2rem; }
-.product-info-horizontal { padding: 10px; }
-.product-title-horizontal { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.product-price-horizontal { font-size: 1rem; font-weight: 700; color: var(--primary-color); }
+.product-info-horizontal {
+    padding: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.product-title-horizontal {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.product-description-horizontal {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    margin-bottom: 8px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+}
+.product-rating-horizontal {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+.star-rating { display: flex; gap: 2px; }
+.star { color: var(--border-color); font-size: 0.7rem; -webkit-text-stroke: 1px var(--border-color); }
+.star.filled { color: var(--star-color); -webkit-text-stroke: 1px var(--star-color); }
+.rating-count { font-size: 0.7rem; color: var(--text-secondary); }
+.product-footer-horizontal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+.product-price-horizontal {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+.add-to-cart-horizontal {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: var(--text-on-primary);
+    border: none;
+    border-radius: 20px;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 36px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.add-to-cart-horizontal:active { opacity: 0.9; transform: scale(0.95); }
 
 /* Grade de produtos (Usado nas categorias individuais) */
 .category-products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
@@ -76,10 +166,6 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
 .product-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 5px; color: var(--text-primary); line-height: 1.3; transition: color 0.3s ease; }
 .product-description { color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 10px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.3s ease; }
 .product-rating { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
-.star-rating { display: flex; gap: 2px; }
-.star { color: var(--border-color); font-size: 0.8rem; -webkit-text-stroke: 1px var(--border-color); }
-.star.filled { color: var(--star-color); -webkit-text-stroke: 1px var(--star-color); }
-.rating-count { font-size: 0.75rem; color: var(--text-secondary); }
 .product-footer { display: flex; justify-content: space-between; align-items: center; }
 .product-price { font-size: 1.1rem; font-weight: 700; color: var(--primary-color); transition: color 0.3s ease; }
 .add-to-cart { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: var(--text-on-primary); border: none; border-radius: 20px; padding: 6px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
@@ -172,8 +258,20 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
 .timeline-text { color: var(--text-secondary); transition: color 0.3s ease; }
 .timeline-text.active { color: var(--text-primary); font-weight: 600; }
 .orders-list { margin-top: 15px; }
-.order-card { background-color: var(--surface-color); border-radius: 15px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid var(--border-color); transition: all 0.3s ease; position: relative; }
-.order-card.has-update::before { content: ''; position: absolute; top: -2px; right: -2px; width: 12px; height: 12px; background-color: #ff4757; border-radius: 50%; animation: pulse 2s infinite; }
+
+/* ALTERAÇÃO 1: REMOVIDO BADGE VERMELHO DOS CARDS INDIVIDUAIS DE PEDIDOS */
+.order-card { 
+    background-color: var(--surface-color); 
+    border-radius: 15px; 
+    padding: 15px; 
+    margin-bottom: 12px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
+    border: 1px solid var(--border-color); 
+    transition: all 0.3s ease; 
+    position: relative; 
+}
+/* REMOVIDO: .order-card.has-update::before - badge vermelho dos cards individuais */
+
 .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .order-id { font-size: 0.85rem; color: var(--text-secondary); transition: color 0.3s ease; }
 .order-date { font-size: 0.8rem; color: var(--text-secondary); transition: color 0.3s ease; }
@@ -247,6 +345,16 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
 .review-star-input.filled { color: var(--star-color); -webkit-text-stroke: 2px black; }
 .review-comment-input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; resize: vertical; min-height: 80px; margin-bottom: 15px; font-family: inherit; }
 
+/* NOVO: Seção para mostrar a avaliação do usuário atual */
+.user-review-section { margin-top: 20px; padding: 20px; background-color: var(--background-color); border-radius: 10px; }
+.user-review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.user-review-title { font-size: 1.1rem; color: var(--text-primary); }
+.user-review-content { margin-bottom: 15px; }
+.user-review-rating { display: flex; gap: 5px; margin-bottom: 10px; }
+.user-review-comment { color: var(--text-primary); line-height: 1.5; }
+.delete-review-btn { background-color: #f44336; color: white; border: none; border-radius: 10px; padding: 8px 15px; cursor: pointer; transition: all 0.3s ease; }
+.delete-review-btn:active { background-color: #d32f2f; }
+
 .reviews-section { margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px; }
 .reviews-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .reviews-title { font-size: 1.2rem; color: var(--text-primary); }
@@ -284,6 +392,27 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
 .mt-1 { margin-top: 5px; } .mt-2 { margin-top: 10px; } .mt-3 { margin-top: 15px; } .mr-1 { margin-right: 4px; }
 .d-none { display: none !important; } .d-flex { display: flex !important; } .d-block { display: block !important; }
 .flex-1 { flex: 1; } .gap-1 { gap: 8px; } .gap-2 { gap: 12px; }
+
+/* ============== NOVO: ESTILOS PARA MODAL DE POLÍTICA DE PRIVACIDADE ============== */
+.privacy-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
+.privacy-modal-content { background-color: var(--surface-color); border-radius: 20px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease; position: relative; }
+.privacy-modal-header { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); padding: 20px; border-radius: 20px 20px 0 0; text-align: center; }
+.privacy-modal-title { font-size: 1.5rem; color: var(--text-on-primary); font-weight: 700; margin-bottom: 5px; }
+.privacy-modal-subtitle { color: rgba(255,255,255,0.9); font-size: 0.9rem; }
+.privacy-modal-body { padding: 25px; }
+.privacy-section { margin-bottom: 25px; }
+.privacy-section-title { font-size: 1.2rem; color: var(--primary-color); margin-bottom: 12px; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+.privacy-section-content { color: var(--text-primary); line-height: 1.6; font-size: 0.95rem; }
+.privacy-list { margin-left: 20px; margin-top: 10px; }
+.privacy-list li { margin-bottom: 8px; line-height: 1.5; }
+.privacy-checkbox { display: flex; align-items: flex-start; gap: 12px; margin: 25px 0; padding: 15px; background-color: var(--background-color); border-radius: 10px; border: 1px solid var(--border-color); }
+.privacy-checkbox input[type="checkbox"] { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--primary-color); }
+.privacy-checkbox label { color: var(--text-primary); line-height: 1.5; font-size: 0.95rem; flex: 1; }
+.privacy-checkbox label a { color: var(--primary-color); text-decoration: underline; font-weight: 600; }
+.privacy-buttons { display: flex; gap: 15px; margin-top: 20px; }
+.privacy-buttons .btn { flex: 1; }
+.privacy-required { color: #f44336; font-size: 0.85rem; margin-top: 5px; display: none; }
+.privacy-link { color: var(--primary-color); text-decoration: underline; cursor: pointer; font-size: 0.9rem; margin-top: 15px; display: inline-block; }
     </style>
 </head>
 <body class="theme-black">
@@ -291,6 +420,110 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
         <div class="loading-text">Carregando...</div>
+    </div>
+
+    <!-- ============== NOVO: MODAL DE POLÍTICA DE PRIVACIDADE (EXIBIDO NO PRIMEIRO ACESSO) ============== -->
+    <div class="privacy-modal" id="privacyModal">
+        <div class="privacy-modal-content">
+            <div class="privacy-modal-header">
+                <h2 class="privacy-modal-title">Política de Privacidade</h2>
+                <div class="privacy-modal-subtitle">Leia atentamente antes de usar nosso aplicativo</div>
+            </div>
+            <div class="privacy-modal-body">
+                <div class="privacy-section">
+                    <h3 class="privacy-section-title">1. Coleta de Dados</h3>
+                    <div class="privacy-section-content">
+                        <p>Para proporcionar uma experiência personalizada e processar seus pedidos, coletamos as seguintes informações:</p>
+                        <ul class="privacy-list">
+                            <li><strong>Nome completo</strong> - Para identificação e entrega</li>
+                            <li><strong>Telefone/WhatsApp</strong> - Para contato sobre seus pedidos</li>
+                            <li><strong>Endereço completo</strong> - Para entrega dos produtos</li>
+                            <li><strong>Itens do pedido</strong> - Para processamento e entrega</li>
+                            <li><strong>Forma de pagamento</strong> - Para finalização da compra</li>
+                            <li><strong>Avaliações dos produtos</strong> - Para melhorar nossos serviços</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="privacy-section">
+                    <h3 class="privacy-section-title">2. Uso dos Dados</h3>
+                    <div class="privacy-section-content">
+                        <p>Seus dados são utilizados exclusivamente para:</p>
+                        <ul class="privacy-list">
+                            <li>Processar e entregar seus pedidos</li>
+                            <li>Enviar atualizações sobre o status dos pedidos</li>
+                            <li>Melhorar a qualidade dos nossos produtos e serviços</li>
+                            <li>Entrar em contato em caso de problemas com pedidos</li>
+                            <li>Compartilhar com entregadores apenas informações necessárias para a entrega</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="privacy-section">
+                    <h3 class="privacy-section-title">3. Armazenamento e Segurança</h3>
+                    <div class="privacy-section-content">
+                        <p>Seus dados são armazenados de forma segura:</p>
+                        <ul class="privacy-list">
+                            <li>Utilizamos o <strong>Google Firebase</strong> para armazenamento seguro</li>
+                            <li>Os dados são criptografados durante a transmissão</li>
+                            <li>Seus pedidos são automaticamente excluídos após <strong>2 meses</strong></li>
+                            <li>Nunca compartilhamos seus dados com terceiros para marketing</li>
+                            <li>Seus dados são acessíveis apenas pelo administrador da loja e por você</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="privacy-section">
+                    <h3 class="privacy-section-title">4. Seus Direitos</h3>
+                    <div class="privacy-section-content">
+                        <p>De acordo com a LGPD (Lei Geral de Proteção de Dados), você tem direito a:</p>
+                        <ul class="privacy-list">
+                            <li><strong>Acesso</strong> - Visualizar todos os dados que coletamos</li>
+                            <li><strong>Correção</strong> - Atualizar informações desatualizadas</li>
+                            <li><strong>Exclusão</strong> - Solicitar a exclusão de seus dados</li>
+                            <li><strong>Portabilidade</strong> - Solicitar uma cópia dos seus dados</li>
+                            <li><strong>Revogação</strong> - Retirar seu consentimento a qualquer momento</li>
+                        </ul>
+                        <p>Para exercer seus direitos, entre em contato via WhatsApp com a loja.</p>
+                    </div>
+                </div>
+
+                <div class="privacy-section">
+                    <h3 class="privacy-section-title">5. Contato</h3>
+                    <div class="privacy-section-content">
+                        <p>Em caso de dúvidas sobre esta Política de Privacidade:</p>
+                        <ul class="privacy-list">
+                            <li>Entre em contato diretamente com a loja via WhatsApp</li>
+                            <li>Seus dados são gerenciados pelo proprietário da loja</li>
+                            <li>Esta aplicação funciona como intermediária para pedidos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="privacy-checkbox">
+                    <input type="checkbox" id="privacyAgreement">
+                    <label for="privacyAgreement">
+                        <strong>Li, entendi e concordo</strong> com a Política de Privacidade descrita acima. 
+                        Estou ciente de que meus dados serão coletados e utilizados conforme descrito, 
+                        e que posso exercer meus direitos a qualquer momento.
+                    </label>
+                </div>
+                <div class="privacy-required" id="privacyRequired">Você precisa aceitar a Política de Privacidade para continuar</div>
+
+                <div class="privacy-buttons">
+                    <button class="btn btn-secondary" id="rejectPrivacy">
+                        <i class="fas fa-times"></i> Não Aceito
+                    </button>
+                    <button class="btn btn-primary" id="acceptPrivacy">
+                        <i class="fas fa-check"></i> Aceito e Continuar
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <small class="text-secondary">Ao continuar, você concorda com nossos Termos de Uso e Política de Privacidade</small>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- App Container -->
@@ -360,9 +593,14 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                 <div class="profile-card" id="profileCard">
                     <!-- Informações do usuário -->
                 </div>
-                
-                <div class="order-status-card" id="profileStatusCard" style="display: none;">
-                    <!-- Status do último pedido -->
+
+                <!-- ALTERAÇÃO 4: MANTIDO - Botão para visualizar Política de Privacidade novamente -->
+                <div class="profile-card">
+                    <h3 class="mb-2">Privacidade e Segurança</h3>
+                    <p class="mb-3 text-secondary">Gerencie suas preferências de privacidade e visualize nossas políticas</p>
+                    <button class="btn btn-secondary btn-block" id="viewPrivacyPolicyBtn">
+                        <i class="fas fa-shield-alt"></i> Ver Política de Privacidade
+                    </button>
                 </div>
             </div>
         </main>
@@ -376,6 +614,7 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             <button class="nav-btn" data-screen="orders" id="ordersNavBtn">
                 <i class="fas fa-shopping-bag"></i>
                 <span>Pedidos</span>
+                <!-- ALTERAÇÃO 2: MANTIDO - Badge vermelho na aba de navegação "Pedidos" -->
                 <div class="new-order-badge" id="newOrderBadge" style="display: none;"></div>
             </button>
             <button class="nav-btn" data-screen="profile">
@@ -446,6 +685,13 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                         <div class="form-group">
                             <label class="form-label">Observações</label>
                             <textarea id="notes" class="form-input" rows="3" placeholder="Ponto de referência, instruções especiais, etc. (opcional)"></textarea>
+                        </div>
+                        
+                        <!-- ALTERAÇÃO 3: Adicionado link "Política de Privacidade" no formulário de entrega -->
+                        <div class="form-group" style="margin-top: 10px; text-align: center;">
+                            <a href="javascript:void(0);" class="privacy-link" id="privacyLinkForm" style="font-size: 0.9rem;">
+                                <i class="fas fa-shield-alt mr-1"></i> Política de Privacidade
+                            </a>
                         </div>
                         
                         <div class="d-flex gap-2">
@@ -569,7 +815,22 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                     <div id="productDetailPrice" class="product-detail-price"></div>
                     <p id="productDetailDescription" class="product-detail-description"></p>
                     
-                    <!-- SEÇÃO: DEIXE SUA AVALIAÇÃO - AGORA EM PRIMEIRO LUGAR -->
+                    <!-- SEÇÃO: SUA AVALIAÇÃO (oculta inicialmente) -->
+                    <div id="userReviewSection" class="user-review-section" style="display: none;">
+                        <div class="user-review-header">
+                            <h4 class="user-review-title">Sua Avaliação</h4>
+                            <button class="delete-review-btn" id="deleteReviewBtn">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        </div>
+                        <div class="user-review-content">
+                            <div id="userReviewRating" class="user-review-rating"></div>
+                            <p id="userReviewComment" class="user-review-comment"></p>
+                            <small id="userReviewDate" class="text-secondary"></small>
+                        </div>
+                    </div>
+                    
+                    <!-- SEÇÃO: DEIXE SUA AVALIAÇÃO (formulário) -->
                     <div id="addReviewSection" class="add-review-section" style="display: none;">
                         <h4 class="add-review-title">Deixe sua avaliação</h4>
                         <div class="review-stars-input">
@@ -585,12 +846,12 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                         </button>
                     </div>
                     
-                    <!-- BOTÃO ADICIONAR AO CARRINHO - DEPOIS DA SEÇÃO DE AVALIAÇÃO -->
+                    <!-- BOTÃO ADICIONAR AO CARRINHO -->
                     <button class="btn btn-primary btn-block mt-3" id="addToCartFromDetail">
                         <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
                     </button>
                     
-                    <!-- SEÇÃO: AVALIAÇÕES - AGORA POR ÚLTIMO -->
+                    <!-- SEÇÃO: AVALIAÇÕES DE OUTROS USUÁRIOS -->
                     <div class="reviews-section">
                         <div class="reviews-header">
                             <h3 class="reviews-title">Avaliações</h3>
@@ -662,6 +923,20 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
         // Array para controlar quais pedidos estão abertos (não entregues)
         let openOrderIds = new Set();
         
+        // Variável para armazenar a avaliação do usuário atual para o produto atual
+        let currentUserReview = null;
+        
+        // NOVA VARIÁVEL: Listener em tempo real do Firestore
+        let ordersListener = null;
+        
+        // NOVAS VARIÁVEIS: Controle de notificações
+        let lastNotificationTime = 0;
+        const NOTIFICATION_COOLDOWN = 5000; // 5 segundos entre notificações
+        let lastOrderUpdate = new Date().getTime();
+        
+        // NOVA VARIÁVEL: Controle de aceitação da Política de Privacidade
+        let privacyAccepted = false;
+        
         // DOM Elements
         const appContainer = document.querySelector('.app-container');
         const mainContent = document.getElementById('mainContent');
@@ -677,7 +952,6 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
         const ordersList = document.getElementById('ordersList');
         const ordersEmpty = document.getElementById('ordersEmpty');
         const profileCard = document.getElementById('profileCard');
-        const profileStatusCard = document.getElementById('profileStatusCard');
         const loadingOverlay = document.getElementById('loadingOverlay');
         const logoutBtn = document.getElementById('logoutBtn');
         const newOrderBadge = document.getElementById('newOrderBadge');
@@ -738,6 +1012,11 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
         const productDetailRating = document.getElementById('productDetailRating');
         const productReviewsList = document.getElementById('productReviewsList');
         const addReviewSection = document.getElementById('addReviewSection');
+        const userReviewSection = document.getElementById('userReviewSection');
+        const deleteReviewBtn = document.getElementById('deleteReviewBtn');
+        const userReviewRatingElement = document.getElementById('userReviewRating');
+        const userReviewComment = document.getElementById('userReviewComment');
+        const userReviewDate = document.getElementById('userReviewDate');
         const reviewStarInputs = document.querySelectorAll('.review-star-input');
         const reviewCommentInput = document.getElementById('reviewCommentInput');
         const submitReviewBtn = document.getElementById('submitReviewBtn');
@@ -758,6 +1037,17 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
         const imageZoomModal = document.getElementById('imageZoomModal');
         const closeZoom = document.getElementById('closeZoom');
         const zoomedImage = document.getElementById('zoomedImage');
+        
+        // ============== NOVOS ELEMENTOS: POLÍTICA DE PRIVACIDADE ==============
+        const privacyModal = document.getElementById('privacyModal');
+        const privacyAgreement = document.getElementById('privacyAgreement');
+        const acceptPrivacyBtn = document.getElementById('acceptPrivacy');
+        const rejectPrivacyBtn = document.getElementById('rejectPrivacy');
+        const privacyRequired = document.getElementById('privacyRequired');
+        const viewPrivacyPolicyBtn = document.getElementById('viewPrivacyPolicyBtn');
+        
+        // ALTERAÇÃO 3: Elemento do link de política de privacidade no formulário
+        const privacyLinkForm = document.getElementById('privacyLinkForm');
 
         // ====================== PROCESSADOR DE IMAGENS ======================
         class ImageProcessor {
@@ -899,8 +1189,17 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                 return;
             }
             
+            // ============== NOVO: VERIFICAR SE PRECISA MOSTRAR POLÍTICA DE PRIVACIDADE ==============
+            privacyAccepted = localStorage.getItem(`privacyAccepted_${currentStoreId}`) === 'true';
+            
             // Try to load user data from localStorage
             const storedUser = localStorage.getItem(`userData_${currentStoreId}`);
+            
+            // Se não tem política aceita E não tem usuário cadastrado → mostrar política
+            if (!privacyAccepted && !storedUser) {
+                showPrivacyPolicyModal();
+                return; // A aplicação não carrega até aceitar a política
+            }
             
             if (storedUser) {
                 userData = JSON.parse(storedUser);
@@ -922,6 +1221,109 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                     showNotification('Bem-vindo! Faça seu primeiro pedido para cadastrar seus dados.', 'info');
                 }, 1000);
             }
+        }
+
+        // ============== NOVA FUNÇÃO: MOSTRAR MODAL DE POLÍTICA DE PRIVACIDADE ==============
+        function showPrivacyPolicyModal() {
+            // Bloquear toda a interface
+            document.querySelector('.app-container').style.display = 'none';
+            
+            // Mostrar modal
+            privacyModal.style.display = 'flex';
+            
+            // Adicionar event listeners aos botões
+            acceptPrivacyBtn.addEventListener('click', handleAcceptPrivacy);
+            rejectPrivacyBtn.addEventListener('click', handleRejectPrivacy);
+        }
+
+        // ============== NOVA FUNÇÃO: LIDAR COM ACEITAÇÃO DA POLÍTICA ==============
+        async function handleAcceptPrivacy() {
+            if (!privacyAgreement.checked) {
+                privacyRequired.style.display = 'block';
+                privacyAgreement.focus();
+                return;
+            }
+            
+            // Marcar como aceito no localStorage
+            localStorage.setItem(`privacyAccepted_${currentStoreId}`, 'true');
+            privacyAccepted = true;
+            
+            // Esconder modal
+            privacyModal.style.display = 'none';
+            
+            // Mostrar interface principal
+            document.querySelector('.app-container').style.display = 'block';
+            
+            // Continuar carregando a aplicação
+            await loadStoreConfig();
+            await loadApp();
+            
+            showNotification('Política de Privacidade aceita. Bem-vindo!', 'success');
+        }
+
+        // ============== NOVA FUNÇÃO: LIDAR COM REJEIÇÃO DA POLÍTICA ==============
+        function handleRejectPrivacy() {
+            if (confirm('Para usar nossa aplicação, é necessário aceitar a Política de Privacidade. Deseja realmente sair?')) {
+                // Mostrar mensagem e redirecionar
+                showNotification('É necessário aceitar a Política de Privacidade para usar o aplicativo.', 'error');
+                
+                setTimeout(() => {
+                    // Tentar voltar ou fechar
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        document.body.innerHTML = `
+                            <div style="text-align: center; padding: 50px 20px;">
+                                <h2 style="color: var(--text-primary); margin-bottom: 20px;">Política de Privacidade Não Aceita</h2>
+                                <p style="color: var(--text-secondary); margin-bottom: 30px;">
+                                    É necessário aceitar nossa Política de Privacidade para acessar o aplicativo.
+                                </p>
+                                <button onclick="location.reload()" style="
+                                    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+                                    color: white;
+                                    border: none;
+                                    padding: 12px 24px;
+                                    border-radius: 10px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                ">
+                                    Tentar Novamente
+                                </button>
+                            </div>
+                        `;
+                    }
+                }, 2000);
+            }
+        }
+
+        // ============== NOVA FUNÇÃO: MOSTRAR POLÍTICA DE PRIVACIDADE PARA CONSULTA ==============
+        function showPrivacyPolicyForReview() {
+            // Mostrar modal
+            privacyModal.style.display = 'flex';
+            
+            // Alterar comportamento dos botões para consulta
+            acceptPrivacyBtn.style.display = 'none';
+            rejectPrivacyBtn.style.display = 'none';
+            privacyAgreement.style.display = 'none';
+            privacyRequired.style.display = 'none';
+            
+            // Adicionar botão de fechar
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'btn btn-primary btn-block';
+            closeBtn.innerHTML = '<i class="fas fa-times"></i> Fechar';
+            closeBtn.onclick = () => {
+                privacyModal.style.display = 'none';
+                // Restaurar estado original
+                acceptPrivacyBtn.style.display = 'flex';
+                rejectPrivacyBtn.style.display = 'flex';
+                privacyAgreement.style.display = 'block';
+                closeBtn.remove();
+            };
+            
+            // Encontrar o container de botões e substituir
+            const buttonsContainer = document.querySelector('.privacy-buttons');
+            buttonsContainer.innerHTML = '';
+            buttonsContainer.appendChild(closeBtn);
         }
 
         // Setup phone masks
@@ -1053,7 +1455,7 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             productsDisplay.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // Render all products with horizontal scroll (for "Todos" category)
+        // Render all products with horizontal scroll (for "Todos" category) - ATUALIZADO
         function renderAllProductsWithHorizontalScroll() {
             productsDisplay.innerHTML = '';
             
@@ -1089,7 +1491,7 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                 const scrollContainer = document.createElement('div');
                 scrollContainer.className = 'products-horizontal-scroll';
                 
-                // Add products to scroll container
+                // Add products to scroll container COM NOVO DESIGN
                 categoryProducts.forEach(product => {
                     // Calculate average rating
                     const avgRating = calculateProductRating(product);
@@ -1097,16 +1499,34 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                     const productCard = document.createElement('div');
                     productCard.className = 'product-card-horizontal non-selectable';
                     productCard.setAttribute('data-id', product.id);
+                    
+                    // NOVO HTML DO CARD HORIZONTAL COM MESMO DESIGN DO CARD DA GRADE
                     productCard.innerHTML = `
                         <div class="product-image-horizontal">
                             ${getProductImageHTML(product)}
                         </div>
                         <div class="product-info-horizontal">
                             <h3 class="product-title-horizontal">${product.name}</h3>
-                            <div class="product-price-horizontal">R$ ${product.price.toFixed(2).replace('.', ',')}</div>
-                            <button class="add-to-cart btn-sm" data-id="${product.id}" style="margin-top: 8px; width: 100%;">
-                                <i class="fas fa-plus"></i> Adicionar
-                            </button>
+                            
+                            ${product.description ? `
+                                <p class="product-description-horizontal">${product.description}</p>
+                            ` : ''}
+                            
+                            ${avgRating > 0 ? `
+                                <div class="product-rating-horizontal">
+                                    <div class="star-rating">
+                                        ${getStarRatingHTML(avgRating)}
+                                    </div>
+                                    <span class="rating-count">${avgRating.toFixed(1)}</span>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="product-footer-horizontal">
+                                <div class="product-price-horizontal">R$ ${product.price.toFixed(2).replace('.', ',')}</div>
+                                <button class="add-to-cart-horizontal" data-id="${product.id}">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
                     
@@ -1136,9 +1556,9 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             productsDisplay.querySelectorAll('.product-card-horizontal').forEach(card => {
                 card.addEventListener('click', (e) => {
                     // Don't trigger if clicking the add to cart button
-                    if (e.target.closest('.add-to-cart')) {
+                    if (e.target.closest('.add-to-cart-horizontal')) {
                         e.stopPropagation();
-                        const btn = e.target.closest('.add-to-cart');
+                        const btn = e.target.closest('.add-to-cart-horizontal');
                         const productId = btn.getAttribute('data-id');
                         addToCart(productId);
                         return;
@@ -1248,7 +1668,7 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                                     ${getStarRatingHTML(avgRating)}
                                 </div>
                                 <span class="rating-count">${avgRating.toFixed(1)}</span>
-                            </div>
+                                </div>
                         ` : ''}
                         
                         <p class="product-description">${product.description || ''}</p>
@@ -1435,6 +1855,9 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             // Submit review button
             submitReviewBtn.addEventListener('click', submitProductReview);
             
+            // Delete review button
+            deleteReviewBtn.addEventListener('click', deleteUserReview);
+            
             // Image zoom modal
             closeZoom.addEventListener('click', () => {
                 imageZoomModal.style.display = 'none';
@@ -1460,6 +1883,12 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             
             // Setup pinch-to-zoom
             setupPinchZoom();
+            
+            // ============== NOVO: Event listener para botão de ver política de privacidade ==============
+            viewPrivacyPolicyBtn?.addEventListener('click', showPrivacyPolicyForReview);
+            
+            // ALTERAÇÃO 3: Event listener para o link de política de privacidade no formulário
+            privacyLinkForm?.addEventListener('click', showPrivacyPolicyForReview);
         }
 
         // Load app
@@ -1487,6 +1916,8 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                 await loadUserOrders();
                 // Atualizar o estado dos pedidos abertos
                 updateOpenOrderIds();
+                // Iniciar listener em tempo real para pedidos
+                startOrdersRealtimeListener();
             }
             
             // Update profile screen
@@ -1654,7 +2085,7 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             try {
                 if (!userData.id) return;
                 
-                // Primeiro, vamos verificar e excluir pedidos expirados
+                // Primeiro, vamos verificar e excluir pedidos expirados (mais de 2 meses)
                 await deleteExpiredOrders();
                 
                 // Depois carregar os pedidos válidos
@@ -1668,13 +2099,16 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                     const orderData = doc.data();
                     const orderId = doc.id;
                     
-                    // Verificar se o pedido expirou
-                    const expiresAt = orderData.expiresAt;
-                    if (expiresAt && new Date(expiresAt) <= new Date()) {
-                        // Pedido expirado, não incluir na lista
-                        console.log(`Pedido ${orderId} expirado, excluindo...`);
-                        deleteOrder(orderId); // Excluir do Firestore
-                        return; // Não adicionar ao array userOrders
+                    // Verificar se o pedido expirou (mais de 2 meses)
+                    const twoMonthsAgo = new Date();
+                    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+                    
+                    const orderDate = new Date(orderData.timestamp || orderData.createdAt);
+                    if (orderDate < twoMonthsAgo) {
+                        // Pedido com mais de 2 meses, excluir do Firestore
+                        console.log(`Pedido ${orderId} com mais de 2 meses, excluindo...`);
+                        deleteOrder(orderId);
+                        return;
                     }
                     
                     userOrders.push({
@@ -1683,6 +2117,7 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                     });
                 });
                 
+                // Ordenar pedidos por data (mais recente primeiro)
                 userOrders.sort((a, b) => {
                     return new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt);
                 });
@@ -1696,6 +2131,153 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                 showNotification('Erro ao carregar pedidos. Tente novamente.', 'error');
             }
         }
+
+        // ====================== LISTENER EM TEMPO REAL CORRIGIDO ======================
+        
+        // Iniciar listener em tempo real para pedidos
+        function startOrdersRealtimeListener() {
+            if (!userData.id || ordersListener) return;
+            
+            try {
+                console.log('Iniciando listener em tempo real para pedidos...');
+                
+                // Configurar o listener em tempo real
+                ordersListener = db.collection('orders')
+                    .where('storeId', '==', currentStoreId)
+                    .where('userId', '==', userData.id)
+                    .onSnapshot(async (snapshot) => {
+                        const now = new Date();
+                        const currentTime = now.getTime();
+                        
+                        // Verificar se há mudanças reais
+                        const changes = snapshot.docChanges();
+                        const hasRealChanges = changes.length > 0;
+                        
+                        // Verificar se houve alguma mudança significativa
+                        let hasSignificantChange = false;
+                        let newOrders = [];
+                        let updatedOrders = [];
+                        
+                        // Processar as mudanças
+                        changes.forEach(change => {
+                            const orderData = change.doc.data();
+                            const orderId = change.doc.id;
+                            
+                            // Verificar se o pedido é visível (dentro das 24h)
+                            const visibleUntil = orderData.visibleUntil ? new Date(orderData.visibleUntil) : null;
+                            const isVisible = !visibleUntil || visibleUntil > now;
+                            
+                            if (isVisible) {
+                                if (change.type === 'added') {
+                                    newOrders.push(orderId);
+                                    hasSignificantChange = true;
+                                } else if (change.type === 'modified') {
+                                    // Verificar se houve mudança no status de entrega
+                                    const oldOrder = userOrders.find(o => o.id === orderId);
+                                    if (oldOrder && oldOrder.deliveryStatus !== orderData.deliveryStatus) {
+                                        updatedOrders.push({
+                                            id: orderId,
+                                            newStatus: orderData.deliveryStatus
+                                        });
+                                        hasSignificantChange = true;
+                                    }
+                                }
+                            }
+                        });
+                        
+                        // Se não houver mudanças significativas, não fazer nada
+                        if (!hasSignificantChange && !hasRealChanges) {
+                            console.log('Nenhuma mudança significativa detectada.');
+                            return;
+                        }
+                        
+                        console.log(`Mudanças detectadas: ${newOrders.length} novos, ${updatedOrders.length} atualizados`);
+                        
+                        // Filtrar apenas pedidos não expirados
+                        const validOrders = [];
+                        snapshot.forEach(doc => {
+                            const orderData = doc.data();
+                            const orderId = doc.id;
+                            
+                            // Verificar se o pedido expirou (mais de 2 meses)
+                            const twoMonthsAgo = new Date();
+                            twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+                            
+                            const orderDate = new Date(orderData.timestamp || orderData.createdAt);
+                            if (orderDate < twoMonthsAgo) {
+                                console.log(`Pedido ${orderId} com mais de 2 meses, ignorando...`);
+                                return;
+                            }
+                            
+                            // Verificar se está visível (dentro de 24h)
+                            const visibleUntil = orderData.visibleUntil ? new Date(orderData.visibleUntil) : null;
+                            const isVisible = !visibleUntil || visibleUntil > now;
+                            
+                            if (isVisible) {
+                                validOrders.push({
+                                    id: orderId,
+                                    ...orderData
+                                });
+                            }
+                        });
+                        
+                        // Ordenar pedidos por data (mais recente primeiro)
+                        validOrders.sort((a, b) => {
+                            return new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || b.createdAt);
+                        });
+                        
+                        // Atualizar dados locais
+                        userOrders = validOrders;
+                        
+                        // Atualizar a interface
+                        updateOrdersUI();
+                        updateProfileScreen();
+                        updateOpenOrderIds();
+                        checkForNewOrders();
+                        
+                        // Mostrar notificações apenas para mudanças significativas
+                        if (hasSignificantChange && (currentTime - lastNotificationTime > NOTIFICATION_COOLDOWN)) {
+                            lastNotificationTime = currentTime;
+                            
+                            if (newOrders.length > 0) {
+                                showNotification('Novo pedido recebido!', 'success');
+                            }
+                            
+                            updatedOrders.forEach(update => {
+                                const statusText = getDeliveryStatusText(update.newStatus);
+                                showNotification(`Pedido atualizado: ${statusText}`, 'info');
+                            });
+                        }
+                        
+                    }, (error) => {
+                        console.error('Erro no listener de pedidos em tempo real:', error);
+                        
+                        // Tentar reconectar após 10 segundos
+                        setTimeout(() => {
+                            if (userData.id) {
+                                stopOrdersRealtimeListener();
+                                startOrdersRealtimeListener();
+                            }
+                        }, 10000);
+                    });
+                
+                console.log('Listener em tempo real iniciado com sucesso!');
+                
+            } catch (error) {
+                console.error('Erro ao iniciar listener em tempo real:', error);
+            }
+        }
+        
+        // Parar listener em tempo real
+        function stopOrdersRealtimeListener() {
+            if (ordersListener) {
+                console.log('Parando listener em tempo real...');
+                ordersListener();
+                ordersListener = null;
+            }
+        }
+        
+        // ====================== FIM DO LISTENER EM TEMPO REAL ======================
 
         // Show product detail modal
         async function showProductDetail(product) {
@@ -1712,15 +2294,8 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             // Load reviews
             await loadProductReviews(product.id);
             
-            // Show add review section if user is logged in
-            if (userData.id) {
-                addReviewSection.style.display = 'block';
-                userReviewRating = 0;
-                updateReviewStarsInput(0);
-                reviewCommentInput.value = '';
-            } else {
-                addReviewSection.style.display = 'none';
-            }
+            // Show/hide review sections based on user status and existing review
+            updateReviewSectionsVisibility();
             
             // Show modal
             productDetailModal.style.display = 'block';
@@ -1915,6 +2490,12 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                 const product = productDoc.data();
                 const reviews = product.reviews || [];
                 
+                // Encontrar a avaliação do usuário atual (se existir)
+                currentUserReview = null;
+                if (userData.id && reviews.length > 0) {
+                    currentUserReview = reviews.find(review => review.userId === userData.id);
+                }
+                
                 // Calculate average rating
                 const avgRating = calculateProductRating(product);
                 
@@ -1940,18 +2521,27 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                         new Date(b.timestamp) - new Date(a.timestamp)
                     );
                     
-                    productReviewsList.innerHTML = sortedReviews.slice(0, 5).map(review => `
-                        <div class="review-item">
-                            <div class="review-header">
-                                <div class="reviewer-name">${review.userName || 'Cliente'}</div>
-                                <div class="review-date">${formatDate(review.timestamp)}</div>
+                    // Filtrar para mostrar apenas avaliações de outros usuários (não do usuário atual)
+                    const otherUsersReviews = sortedReviews.filter(review => 
+                        !userData.id || review.userId !== userData.id
+                    ).slice(0, 5);
+                    
+                    if (otherUsersReviews.length > 0) {
+                        productReviewsList.innerHTML = otherUsersReviews.map(review => `
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <div class="reviewer-name">${review.userName || 'Cliente'}</div>
+                                    <div class="review-date">${formatDate(review.timestamp)}</div>
+                                </div>
+                                <div class="star-rating">
+                                    ${getStarRatingHTML(review.rating)}
+                                </div>
+                                ${review.comment ? `<p class="review-comment">${review.comment}</p>` : ''}
                             </div>
-                            <div class="star-rating">
-                                ${getStarRatingHTML(review.rating)}
-                            </div>
-                            ${review.comment ? `<p class="review-comment">${review.comment}</p>` : ''}
-                        </div>
-                    `).join('');
+                        `).join('');
+                    } else {
+                        productReviewsList.innerHTML = '<div class="no-reviews">Seja o primeiro a avaliar este produto!</div>';
+                    }
                 } else {
                     productReviewsList.innerHTML = '<div class="no-reviews">Seja o primeiro a avaliar este produto!</div>';
                 }
@@ -1959,6 +2549,39 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             } catch (error) {
                 console.error('Error loading product reviews:', error);
                 productReviewsList.innerHTML = '<div class="no-reviews">Erro ao carregar avaliações</div>';
+            }
+        }
+
+        // Update review sections visibility
+        function updateReviewSectionsVisibility() {
+            // Resetar o formulário
+            userReviewRating = 0;
+            updateReviewStarsInput(0);
+            reviewCommentInput.value = '';
+            
+            // Se o usuário não estiver logado, ocultar ambas as seções
+            if (!userData.id) {
+                addReviewSection.style.display = 'none';
+                userReviewSection.style.display = 'none';
+                return;
+            }
+            
+            // Se o usuário já tiver uma avaliação, mostrar a seção da avaliação do usuário
+            if (currentUserReview) {
+                // Mostrar avaliação do usuário
+                userReviewSection.style.display = 'block';
+                
+                // Preencher os dados da avaliação
+                userReviewRatingElement.innerHTML = getStarRatingHTML(currentUserReview.rating);
+                userReviewComment.textContent = currentUserReview.comment || 'Sem comentário.';
+                userReviewDate.textContent = `Avaliado em ${formatDate(currentUserReview.timestamp)}`;
+                
+                // Ocultar formulário de criação de avaliação
+                addReviewSection.style.display = 'none';
+            } else {
+                // Se o usuário não tiver uma avaliação, mostrar o formulário
+                userReviewSection.style.display = 'none';
+                addReviewSection.style.display = 'block';
             }
         }
 
@@ -2020,19 +2643,69 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                     products[productIndex].reviews = reviews;
                 }
                 
-                showNotification('Avaliação enviada com sucesso!', 'success');
+                // Atualizar a avaliação do usuário atual
+                currentUserReview = review;
                 
-                // Reload reviews
+                // Atualizar a interface
+                updateReviewSectionsVisibility();
+                
+                // Recarregar as avaliações
                 await loadProductReviews(currentProductDetail.id);
                 
-                // Reset form
-                userReviewRating = 0;
-                updateReviewStarsInput(0);
-                reviewCommentInput.value = '';
+                showNotification('Avaliação enviada com sucesso!', 'success');
                 
             } catch (error) {
                 console.error('Error submitting review:', error);
                 showNotification('Erro ao enviar avaliação.', 'error');
+            }
+        }
+
+        // Delete user review
+        async function deleteUserReview() {
+            if (!userData.id || !currentProductDetail || !currentUserReview) {
+                return;
+            }
+            
+            if (!confirm('Tem certeza que deseja excluir sua avaliação?')) {
+                return;
+            }
+            
+            try {
+                // Get current product
+                const productRef = db.collection('stores').doc(currentStoreId)
+                    .collection('products').doc(currentProductDetail.id);
+                
+                const productDoc = await productRef.get();
+                const product = productDoc.data();
+                
+                // Remove user's review
+                const reviews = product.reviews || [];
+                const updatedReviews = reviews.filter(review => review.userId !== userData.id);
+                
+                await productRef.update({
+                    reviews: updatedReviews
+                });
+                
+                // Update local product
+                const productIndex = products.findIndex(p => p.id === currentProductDetail.id);
+                if (productIndex !== -1) {
+                    products[productIndex].reviews = updatedReviews;
+                }
+                
+                // Limpar a avaliação do usuário atual
+                currentUserReview = null;
+                
+                // Atualizar a interface
+                updateReviewSectionsVisibility();
+                
+                // Recarregar as avaliações
+                await loadProductReviews(currentProductDetail.id);
+                
+                showNotification('Avaliação excluída com sucesso!', 'success');
+                
+            } catch (error) {
+                console.error('Error deleting review:', error);
+                showNotification('Erro ao excluir avaliação.', 'error');
             }
         }
 
@@ -2308,6 +2981,9 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                 // Update profile screen
                 updateProfileScreen();
                 
+                // Iniciar listener em tempo real após criar usuário
+                startOrdersRealtimeListener();
+                
                 showNotification('Cadastro criado com sucesso!', 'success');
                 isCreatingUser = false;
                 return true;
@@ -2502,8 +3178,10 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                 receiptBase64: receiptBase64 || null,
                 receiptType: orderData.receiptType || null,
                 receiptFileName: orderData.receiptFileName || null,
-                // ADICIONAR ESTA LINHA: Data de expiração (24 horas após a criação)
-                expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 horas
+                // ADICIONAR ESTA LINHA: Data de expiração de visibilidade (24 horas)
+                visibleUntil: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 horas
+                // ADICIONAR ESTA LINHA: Data de expiração total no Firestore (2 meses)
+                deleteAfter: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString() // 60 dias (2 meses)
             };
             
             showLoading('Processando pedido...');
@@ -2528,8 +3206,8 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                 // Clear cart only
                 clearCartOnly();
                 
-                // Load user orders
-                await loadUserOrders();
+                // O listener em tempo real já vai capturar o novo pedido
+                // e atualizar automaticamente a interface
                 
                 // Atualizar o estado dos pedidos abertos
                 updateOpenOrderIds();
@@ -2607,9 +3285,10 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             paymentMethodBtns.forEach(btn => btn.classList.remove('active'));
         }
 
-        // Update orders UI
+        // Update orders UI - AGORA CONSIDERANDO VISIBLEUNTIL
         function updateOrdersUI() {
             ordersList.innerHTML = '';
+            const now = new Date();
             
             if (userOrders.length === 0) {
                 ordersEmpty.style.display = 'block';
@@ -2621,22 +3300,21 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             ordersList.style.display = 'block';
             
             userOrders.forEach(order => {
-                // Determinar se o pedido está aberto (não entregue)
-                const status = order.deliveryStatus || 'preparing';
-                const isOpenOrder = status !== 'delivered';
+                // Verificar se o pedido ainda está visível (dentro das 24h)
+                const visibleUntil = order.visibleUntil ? new Date(order.visibleUntil) : null;
+                const isVisible = !visibleUntil || visibleUntil > now;
                 
-                // Verificar se este pedido está na lista de pedidos abertos
-                const shouldDisplay = openOrderIds.has(order.id) || isOpenOrder;
-                
-                // Se não deve ser exibido (pedido entregue), pular
-                if (!shouldDisplay) {
+                // Se não for visível, não mostrar
+                if (!isVisible) {
                     return;
                 }
                 
-                const hasUpdate = !viewedOrders.has(order.id);
+                const status = order.deliveryStatus || 'preparing';
+                // ALTERAÇÃO 1: REMOVIDO - hasUpdate não é mais usado pois os badges vermelhos dos cards foram removidos
+                // const hasUpdate = !viewedOrders.has(order.id);
                 
                 const orderCard = document.createElement('div');
-                orderCard.className = `order-card ${hasUpdate ? 'has-update' : ''}`;
+                orderCard.className = `order-card`; // ALTERAÇÃO 1: Removida a classe 'has-update'
                 
                 const statusText = getDeliveryStatusText(status);
                 const statusClass = getDeliveryStatusClass(status);
@@ -2889,7 +3567,6 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                     document.querySelector('[data-screen="home"]').classList.add('active');
                 });
                 
-                profileStatusCard.style.display = 'none';
                 return;
             }
             
@@ -2928,22 +3605,6 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             `;
             
             document.getElementById('editProfileBtn')?.addEventListener('click', showProfileForm);
-            
-            // Mostrar status card apenas se houver pedidos e o último não estiver entregue
-            if (userOrders.length > 0) {
-                const lastOrder = userOrders[0];
-                const status = lastOrder.deliveryStatus || 'preparing';
-                
-                // Só mostrar se não estiver entregue
-                if (status !== 'delivered') {
-                    profileStatusCard.style.display = 'block';
-                    updateStatusCard(profileStatusCard, lastOrder.id, lastOrder);
-                } else {
-                    profileStatusCard.style.display = 'none';
-                }
-            } else {
-                profileStatusCard.style.display = 'none';
-            }
         }
 
         // Show profile form
@@ -3035,6 +3696,10 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
         // Handle logout
         function handleLogout() {
             if (confirm('Deseja sair da sua conta?')) {
+                // Parar listener em tempo real
+                stopOrdersRealtimeListener();
+                
+                // Não remover a aceitação da política de privacidade
                 localStorage.removeItem(`userData_${currentStoreId}`);
                 userData = {};
                 userPhone = '';
@@ -3053,31 +3718,6 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
                     showNotification('Bem-vindo! Faça um pedido para criar uma nova conta.', 'info');
                 }, 1000);
             }
-        }
-
-        // Update status card
-        function updateStatusCard(container, orderId, order) {
-            const status = order.deliveryStatus || 'preparing';
-            
-            container.innerHTML = `
-                <div class="status-header">
-                    <div class="status-icon ${status}">
-                        <i class="fas ${getDeliveryStatusIcon(status)} ${status === 'preparing' ? 'cooking-animation' : ''}"></i>
-                    </div>
-                    <div>
-                        <div class="status-title">Pedido #${orderId.substring(0, 8)}</div>
-                        <div class="status-details">${getDeliveryStatusText(status)}</div>
-                    </div>
-                </div>
-                
-                <div class="status-timeline">
-                    ${getTimelineHTML(status)}
-                </div>
-                
-                <div class="mt-3">
-                    <small>Total: R$ ${order.total?.toFixed(2).replace('.', ',') || '0,00'} • ${order.paymentMethod === 'money' ? 'Dinheiro' : 'PIX'}</small>
-                </div>
-            `;
         }
 
         // Get delivery status text
@@ -3116,24 +3756,27 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             }
         }
 
-        // Check for new orders
+        // Check for new orders - CORRIGIDA
         function checkForNewOrders() {
             let hasOpenOrders = false;
+            const now = new Date();
             
             userOrders.forEach(order => {
                 const status = order.deliveryStatus || 'preparing';
-                const expiresAt = order.expiresAt;
-                const isExpired = expiresAt && new Date(expiresAt) <= new Date();
+                const visibleUntil = order.visibleUntil ? new Date(order.visibleUntil) : null;
+                const isVisible = !visibleUntil || visibleUntil > now;
                 
-                if (status !== 'delivered' && openOrderIds.has(order.id) && !isExpired) {
+                // Se o pedido não estiver entregue E estiver visível
+                if (status !== 'delivered' && isVisible) {
                     hasOpenOrders = true;
                 }
             });
             
-            if (hasOpenOrders) {
+            // Só atualizar o badge se houver mudança no estado
+            if (hasOpenOrders && !orderBadgeVisible) {
                 newOrderBadge.style.display = 'block';
                 orderBadgeVisible = true;
-            } else {
+            } else if (!hasOpenOrders && orderBadgeVisible) {
                 newOrderBadge.style.display = 'none';
                 orderBadgeVisible = false;
             }
@@ -3142,27 +3785,29 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
         // Atualizar a lista de IDs de pedidos abertos
         function updateOpenOrderIds() {
             openOrderIds.clear();
+            const now = new Date();
             
             userOrders.forEach(order => {
                 const status = order.deliveryStatus || 'preparing';
-                const expiresAt = order.expiresAt;
-                const isExpired = expiresAt && new Date(expiresAt) <= new Date();
+                const visibleUntil = order.visibleUntil ? new Date(order.visibleUntil) : null;
+                const isVisible = !visibleUntil || visibleUntil > now;
                 
-                // Só adicionar se não estiver entregue E não estiver expirado
-                if (status !== 'delivered' && !isExpired) {
+                // Só adicionar se não estiver entregue E estiver visível
+                if (status !== 'delivered' && isVisible) {
                     openOrderIds.add(order.id);
                 }
             });
         }
 
-        // Mark orders as viewed
+        // Mark orders as viewed - MODIFICADA
         function markOrdersAsViewed() {
             userOrders.forEach(order => {
                 viewedOrders.add(order.id);
             });
             
             updateOrdersUI();
-            checkForNewOrders();
+            // Não chame checkForNewOrders() aqui, pois queremos que o badge
+            // continue aparecendo se ainda houver pedidos abertos
         }
 
         // Update order card badge
@@ -3217,8 +3862,18 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
             }
         }
 
-        // Show notification
+        // Show notification - COM COOLDOWN
         function showNotification(message, type = 'info') {
+            const now = new Date().getTime();
+            
+            // Verificar cooldown
+            if (now - lastNotificationTime < NOTIFICATION_COOLDOWN) {
+                console.log('Notificação ignorada (cooldown):', message);
+                return;
+            }
+            
+            lastNotificationTime = now;
+            
             const existingNotifications = document.querySelectorAll('.notification');
             existingNotifications.forEach(notification => {
                 notification.remove();
@@ -3251,28 +3906,28 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
 
         // ============== FUNÇÕES ADICIONADAS PARA EXCLUSÃO DE PEDIDOS EXPIRADOS ==============
 
-        // Delete expired orders (older than 24 hours)
+        // Delete expired orders (older than 2 months)
         async function deleteExpiredOrders() {
             try {
                 const now = new Date().toISOString();
                 
-                // Buscar pedidos expirados para este usuário e loja
+                // Buscar pedidos com deleteAfter expirado (mais de 2 meses)
                 const expiredOrdersQuery = await db.collection('orders')
                     .where('storeId', '==', currentStoreId)
                     .where('userId', '==', userData.id)
-                    .where('expiresAt', '<=', now)
+                    .where('deleteAfter', '<=', now)
                     .get();
                 
                 const deletePromises = [];
                 expiredOrdersQuery.forEach(doc => {
-                    console.log(`Excluindo pedido expirado: ${doc.id}`);
+                    console.log(`Excluindo pedido com mais de 2 meses: ${doc.id}`);
                     deletePromises.push(doc.ref.delete());
                 });
                 
                 await Promise.all(deletePromises);
                 
                 if (deletePromises.length > 0) {
-                    console.log(`${deletePromises.length} pedidos expirados excluídos`);
+                    console.log(`${deletePromises.length} pedidos com mais de 2 meses excluídos`);
                 }
                 
             } catch (error) {
@@ -3292,12 +3947,11 @@ body { color: var(--text-primary); font-size: 14px; padding-bottom: 80px; transi
 
         // Setup periodic cleanup
         function setupPeriodicCleanup() {
-            // Verificar pedidos expirados a cada hora
+            // Verificar pedidos expirados (mais de 2 meses) a cada hora
             setInterval(async () => {
                 if (userData.id) {
                     await deleteExpiredOrders();
-                    // Recarregar pedidos para atualizar a interface
-                    await loadUserOrders();
+                    // O listener em tempo real vai atualizar automaticamente a interface
                 }
             }, 60 * 60 * 1000); // A cada hora
             
